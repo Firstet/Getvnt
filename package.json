@@ -2,6 +2,8 @@
   "name": "event-os-root",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix frontend run dev"
+    "dev": "npm --prefix frontend run dev",
+    "start": "node frontend/gateway.js",
+    "build": "npm --prefix frontend run build"
   }
 }
