@@ -1,0 +1,112 @@
+/* GETVNT Shared Responsive Design System Utilities */
+
+:root {
+  --fluid-h1: clamp(22px, 3.5vw, 32px);
+  --fluid-h2: clamp(18px, 2.5vw, 24px);
+  --fluid-h3: clamp(15px, 2vw, 18px);
+  --fluid-body: clamp(13px, 1.2vw, 15px);
+  
+  --sidebar-width-expanded: 280px;
+  --sidebar-width-collapsed: 72px;
+  --touch-target-min: 44px;
+}
+
+/* Global Fluid Viewport Layout */
+.fluid-layout-root {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.fluid-content-main {
+  flex: 1 1 0%;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+}
+
+/* Fluid Typography Helpers */
+.fluid-h1 { font-size: var(--fluid-h1); font-weight: 800; }
+.fluid-h2 { font-size: var(--fluid-h2); font-weight: 800; }
+.fluid-h3 { font-size: var(--fluid-h3); font-weight: 700; }
+.fluid-body { font-size: var(--fluid-body); }
+
+/* Auto-Fit / Auto-Fill Dynamic Fluid Grid Engine */
+.fluid-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.fluid-grid-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+/* Viewport Breakpoint Adjustments */
+@media (min-width: 1600px) {
+  .fluid-grid-cards {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .fluid-grid-cards,
+  .fluid-grid-metrics {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Touch target safety on mobile */
+  button, input, select, textarea, .admin-btn, .admin-menu-item {
+    min-height: var(--touch-target-min);
+  }
+}
+
+/* Horizontal Scroll Container for Tables */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+}
+
+.responsive-table-wrapper::-webkit-scrollbar {
+  height: 6px;
+}
+
+.responsive-table-wrapper::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 99px;
+}
+
+/* Mobile Slide-Out Drawer Overlay */
+.responsive-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+}
+
+.responsive-drawer-content {
+  width: 290px;
+  max-width: 85vw;
+  height: 100%;
+  background: #0E131F;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  animation: slideDrawer 0.25s ease-out;
+}
+
+@keyframes slideDrawer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

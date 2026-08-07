@@ -1,22 +1,22 @@
 <?php
 
-declare(strict_types=1);
-
 namespace Database\Factories;
 
-use HiEvents\DomainObjects\Enums\Role;
-use HiEvents\DomainObjects\Status\UserStatus;
-use HiEvents\Locale;
-use HiEvents\Models\Account;
-use HiEvents\Models\User;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\HiEvents\Core\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
+    /**
+     * The current password being used by the factory.
+     */
+    protected static ?string $password;
+
     /**
      * Define the model's default state.
      *
@@ -25,31 +25,12 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'first_name' => fake()->firstName(),
-            'last_name' => fake()->lastName(),
+            'name' => fake()->name(),
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
-            'password' => Hash::make(fake()->password(16)),
-            'timezone' => fake()->timezone(),
-            'locale' => fake()->randomElement(Locale::getSupportedLocales()),
+            'password' => static::$password ??= Hash::make('password'),
+            'remember_token' => Str::random(10),
         ];
-    }
-
-    public function pendingEmail(?string $email = null): self
-    {
-        return $this->state(fn(array $attributes) => [
-            'pending_email' => $email ?? fake()->unique()->safeEmail(),
-        ]);
-    }
-
-    /**
-     * Set the user's password.
-     */
-    public function password(string $password): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'password' => Hash::make($password),
-        ]);
     }
 
     /**
@@ -57,27 +38,8 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn(array $attributes) => [
+        return $this->state(fn (array $attributes) => [
             'email_verified_at' => null,
         ]);
-    }
-
-    /**
-     * Saves an Account to the database and attaches it to the user.
-     */
-    public function withAccount(): static
-    {
-        return $this->afterCreating(function (User $user): void {
-            $account = Account::factory()->verified()->create();
-            $account->timezone = $user->timezone;
-            $account->name = $user->first_name . ($user->last_name ? ' ' . $user->last_name : '');
-            $account->email = strtolower($user->email);
-
-            $user->accounts()->attach($account, [
-                'role' => Role::ADMIN,
-                'status' => UserStatus::ACTIVE,
-                'is_account_owner' => true,
-            ]);
-        });
     }
 }

@@ -1,36 +1,46 @@
 <?php
 
-namespace HiEvents\Models;
+namespace App\Models;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
-class Invoice extends BaseModel
+class Invoice extends Model
 {
-    use SoftDeletes;
+    use HasFactory;
 
-    protected function getCastMap(): array
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    protected $fillable = [
+        'id', 'subscription_id', 'tenant_id', 'invoice_number', 'amount',
+        'currency', 'status', 'paid_at', 'pdf_url', 'details'
+    ];
+
+    protected $casts = [
+        'amount' => 'float',
+        'paid_at' => 'datetime',
+        'details' => 'array'
+    ];
+
+    protected static function boot()
     {
-        return [
-            'taxes_and_fees' => 'array',
-            'items' => 'array',
-            'total_amount' => 'float',
-            'due_date' => 'datetime',
-        ];
+        parent::boot();
+        static::creating(function ($model) {
+            if (empty($model->id)) {
+                $model->id = (string) Str::uuid();
+            }
+        });
     }
 
-    protected function getFillableFields(): array
+    public function tenant()
     {
-        return [];
+        return $this->belongsTo(Tenant::class, 'tenant_id');
     }
 
-    public function order(): BelongsTo
+    public function subscription()
     {
-        return $this->belongsTo(Order::class);
-    }
-
-    public function event(): BelongsTo
-    {
-        return $this->belongsTo(Event::class);
+        return $this->belongsTo(Subscription::class, 'subscription_id');
     }
 }

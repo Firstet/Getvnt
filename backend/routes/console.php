@@ -1,8 +1,8 @@
 <?php
 
-use HiEvents\Services\Infrastructure\DomainObjectGenerator\ClassGenerator;
+use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 
-Artisan::command('generate-domain-objects',
-    fn() => app()->make(ClassGenerator::class)->run()
-)->describe('Generate domain objects from db');
+Artisan::command('inspire', function () {
+    $this->comment(Inspiring::quote());
+})->purpose('Display an inspiring quote');

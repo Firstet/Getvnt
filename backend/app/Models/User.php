@@ -1,104 +1,45 @@
 <?php
 
-declare(strict_types=1);
+namespace App\Models;
 
-namespace HiEvents\Models;
-
-use HiEvents\DomainObjects\Enums\Role;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Auth\MustVerifyEmail;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Database\Eloquent\Relations\HasOneThrough;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Lab404\Impersonate\Models\Impersonate;
-use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
-use RuntimeException;
+use Laravel\Sanctum\HasApiTokens;
 
-/**
- * @property-read AccountUser $currentAccountUser
- * @property-read Account $currentAccount
- */
-class User extends BaseModel implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, JWTSubject
+class User extends Authenticatable
 {
-    use SoftDeletes;
-    use Notifiable;
-    use Authenticatable;
-    use Authorizable;
-    use CanResetPassword;
-    use MustVerifyEmail;
-    use HasFactory;
-    use Impersonate;
+    use HasApiTokens, HasFactory, HasUuids, Notifiable;
 
-    /** @var array */
     protected $guarded = [];
 
-    protected static ?int $currentAccountId;
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
-    public static function setCurrentAccountId($accountId): void
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'locked_until' => 'datetime',
+        'last_login_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
+        'failed_login_attempts' => 'integer',
+    ];
+
+    public function tenant()
     {
-        self::$currentAccountId = $accountId;
+        return $this->belongsTo(Tenant::class);
     }
 
-    public static function getCurrentAccountId(): ?int
+    public function tenants()
     {
-        if (self::$currentAccountId === null) {
-            throw new RuntimeException(__('Current account ID is not set'));
-        }
-
-        return self::$currentAccountId;
+        return $this->belongsToMany(Tenant::class, 'tenant_user')->withPivot('role', 'permissions')->withTimestamps();
     }
 
-    public function getJWTIdentifier()
+    public function loginHistories()
     {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims(): array
-    {
-        return [];
-    }
-
-    public function accounts(): BelongsToMany
-    {
-        return $this->belongsToMany(Account::class, 'account_users')
-            ->withPivot('role', 'is_account_owner', 'last_login_at', 'status')
-            ->withTimestamps();
-    }
-
-    public function currentAccount(): HasOneThrough
-    {
-        return $this->hasOneThrough(
-            related: Account::class,
-            through: AccountUser::class,
-            firstKey: 'user_id',
-            secondKey: 'id',
-            localKey: 'id',
-            secondLocalKey: 'account_id'
-        )
-            ->where('account_id', static::getCurrentAccountId());
-    }
-
-    public function currentAccountUser(): HasOne
-    {
-        return $this->hasOne(AccountUser::class)
-            ->where('account_id', static::getCurrentAccountId());
-    }
-
-    public function canImpersonate(): bool
-    {
-        return $this->currentAccountUser->role === Role::SUPERADMIN->name;
-    }
-
-    public function canBeImpersonated(): bool
-    {
-        return $this->currentAccountUser->role !== Role::SUPERADMIN->name;
+        return $this->hasMany(LoginHistory::class, 'user_id');
     }
 }

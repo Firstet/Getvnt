@@ -1,87 +1,19 @@
 <?php
 
-use HiEvents\DomainObjects\Enums\ColorTheme;
-use Illuminate\Support\Facades\Facade;
-use Illuminate\Support\ServiceProvider;
-
 return [
-    'name' => env('APP_NAME', 'Hi.Events'),
 
-    'reset_password_token_expiry_in_min' => 15,
-    'frontend_url' => env('APP_FRONTEND_URL', 'http://localhost'),
-    'api_url' => env('APP_URL', 'https://localhost:8443'),
-    'cnd_url' => env('APP_CDN_URL', '/storage'),
-    'default_timezone' => 'America/Vancouver',
-    'default_currency_code' => 'USD',
-    'saas_mode_enabled' => env('APP_SAAS_MODE_ENABLED', false),
-    'saas_stripe_application_fee_percent' => env('APP_SAAS_STRIPE_APPLICATION_FEE_PERCENT', 1.5),
-    'saas_stripe_application_fee_fixed' => env('APP_SAAS_STRIPE_APPLICATION_FEE_FIXED', 0),
-    'saas_default_pass_platform_fee_to_buyer' => env('APP_SAAS_DEFAULT_PASS_PLATFORM_FEE_TO_BUYER', false),
-    'disable_registration' => env('APP_DISABLE_REGISTRATION', false),
-    'api_rate_limit_per_minute' => env('APP_API_RATE_LIMIT_PER_MINUTE', 180),
-    'stripe_connect_account_type' => env('APP_STRIPE_CONNECT_ACCOUNT_TYPE', 'express'),
-    'platform_support_email' => env('APP_PLATFORM_SUPPORT_EMAIL', 'support@example.com'),
-    'enforce_email_confirmation_during_registration' => env('APP_ENFORCE_EMAIL_CONFIRMATION_DURING_REGISTRATION', false),
-    'allowed_internal_webhook_hosts' => env('APP_ALLOWED_INTERNAL_WEBHOOK_HOSTS', ''),
+    /*
+    |--------------------------------------------------------------------------
+    | Application Name
+    |--------------------------------------------------------------------------
+    |
+    | This value is the name of your application, which will be used when the
+    | framework needs to place the application's name in a notification or
+    | other UI elements where an application name needs to be displayed.
+    |
+    */
 
-    /**
-     * The number of page views to batch before updating the database
-     *
-     * For high traffic sites, this can be set to a higher number to reduce the number of database writes
-     */
-    'homepage_views_update_batch_size' => env('APP_HOMEPAGE_VIEWS_UPDATE_BATCH_SIZE', 8),
-
-    /**
-     * The number of seconds to cache the product quantities on the homepage
-     * It is recommended to cache this value for a short period of time for high traffic sites
-     *
-     * Set to null to disable caching
-     */
-    'homepage_product_quantities_cache_ttl' => env('APP_HOMEPAGE_TICKET_QUANTITIES_CACHE_TTL', 2),
-
-    /**
-     * Frontend URL patterns for various actions. It is unlikely you will need to change these
-     */
-    'frontend_urls' => [
-        'confirm_email_address' => '/manage/profile/confirm-email-address/%s',
-        'reset_password' => '/auth/reset-password/%s',
-        'confirm_email_change' => '/manage/profile/confirm-email-change/%s',
-        'accept_invitation' => '/auth/accept-invitation/%s',
-        'stripe_connect_return_url' => '/account/payment',
-        'stripe_connect_refresh_url' => '/account/payment',
-        'event_homepage' => '/event/%d/%s',
-        'attendee_product' => '/product/%d/%s',
-        'order_summary' => '/checkout/%d/%s/summary',
-        'order_details' => '/checkout/%d/%s/details',
-        'organizer_order_summary' => '/manage/event/%d/orders#order-%d',
-        'ticket_lookup' => '/my-tickets/%s',
-    ],
-
-    /**
-     * Email customization settings
-     */
-    'email_logo_url' => env('APP_EMAIL_LOGO_URL'),
-    'email_logo_link_url' => env('APP_EMAIL_LOGO_LINK_URL', env('APP_FRONTEND_URL', 'http://localhost')),
-    'email_footer_text' => env('APP_EMAIL_FOOTER_TEXT'),
-
-    /**
-     * Default color theme for organizer homepages
-     */
-    'organizer_homepage_default_theme' => ColorTheme::MIDNIGHT,
-
-    /**
-     * Path to default event category cover images
-     */
-    'event_categories_cover_images_path' => 'event_cover/system-covers',
-
-    /**
-     * Tax Settings - Unlikely you will need these unless EU based and using SAAS mode and charging tax
-     */
-    'tax' => [
-        'eu_vat_handling_enabled' => env('APP_TAX_EU_VAT_HANDLING_ENABLED', env('APP_IS_HI_EVENTS')),
-        'default_vat_rate' => env('APP_TAX_DEFAULT_VAT_RATE', 0.23),
-        'default_vat_country' => env('APP_TAX_DEFAULT_VAT_COUNTRY', 'IE'),
-    ],
+    'name' => env('APP_NAME', 'Laravel'),
 
     /*
     |--------------------------------------------------------------------------
@@ -107,7 +39,7 @@ return [
     |
     */
 
-    'debug' => (bool)env('APP_DEBUG', false),
+    'debug' => (bool) env('APP_DEBUG', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -116,13 +48,11 @@ return [
     |
     | This URL is used by the console to properly generate URLs when using
     | the Artisan command line tool. You should set this to the root of
-    | your application so that it is used when running Artisan tasks.
+    | the application so that it's available within Artisan commands.
     |
     */
 
-    'url' => env('APP_URL', 'http://localhost:5173'),
-
-    'asset_url' => env('ASSET_URL'),
+    'url' => env('APP_URL', 'http://localhost'),
 
     /*
     |--------------------------------------------------------------------------
@@ -130,8 +60,8 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may specify the default timezone for your application, which
-    | will be used by the PHP date and date-time functions. We have gone
-    | ahead and set this to a sensible default for you out of the box.
+    | will be used by the PHP date and date-time functions. The timezone
+    | is set to "UTC" by default as it is suitable for most use cases.
     |
     */
 
@@ -143,53 +73,37 @@ return [
     |--------------------------------------------------------------------------
     |
     | The application locale determines the default locale that will be used
-    | by the translation service provider. You are free to set this value
-    | to any of the locales which will be supported by the application.
+    | by Laravel's translation / localization methods. This option can be
+    | set to any locale for which you plan to have translation strings.
     |
     */
 
-    'locale' => 'en',
+    'locale' => env('APP_LOCALE', 'en'),
 
-    /*
-    |--------------------------------------------------------------------------
-    | Application Fallback Locale
-    |--------------------------------------------------------------------------
-    |
-    | The fallback locale determines the locale to use when the current one
-    | is not available. You may change the value to correspond to any of
-    | the language folders that are provided through your application.
-    |
-    */
+    'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
-    'fallback_locale' => 'en',
-
-    /*
-    |--------------------------------------------------------------------------
-    | Faker Locale
-    |--------------------------------------------------------------------------
-    |
-    | This locale will be used by the Faker PHP library when generating fake
-    | data for your database seeds. For example, this will be used to get
-    | localized telephone numbers, street address information and more.
-    |
-    */
-
-    'faker_locale' => 'en_US',
+    'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
 
     /*
     |--------------------------------------------------------------------------
     | Encryption Key
     |--------------------------------------------------------------------------
     |
-    | This key is used by the Illuminate encrypter service and should be set
-    | to a random, 32 character string, otherwise these encrypted strings
-    | will not be safe. Please do this before deploying an application!
+    | This key is utilized by Laravel's encryption services and should be set
+    | to a random, 32 character string to ensure that all encrypted values
+    | are secure. You should do this prior to deploying the application.
     |
     */
 
+    'cipher' => 'AES-256-CBC',
+
     'key' => env('APP_KEY'),
 
-    'cipher' => 'AES-256-CBC',
+    'previous_keys' => [
+        ...array_filter(
+            explode(',', (string) env('APP_PREVIOUS_KEYS', ''))
+        ),
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -205,53 +119,8 @@ return [
     */
 
     'maintenance' => [
-        'driver' => 'file',
-        // 'store'  => 'redis',
+        'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
+        'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Autoloaded Service Providers
-    |--------------------------------------------------------------------------
-    |
-    | The service providers listed here will be automatically loaded on the
-    | request to your application. Feel free to add your own services to
-    | this array to grant expanded functionality to your applications.
-    |
-    */
-
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
-
-        /*
-         * Application Service Providers...
-         */
-        \HiEvents\Providers\AppServiceProvider::class,
-        \HiEvents\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        \HiEvents\Providers\EventServiceProvider::class,
-        \HiEvents\Providers\RouteServiceProvider::class,
-        \HiEvents\Providers\RepositoryServiceProvider::class
-
-    ])->toArray(),
-
-    /*
-    |--------------------------------------------------------------------------
-    | Class Aliases
-    |--------------------------------------------------------------------------
-    |
-    | This array of class aliases will be registered when this application
-    | is started. However, feel free to register as many as you wish as
-    | the aliases are "lazy" loaded so they don't hinder performance.
-    |
-    */
-
-    'aliases' => Facade::defaultAliases()->merge([
-        // 'Example' => App\Facades\Example::class,
-    ])->toArray(),
-
-
-    'is_hi_events' => env('APP_IS_HI_EVENTS', false),
 ];
