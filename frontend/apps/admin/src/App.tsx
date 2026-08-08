@@ -82,7 +82,7 @@ export default function App() {
 
   // Login Form State
   const [loginEmail, setLoginEmail] = useState('admin@getvnt.com');
-  const [loginPassword, setLoginPassword] = useState('Password123!');
+  const [loginPassword, setLoginPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -177,7 +177,7 @@ export default function App() {
 
   const handleQuickFillCredentials = () => {
     setLoginEmail('admin@getvnt.com');
-    setLoginPassword('Password123!');
+    setLoginPassword('password123');
     triggerToast('Demo Super Admin credentials auto-filled.');
   };
 

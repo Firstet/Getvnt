@@ -16,14 +16,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Create Super Admin User for Platform Control Center
-        $superAdmin = User::create([
-            'id' => (string) Str::uuid(),
-            'name' => 'Getvnt Super Admin',
-            'email' => 'admin@getvnt.com',
-            'password' => bcrypt('password123'),
-            'role' => 'super_admin',
-            'is_active' => true,
-        ]);
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'admin@getvnt.com'],
+            [
+                'id'         => (string) Str::uuid(),
+                'name'       => 'Getvnt Super Admin',
+                'first_name' => 'Getvnt',
+                'last_name'  => 'Admin',
+                'email'      => 'admin@getvnt.com',
+                'password'   => bcrypt('password123'),
+                'role'       => 'super_admin',
+                'is_active'  => true,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // 2. Create Sample African Event Organizer Tenants
         $tenant1 = Tenant::create([
