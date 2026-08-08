@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { LazyImage } from '../../../../shared/src';
 import { AndroidAppPromotion } from './AndroidAppPromotion';
+import { HomeNewsCarousel } from './HomeNewsCarousel';
 
 interface SaaSStoryLandingPageProps {
   events: any[];
@@ -186,7 +187,15 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 3. BROWSE CATEGORIES ── */}
+      {/* ── 3. GETVNT PULSE BLOG (1 Row, 4 Column Auto-Scrolling Grid) ── */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto 80px auto', padding: '0 24px' }}>
+        <HomeNewsCarousel
+          onOpenArticle={(slug) => onNavigateToBlog(slug)}
+          onOpenBlogHub={() => onNavigateToBlog()}
+        />
+      </section>
+
+      {/* ── 4. BROWSE CATEGORIES ── */}
       <section style={{ maxWidth: '1280px', margin: '0 auto 80px auto', padding: '0 24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', fontFamily: 'var(--font-heading)' }}>Browse Categories</h2>
