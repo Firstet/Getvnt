@@ -13,9 +13,10 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.getvnt.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.getvnt.entrypoints=web"
-      - "traefik.http.services.getvnt.loadbalancer.server.port=80"
+      - "traefik.http.routers.getvnt-route.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.getvnt-route.entrypoints=web"
+      - "traefik.http.routers.getvnt-route.service=getvnt-service"
+      - "traefik.http.services.getvnt-service.loadbalancer.server.port=80"
     depends_on:
       - api
     restart: always
