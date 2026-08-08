@@ -61,42 +61,42 @@ class NewsController extends Controller
             });
         }
 
-        // 1. Fetch Single Featured Story matching active filters (Automatically changes to the most recent post)
+        // 1. Fetch Single Featured Story matching active filters:
+        // Priority A: Super Admin Pinned Featured article whose featured_until date is still active
         $featuredArticle = (clone $baseQuery)
-            ->orderBy('pub_date', 'desc')
+            ->where('is_featured', true)
+            ->where(function ($q) {
+                $q->whereNull('featured_until')->orWhere('featured_until', '>', now());
+            })
             ->orderBy('created_at', 'desc')
-            ->orderBy('id', 'desc')
             ->first();
 
-        // 2. Query Regular Articles (EXCLUDING featured article automatically!)
+        // Priority B: Fallback automatically to the most recent published post!
+        if (!$featuredArticle) {
+            $featuredArticle = (clone $baseQuery)
+                ->orderBy('pub_date', 'desc')
+                ->orderBy('created_at', 'desc')
+                ->first();
+        }
+
+        // 2. Fetch Carousel of Top Featured & Recent Stories (15 stories for dynamic rotator)
+        $featuredCarousel = (clone $baseQuery)
+            ->orderBy('pub_date', 'desc')
+            ->orderBy('created_at', 'desc')
+            ->take(15)
+            ->get();
+
+        // 3. Query Regular Articles (EXCLUDING main featured article)
         $query = (clone $baseQuery);
 
         if ($featuredArticle) {
             $query->where('id', '!=', $featuredArticle->id);
         }
 
-        if ($category !== 'all' && !empty($category)) {
-            $query->where('category', 'like', '%' . $category . '%');
-        }
-
-        if ($region !== 'all' && !empty($region)) {
-            $query->where('region', 'like', '%' . $region . '%');
-        }
-
-        if (!empty($search)) {
-            $query->where(function ($q) use ($search) {
-                $q->where('headline', 'like', '%' . $search . '%')
-                    ->orWhere('subtitle', 'like', '%' . $search . '%')
-                    ->orWhere('ai_summary', 'like', '%' . $search . '%')
-                    ->orWhere('author', 'like', '%' . $search . '%')
-                    ->orWhere('source_name', 'like', '%' . $search . '%');
-            });
-        }
-
         if ($sort === 'trending' || $sort === 'popular') {
             $query->orderBy('views_count', 'desc')->orderBy('shares_count', 'desc');
         } else {
-            $query->orderBy('created_at', 'desc');
+            $query->orderBy('pub_date', 'desc')->orderBy('created_at', 'desc');
         }
 
         $articles = $query->take($limit > 0 ? min($limit, 200) : 24)->get();
@@ -109,6 +109,7 @@ class NewsController extends Controller
             'success' => true,
             'data' => [
                 'featured' => $featuredArticle,
+                'featured_carousel' => $featuredCarousel,
                 'articles' => $articles,
                 'total_count' => $query->count() + ($featuredArticle ? 1 : 0),
                 'categories' => $categoriesList,
@@ -395,6 +396,7 @@ class NewsController extends Controller
                 'author' => $request->input('author', 'Super Admin Editorial'),
                 'pub_date' => now(),
                 'is_featured' => $isFeatured,
+                'featured_until' => $isFeatured && $request->has('duration_days') ? now()->addDays((int)$request->input('duration_days')) : null,
                 'is_breaking' => $request->boolean('is_breaking', false),
                 'status' => 'published',
             ]
@@ -411,16 +413,27 @@ class NewsController extends Controller
      * Super Admin - Toggle Featured Pin State
      * POST /api/v1/admin/news/articles/{id}/toggle-featured
      */
-    public function toggleFeatured($id)
+    public function toggleFeatured(Request $request, $id)
     {
         $article = NewsArticle::findOrFail($id);
         $article->is_featured = !$article->is_featured;
+
+        if ($article->is_featured) {
+            $durationDays = (int) $request->input('duration_days', 3);
+            $article->featured_until = now()->addDays($durationDays);
+        } else {
+            $article->featured_until = null;
+        }
+
         $article->save();
 
         return response()->json([
             'success' => true,
-            'message' => $article->is_featured ? 'Story pinned as FEATURED STORY!' : 'Story unpinned from FEATURED STORY.',
+            'message' => $article->is_featured 
+                ? "Story pinned as FEATURED STORY until {$article->featured_until->toFormattedDateString()}!" 
+                : 'Story unpinned from FEATURED STORY.',
             'is_featured' => $article->is_featured,
+            'featured_until' => $article->featured_until,
             'data' => $article,
         ]);
     }

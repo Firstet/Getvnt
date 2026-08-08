@@ -139,6 +139,7 @@ function WorkspaceContent() {
     return !localStorage.getItem('getvnt_organizer_onboarding_completed');
   });
   const [showAndroidModal, setShowAndroidModal] = useState<boolean>(false);
+  const [matrixTab, setMatrixTab] = useState<'Upcoming' | 'Live' | 'Past' | 'Draft' | 'Archived'>('Upcoming');
   const [hasDownloadedApp, setHasDownloadedApp] = useState<boolean>(() => {
     return localStorage.getItem('getvnt_app_downloaded') === 'true';
   });
@@ -720,9 +721,22 @@ function WorkspaceContent() {
                   <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#FFF', margin: 0 }}>Event Operations Matrix</h3>
                   
                   {/* Event Status Tabs */}
-                  <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '12px' }}>
-                    {['Upcoming', 'Live', 'Past', 'Draft', 'Archived'].map((tab, i) => (
-                      <button key={i} className="btn-cta" style={{ padding: '6px 12px', fontSize: '12px', background: i === 0 ? '#4F46E5' : 'transparent', color: '#FFF' }}>
+                  <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '12px', flexWrap: 'wrap' }}>
+                    {(['Upcoming', 'Live', 'Past', 'Draft', 'Archived'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        className="btn-cta"
+                        onClick={() => setMatrixTab(tab)}
+                        style={{
+                          padding: '6px 14px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          background: matrixTab === tab ? '#4F46E5' : 'transparent',
+                          color: matrixTab === tab ? '#FFF' : '#9CA3AF',
+                          borderRadius: '8px',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
                         {tab}
                       </button>
                     ))}
@@ -730,37 +744,77 @@ function WorkspaceContent() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                  {[
-                    { name: 'Afrobeat Festival 2026', date: 'Aug 15, 2026', location: 'Eko Hotel, Lagos', sold: 1240, cap: 1500, rev: '₦24.8M', score: 92 },
-                    { name: 'Tech Summit Nigeria', date: 'Sep 3, 2026', location: 'NESS, Abuja', sold: 420, cap: 600, rev: '₦8.4M', score: 85 },
-                  ].map((evt, idx) => (
-                    <div key={idx} style={{ background: 'rgba(7, 9, 15, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div>
-                          <div style={{ fontSize: '16px', fontWeight: 900, color: '#FFF' }}>{evt.name}</div>
-                          <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📅 {evt.date} • 📍 {evt.location}</div>
+                  {(() => {
+                    const matrixData: Record<string, any[]> = {
+                      Upcoming: [
+                        { name: 'Afrobeat Festival 2026', date: 'Aug 15, 2026', location: 'Eko Hotel, Lagos', sold: 1240, cap: 1500, rev: '₦24.8M', score: 92, badge: 'High Demand' },
+                        { name: 'Tech Summit Nigeria', date: 'Sep 3, 2026', location: 'NESS, Abuja', sold: 420, cap: 600, rev: '₦8.4M', score: 85, badge: 'Selling Fast' },
+                        { name: 'Lagos Fashion & Style Expo', date: 'Oct 12, 2026', location: 'Landmark Centre, Victoria Island', sold: 610, cap: 1000, rev: '₦12.2M', score: 89, badge: 'Early Bird' },
+                      ],
+                      Live: [
+                        { name: 'Afro-Fusion Rave Live ⚡', date: 'TONIGHT (Active Now)', location: 'Hard Rock Beach, Lagos', sold: 1450, cap: 1500, rev: '₦29.0M', score: 98, badge: 'LIVE NOW 🔴' },
+                        { name: 'Burna Boy VIP Lounge', date: 'Today, 20:00 WAT', location: 'Eko Atlantic, Lagos', sold: 800, cap: 800, rev: '₦40.0M', score: 99, badge: 'SOLD OUT 🔴' },
+                      ],
+                      Past: [
+                        { name: 'Detty December Festival 2025', date: 'Dec 28, 2025', location: 'Tafawa Balewa Square, Lagos', sold: 8500, cap: 8500, rev: '₦170.0M', score: 97, badge: 'Concluded' },
+                        { name: 'Homecoming Festival 2025', date: 'Apr 20, 2025', location: 'Harbour Point, VI Lagos', sold: 3200, cap: 3200, rev: '₦64.0M', score: 94, badge: 'Concluded' },
+                      ],
+                      Draft: [
+                        { name: 'Lagos Jazz & Wine Night (Draft)', date: 'Unpublished (Draft)', location: 'Civic Centre, Victoria Island', sold: 0, cap: 400, rev: '₦0.00', score: 65, badge: 'In Progress' },
+                      ],
+                      Archived: [
+                        { name: 'Summer Beach Rave 2024 (Archived)', date: 'Aug 10, 2024', location: 'Elegushi Beach, Lagos', sold: 2100, cap: 2500, rev: '₦31.5M', score: 82, badge: 'Archived' },
+                      ],
+                    };
+
+                    const list = matrixData[matrixTab] || [];
+                    if (list.length === 0) {
+                      return (
+                        <div style={{ padding: '32px', textAlign: 'center', color: '#9CA3AF', gridColumn: '1 / -1' }}>
+                          No {matrixTab.toLowerCase()} events recorded for this organization workspace.
                         </div>
-                        <span style={{ fontSize: '12px', fontWeight: 900, background: 'rgba(16,185,129,0.15)', color: '#34D399', padding: '4px 10px', borderRadius: '8px' }}>
-                          Score: {evt.score}/100
-                        </span>
-                      </div>
+                      );
+                    }
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#FFF', fontWeight: 800, marginBottom: '6px', marginTop: '16px' }}>
-                        <span>Sales Progress</span>
-                        <span>{evt.sold} / {evt.cap} Tickets</span>
-                      </div>
-                      <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
-                        <div style={{ height: '100%', width: `${(evt.sold / evt.cap) * 100}%`, background: 'linear-gradient(90deg, #4F46E5, #06B6D4)' }} />
-                      </div>
+                    return list.map((evt, idx) => (
+                      <div key={idx} style={{ background: 'rgba(7, 9, 15, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                          <div>
+                            <div style={{ fontSize: '16px', fontWeight: 900, color: '#FFF' }}>{evt.name}</div>
+                            <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📅 {evt.date} • 📍 {evt.location}</div>
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: 900, background: matrixTab === 'Live' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)', color: matrixTab === 'Live' ? '#F87171' : '#34D399', padding: '4px 10px', borderRadius: '8px' }}>
+                            Score: {evt.score}/100
+                          </span>
+                        </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#FCD34D' }}>{evt.rev} Revenue</div>
-                        <button className="btn-cta" style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(79,70,229,0.2)', color: '#A5B4FC' }} onClick={() => setView('ticket_designer')}>
-                          Manage Event
-                        </button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#FFF', fontWeight: 800, marginBottom: '6px', marginTop: '16px' }}>
+                          <span>Sales Progress</span>
+                          <span>{evt.sold} / {evt.cap} Tickets</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
+                          <div style={{ height: '100%', width: `${Math.min(100, (evt.sold / evt.cap) * 100)}%`, background: 'linear-gradient(90deg, #4F46E5, #06B6D4)' }} />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 900, color: '#FCD34D' }}>{evt.rev} Revenue</div>
+                          <button
+                            className="btn-cta"
+                            style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(79,70,229,0.2)', color: '#A5B4FC' }}
+                            onClick={() => {
+                              if (matrixTab === 'Draft') {
+                                setShowCreateEventWizard(true);
+                              } else {
+                                setView('ticket_designer');
+                              }
+                            }}
+                          >
+                            Manage Event
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
 
