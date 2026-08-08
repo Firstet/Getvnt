@@ -20,7 +20,7 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
   const handleDelete = async (id: number) => {
     if (!confirm('Delete this commission rule?')) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/commission-rules/${id}`, {
+      const res = await fetch(`/api/v1/admin/integrations/commission-rules/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -151,8 +151,8 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
                 };
 
                 const url = selectedRule
-                  ? `http://localhost:8000/api/v1/admin/integrations/commission-rules/${selectedRule.id}`
-                  : 'http://localhost:8000/api/v1/admin/integrations/commission-rules';
+                  ? `/api/v1/admin/integrations/commission-rules/${selectedRule.id}`
+                  : '/api/v1/admin/integrations/commission-rules';
 
                 const method = selectedRule ? 'PUT' : 'POST';
 

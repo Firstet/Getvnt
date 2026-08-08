@@ -19,7 +19,7 @@ export const SystemSettingsView: React.FC<Props> = ({ onToast }) => {
   });
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/admin/integrations/system-settings', { headers: getAuthHeaders() })
+    fetch('/api/v1/admin/integrations/system-settings', { headers: getAuthHeaders() })
       .then((res) => res.json())
       .then((json) => {
         if (json.success && json.data) {
@@ -38,11 +38,11 @@ export const SystemSettingsView: React.FC<Props> = ({ onToast }) => {
   const handleSave = async () => {
     try {
       // Fetch existing settings first, then merge BYOK changes
-      const currentRes  = await fetch('http://localhost:8000/api/v1/admin/integrations/system-settings', { headers: getAuthHeaders() });
+      const currentRes  = await fetch('/api/v1/admin/integrations/system-settings', { headers: getAuthHeaders() });
       const currentJson = await currentRes.json();
       const currentData = currentJson.data || {};
 
-      const res  = await fetch('http://localhost:8000/api/v1/admin/integrations/system-settings', {
+      const res  = await fetch('/api/v1/admin/integrations/system-settings', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

@@ -80,7 +80,7 @@ export const EventCreationWizardModal: React.FC<Props> = ({
         marketing_copy: marketingCopy,
       };
 
-      const res = await fetch('http://localhost:8000/api/v1/workspace/events', {
+      const res = await fetch('/api/v1/workspace/events', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

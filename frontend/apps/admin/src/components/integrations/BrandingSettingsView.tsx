@@ -72,7 +72,7 @@ export const BrandingSettingsView: React.FC<Props> = ({ onToast }) => {
 
   // Load current brand from registry
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/brand')
+    fetch('/api/v1/brand')
       .then((res) => res.json())
       .then((json) => {
         if (json.success && json.data) {
@@ -90,7 +90,7 @@ export const BrandingSettingsView: React.FC<Props> = ({ onToast }) => {
     formData.append('file', file);
     formData.append('type', fieldName);
     try {
-      const res  = await fetch('http://localhost:8000/api/v1/admin/brand/upload-logo', {
+      const res  = await fetch('/api/v1/admin/brand/upload-logo', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('getvnt_admin_token') || ''}` },
         body: formData,
@@ -115,7 +115,7 @@ export const BrandingSettingsView: React.FC<Props> = ({ onToast }) => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const res  = await fetch('http://localhost:8000/api/v1/admin/brand', {
+      const res  = await fetch('/api/v1/admin/brand', {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(brand),
@@ -434,14 +434,14 @@ export const BrandingSettingsView: React.FC<Props> = ({ onToast }) => {
         <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', padding: '12px 16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
           <div>
             <span style={{ color: '#9CA3AF' }}>Authorized Redirect URI: </span>
-            <code style={{ color: '#34D399', fontFamily: 'monospace', marginLeft: '6px' }}>http://localhost:8000/api/v1/auth/google/callback</code>
+            <code style={{ color: '#34D399', fontFamily: 'monospace', marginLeft: '6px' }}>/api/v1/auth/google/callback</code>
           </div>
           <button
             type="button"
             className="admin-btn admin-btn-secondary"
             style={{ fontSize: '11px', padding: '4px 10px' }}
             onClick={() => {
-              navigator.clipboard.writeText('http://localhost:8000/api/v1/auth/google/callback');
+              navigator.clipboard.writeText('/api/v1/auth/google/callback');
               onToast('Copied Callback URL to clipboard!');
             }}
           >

@@ -108,7 +108,7 @@ export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onCo
   const handleFinishSetup = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/onboarding/step', {
+      const res = await fetch('/api/v1/onboarding/step', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token || ''}`,

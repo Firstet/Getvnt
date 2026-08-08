@@ -89,7 +89,7 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
   const fetchUsers = async () => {
     setRefreshing(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/users', {
+      const res = await fetch('/api/v1/admin/users', {
         headers: getAuthHeaders(),
       });
       const json = await res.json();
@@ -120,7 +120,7 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
 
   const handleToggleLock = async (id: string, currentLock: any) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/users/${id}/toggle-lock`, {
+      const res = await fetch(`/api/v1/admin/users/${id}/toggle-lock`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -137,7 +137,7 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
 
   const handleForceLogout = async (id: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/users/${id}/force-logout`, {
+      const res = await fetch(`/api/v1/admin/users/${id}/force-logout`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -151,8 +151,8 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
   const handleImpersonate = async (targetId: string, isUser = false) => {
     try {
       const endpoint = isUser
-        ? `http://localhost:8000/api/v1/admin/users/${targetId}/impersonate`
-        : `http://localhost:8000/api/v1/admin/tenants/${targetId}/impersonate`;
+        ? `/api/v1/admin/users/${targetId}/impersonate`
+        : `/api/v1/admin/tenants/${targetId}/impersonate`;
 
       const res = await fetch(endpoint, {
         method: 'POST',

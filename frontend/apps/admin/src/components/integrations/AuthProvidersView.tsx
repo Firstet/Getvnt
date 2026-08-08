@@ -20,7 +20,7 @@ export const AuthProvidersView: React.FC<Props> = ({ onToast }) => {
   const fetchProviders = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/auth-providers', { headers: getAuthHeaders() });
+      const res = await fetch('/api/v1/admin/auth-providers', { headers: getAuthHeaders() });
       const json = await res.json();
       if (json.success) {
         setProviders(json.data || []);
@@ -38,7 +38,7 @@ export const AuthProvidersView: React.FC<Props> = ({ onToast }) => {
 
   const handleToggle = async (provider: any) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/auth-providers/${provider.id}`, {
+      const res = await fetch(`/api/v1/admin/auth-providers/${provider.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ is_enabled: !provider.is_enabled }),
@@ -63,7 +63,7 @@ export const AuthProvidersView: React.FC<Props> = ({ onToast }) => {
     };
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/auth-providers/${provider.id}`, {
+      const res = await fetch(`/api/v1/admin/auth-providers/${provider.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
@@ -81,7 +81,7 @@ export const AuthProvidersView: React.FC<Props> = ({ onToast }) => {
   const handleTest = async (provider: any) => {
     setTestingId(provider.id);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/auth-providers/${provider.id}/test`, {
+      const res = await fetch(`/api/v1/admin/auth-providers/${provider.id}/test`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });

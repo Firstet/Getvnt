@@ -16,7 +16,7 @@ export const UsageAnalyticsView: React.FC<Props> = ({ onToast }) => {
   };
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/admin/integrations/usage-analytics', {
+    fetch('/api/v1/admin/integrations/usage-analytics', {
       headers: {
         'Accept': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('getvnt_admin_token') || ''}`,

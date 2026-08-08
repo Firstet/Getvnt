@@ -6,7 +6,7 @@ import {
   Clock, ShieldCheck, Crown, Compass, Tag, Layers, LogOut, Lock, AlertCircle,
   Rss, ExternalLink, Share2, BookOpen, CheckCircle, Smartphone, Download
 } from 'lucide-react';
-import { useResponsiveSidebar, AuthProvider, useAuth, PasswordField, SaaSAuthModal } from '../../../shared/src';
+import { useResponsiveSidebar, AuthProvider, useAuth, PasswordField, SaaSAuthModal, getAppUrl, apiClient } from '../../../shared/src';
 import { useBrand } from '../../../shared/src/context/BrandContext';
 import GetvntLogo from './components/GetvntLogo';
 import { FooterPageViews } from './components/FooterPageViews';
@@ -122,8 +122,7 @@ function MarketplaceContent() {
 
   // Fetch Public Events
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/marketplace/events')
-      .then((res) => res.json())
+    apiClient.get('/marketplace/events')
       .then((json) => {
         if (json.success && json.data) {
           setEvents(Array.isArray(json.data) ? json.data : []);
@@ -300,18 +299,14 @@ function MarketplaceContent() {
           </div>
 
           <a
-            href="http://localhost:3002"
-            target="_blank"
-            rel="noreferrer"
+            href={getAppUrl('workspace')}
             style={{ color: '#A5B4FC', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             Organizer Login
           </a>
 
           <a
-            href="http://localhost:3002"
-            target="_blank"
-            rel="noreferrer"
+            href={getAppUrl('workspace')}
             className="btn-cta"
             style={{
               background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
@@ -657,7 +652,7 @@ function MarketplaceContent() {
           <div>
             <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>For Event Organizers</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href="http://localhost:3000/workspace/" target="_blank" rel="noreferrer" style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
+              <li><a href={getAppUrl('workspace')} style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>AI Event Marketing Guide</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Ticket Designer Desk</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Branded QR Code Studio</a></li>

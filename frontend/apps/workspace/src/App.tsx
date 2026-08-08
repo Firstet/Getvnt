@@ -12,7 +12,7 @@ import {
   AuthProvider, useAuth, getRoleBadgeLabel, GeneralAiAssistantModal, PasswordField,
   IconContainer, LazyLogo, SkeletonDashboard, SkeletonTable, SkeletonCanvas,
   SkeletonCardGrid, RouteErrorBoundary, AppLoader, BrandLogo,
-  SaaSAuthModal, SaaSOnboardingWizard, SaaSVerificationBanner
+  SaaSAuthModal, SaaSOnboardingWizard, SaaSVerificationBanner, getAppUrl, apiClient
 } from '../../../shared/src';
 import { useBrand } from '../../../shared/src/context/BrandContext';
 import { AiAssistantHub } from './components/AiAssistantHub';
@@ -163,18 +163,14 @@ function WorkspaceContent() {
 
   const fetchPlans = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/subscriptions/plans');
-      const json = await res.json();
+      const json = await apiClient.get('/subscriptions/plans');
       if (json.success && json.data) setPlans(Array.isArray(json.data) ? json.data : []);
     } catch {}
   };
 
   const fetchInvoices = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/subscriptions/invoices', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const json = await res.json();
+      const json = await apiClient.get('/subscriptions/invoices');
       if (json.success && json.data) setInvoices(Array.isArray(json.data) ? json.data : []);
     } catch {}
   };
@@ -227,16 +223,11 @@ function WorkspaceContent() {
     if (!token) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/onboarding/step', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          step, business_address: onboardingAddress, tax_id: onboardingTaxId,
-          logo_url: onboardingLogo, primary_color: onboardingPrimaryColor,
-          payment_provider: onboardingPaymentProvider, is_completed: isFinal
-        })
+      const json = await apiClient.post('/onboarding/step', {
+        step, business_address: onboardingAddress, tax_id: onboardingTaxId,
+        logo_url: onboardingLogo, primary_color: onboardingPrimaryColor,
+        payment_provider: onboardingPaymentProvider, is_completed: isFinal
       });
-      const json = await res.json();
       if (json.success) {
         await refreshUser();
         if (isFinal) setView('dashboard');
@@ -249,12 +240,9 @@ function WorkspaceContent() {
     if (!token) return;
     setIsSubmitting(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/subscriptions/subscribe', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan_id: planId, billing_cycle: billingCycle, payment_method: 'paystack' })
+      const json = await apiClient.post('/subscriptions/subscribe', {
+        plan_id: planId, billing_cycle: billingCycle, payment_method: 'paystack'
       });
-      const json = await res.json();
       if (json.success) {
         await refreshUser();
         fetchInvoices();
@@ -439,7 +427,7 @@ function WorkspaceContent() {
           ))}
         </div>
         <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <a href="http://localhost:3000/" className="sidebar-link" style={{ color: '#9CA3AF' }}>
+          <a href={getAppUrl('marketplace')} className="sidebar-link" style={{ color: '#9CA3AF' }}>
             <Globe size={17} /> Public Storefront
           </a>
           <a
@@ -988,7 +976,7 @@ function WorkspaceContent() {
                               formData.append('folder', 'logos');
                               try {
                                 // Step 1: Upload file to storage
-                                const uploadRes = await fetch('http://localhost:8000/api/v1/media/upload', {
+                                const uploadRes = await fetch('/api/v1/media/upload', {
                                   method: 'POST',
                                   headers: { 'Authorization': `Bearer ${token || ''}` },
                                   body: formData,
@@ -999,7 +987,7 @@ function WorkspaceContent() {
                                   return;
                                 }
                                 // Step 2: Save logo_url to tenant record in database
-                                const saveRes = await fetch('http://localhost:8000/api/v1/workspace/organization', {
+                                const saveRes = await fetch('/api/v1/workspace/organization', {
                                   method: 'PUT',
                                   headers: {
                                     'Authorization': `Bearer ${token || ''}`,

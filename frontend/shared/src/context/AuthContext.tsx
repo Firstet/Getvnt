@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getAppUrl } from '../api/apiClient';
 
 export interface FeatureFlag {
   id: string;
@@ -107,7 +108,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isImpersonating, setIsImpersonating] = useState<boolean>(initial.isImp);
   const [impersonatedOrg, setImpersonatedOrg] = useState<string | null>(initial.org);
 
-  const API_BASE = 'http://localhost:8000/api/v1';
+  const getApiBase = () => {
+    if (typeof window !== 'undefined') {
+      const metaEnv = (import.meta as any).env;
+      if (metaEnv && metaEnv.VITE_API_URL) return metaEnv.VITE_API_URL;
+      return getAppUrl('api');
+    }
+    return '/api/v1';
+  };
+
+  const API_BASE = getApiBase();
 
   useEffect(() => {
     if (token) {
@@ -218,7 +228,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
     setUser(null);
     if (typeof window !== 'undefined') {
-      window.location.href = 'http://localhost:3003'; // Redirect back to Super Admin console
+      window.location.href = getAppUrl('admin'); // Redirect back to Super Admin console
     }
   };
 

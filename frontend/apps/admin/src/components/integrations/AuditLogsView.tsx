@@ -16,8 +16,8 @@ export const AuditLogsView: React.FC<Props> = ({ onToast }) => {
 
   const fetchLogs = () => {
     const url = search
-      ? `http://localhost:8000/api/v1/admin/integrations/audit-logs?search=${encodeURIComponent(search)}`
-      : 'http://localhost:8000/api/v1/admin/integrations/audit-logs';
+      ? `/api/v1/admin/integrations/audit-logs?search=${encodeURIComponent(search)}`
+      : '/api/v1/admin/integrations/audit-logs';
 
     fetch(url, {
       headers: {

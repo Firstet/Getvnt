@@ -21,7 +21,7 @@ export const OperationsCustomerSuccessCenterView: React.FC<{ onTriggerToast: (ms
   const handleImpersonateOrganizer = async (orgSlug: string, orgName: string) => {
     try {
       const token = localStorage.getItem('getvnt_admin_token') || '';
-      const res = await fetch(`http://localhost:8000/api/v1/admin/tenants/${orgSlug}/impersonate`, {
+      const res = await fetch(`/api/v1/admin/tenants/${orgSlug}/impersonate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

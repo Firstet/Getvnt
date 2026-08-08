@@ -136,7 +136,7 @@ export const MediaCropperModal: React.FC<Props> = ({
         formData.append('folder', targetFolder);
 
         try {
-          const res = await fetch('http://localhost:8000/api/v1/media/upload', {
+          const res = await fetch('/api/v1/media/upload', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${authToken}`,

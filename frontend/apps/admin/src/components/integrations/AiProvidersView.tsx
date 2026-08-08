@@ -39,7 +39,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
   const handleTestConnection = async (id: number, name: string) => {
     setTestingId(id);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/ai-providers/${id}/test`, {
+      const res = await fetch(`/api/v1/admin/integrations/ai-providers/${id}/test`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -58,7 +58,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
 
   const handleRevealKey = async (id: number, name: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/ai-providers/${id}/reveal`, {
+      const res = await fetch(`/api/v1/admin/integrations/ai-providers/${id}/reveal`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -74,7 +74,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
 
   const handleRotateKey = async (id: number, name: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/ai-providers/${id}/rotate`, {
+      const res = await fetch(`/api/v1/admin/integrations/ai-providers/${id}/rotate`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -91,7 +91,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Are you sure you want to delete ${name}?`)) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/ai-providers/${id}`, {
+      const res = await fetch(`/api/v1/admin/integrations/ai-providers/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -111,7 +111,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
     setAiOutput(null);
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/integrations/ai-assistance/generate', {
+      const res = await fetch('/api/v1/admin/integrations/ai-assistance/generate', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -407,8 +407,8 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
                 };
 
                 const url = selectedProvider
-                  ? `http://localhost:8000/api/v1/admin/integrations/ai-providers/${selectedProvider.id}`
-                  : 'http://localhost:8000/api/v1/admin/integrations/ai-providers';
+                  ? `/api/v1/admin/integrations/ai-providers/${selectedProvider.id}`
+                  : '/api/v1/admin/integrations/ai-providers';
 
                 const method = selectedProvider ? 'PUT' : 'POST';
 

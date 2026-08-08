@@ -19,7 +19,7 @@ export const CommunicationServicesView: React.FC<Props> = ({ services, onRefresh
   const handleTest = async (id: number, name: string) => {
     setTestingId(id);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/communication/${id}/test`, {
+      const res = await fetch(`/api/v1/admin/integrations/communication/${id}/test`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });

@@ -312,7 +312,7 @@ export const AndroidAppPromotion: React.FC = () => {
 
             <div style={{ background: '#FFF', padding: '16px', borderRadius: '16px', display: 'inline-block', marginBottom: '20px' }}>
               <img
-                src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=http://localhost:3000/downloads/getvnt-organizer-v1.0.apk"
+                src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=/downloads/getvnt-organizer-v1.0.apk"
                 alt="Scan to Download GETVNT Android APK"
                 style={{ width: '180px', height: '180px' }}
               />

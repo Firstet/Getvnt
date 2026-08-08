@@ -19,7 +19,7 @@ export const QrStudioView: React.FC<Props> = ({ token, onToast }) => {
     e.preventDefault();
     setIsGenerating(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/workspace/qr/generate', {
+      const res = await fetch('/api/v1/workspace/qr/generate', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

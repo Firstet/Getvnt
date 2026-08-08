@@ -105,7 +105,7 @@ export const AndroidAppModal: React.FC<Props> = ({ isOpen, onClose, onDownload }
         {showQr ? (
           <div style={{ textAlign: 'center', marginBottom: '24px', background: '#FFF', padding: '16px', borderRadius: '16px', display: 'inline-block', width: '100%' }}>
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=http://localhost:3000/downloads/getvnt-organizer-v1.0.apk"
+              src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=/downloads/getvnt-organizer-v1.0.apk"
               alt="Scan to download APK"
               style={{ width: '160px', height: '160px', margin: '0 auto' }}
             />

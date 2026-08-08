@@ -19,7 +19,7 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
 
   const fetchNews = async () => {
     try {
-      const res = await fetch('http://localhost:8000/api/v1/news');
+      const res = await fetch('/api/v1/news');
       const json = await res.json();
       if (json.success && json.data?.articles) {
         setArticles(json.data.articles);

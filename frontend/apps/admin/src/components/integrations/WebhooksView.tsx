@@ -20,7 +20,7 @@ export const WebhooksView: React.FC<Props> = ({ webhooks, onRefresh, onToast }) 
   const handleTestDelivery = async (id: number, url: string) => {
     setTestingId(id);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/webhooks/${id}/test`, {
+      const res = await fetch(`/api/v1/admin/integrations/webhooks/${id}/test`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -118,7 +118,7 @@ export const WebhooksView: React.FC<Props> = ({ webhooks, onRefresh, onToast }) 
                 };
 
                 try {
-                  const res = await fetch('http://localhost:8000/api/v1/admin/integrations/webhooks', {
+                  const res = await fetch('/api/v1/admin/integrations/webhooks', {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify(payload),

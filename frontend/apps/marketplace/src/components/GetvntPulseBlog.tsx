@@ -146,7 +146,7 @@ export const GetvntPulseBlog: React.FC<GetvntPulseBlogProps> = ({
   const fetchNewsData = async () => {
     setLoading(true);
     try {
-      let url = `http://localhost:8000/api/v1/news?limit=100&region=${encodeURIComponent(selectedRegion)}&category=${encodeURIComponent(selectedCategory)}&search=${encodeURIComponent(searchQuery)}`;
+      let url = `/api/v1/news?limit=100&region=${encodeURIComponent(selectedRegion)}&category=${encodeURIComponent(selectedCategory)}&search=${encodeURIComponent(searchQuery)}`;
       const res = await fetch(url);
       const json = await res.json();
       if (json.success && json.data) {
@@ -166,7 +166,7 @@ export const GetvntPulseBlog: React.FC<GetvntPulseBlogProps> = ({
     setArticleLoading(true);
     setLiked(false);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/news/article/${encodeURIComponent(slug)}`);
+      const res = await fetch(`/api/v1/news/article/${encodeURIComponent(slug)}`);
       const json = await res.json();
       if (json.success && json.data?.article) {
         const art = json.data.article;
@@ -199,7 +199,7 @@ export const GetvntPulseBlog: React.FC<GetvntPulseBlogProps> = ({
     setLiked(true);
     setLikeCount((prev) => prev + 1);
     try {
-      await fetch(`http://localhost:8000/api/v1/news/article/${currentArticle.id}/like`, { method: 'POST' });
+      await fetch(`/api/v1/news/article/${currentArticle.id}/like`, { method: 'POST' });
       showToast('Article liked!');
     } catch {}
   };
@@ -210,7 +210,7 @@ export const GetvntPulseBlog: React.FC<GetvntPulseBlogProps> = ({
     navigator.clipboard?.writeText(window.location.href);
     showToast('Article link copied to clipboard!');
     try {
-      await fetch(`http://localhost:8000/api/v1/news/article/${currentArticle.id}/share`, { method: 'POST' });
+      await fetch(`/api/v1/news/article/${currentArticle.id}/share`, { method: 'POST' });
     } catch {}
   };
 
@@ -220,7 +220,7 @@ export const GetvntPulseBlog: React.FC<GetvntPulseBlogProps> = ({
 
     setSubmittingComment(true);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/news/article/${currentArticle.id}/comments`, {
+      const res = await fetch(`/api/v1/news/article/${currentArticle.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ user_name: commentName, comment: commentText }),

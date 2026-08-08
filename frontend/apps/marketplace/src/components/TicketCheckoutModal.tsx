@@ -72,7 +72,7 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
   };
 
   React.useEffect(() => {
-    fetch('http://localhost:8000/api/v1/payment-gateways')
+    fetch('/api/v1/payment-gateways')
       .then((res) => res.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
@@ -151,7 +151,7 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
         payment_gateway: paymentGateway,
       };
 
-      const res = await fetch('http://localhost:8000/api/v1/orders/checkout', {
+      const res = await fetch('/api/v1/orders/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

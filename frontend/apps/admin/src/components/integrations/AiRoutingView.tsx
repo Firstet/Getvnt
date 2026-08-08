@@ -102,7 +102,7 @@ export const AiRoutingView: React.FC<Props> = ({ routes, providers, onRefresh, o
                 };
 
                 try {
-                  const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/ai-routing/${editingRoute.id}`, {
+                  const res = await fetch(`/api/v1/admin/integrations/ai-routing/${editingRoute.id}`, {
                     method: 'PUT',
                     headers: {
                       'Content-Type': 'application/json',

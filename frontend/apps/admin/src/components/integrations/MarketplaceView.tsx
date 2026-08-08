@@ -24,7 +24,7 @@ export const MarketplaceView: React.FC<Props> = ({ marketplace, onRefresh, onToa
 
   const handleToggleInstall = async (id: number, name: string, isInstalled: boolean) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/marketplace/${id}/toggle`, {
+      const res = await fetch(`/api/v1/admin/integrations/marketplace/${id}/toggle`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });

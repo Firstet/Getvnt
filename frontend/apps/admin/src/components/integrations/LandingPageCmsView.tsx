@@ -22,8 +22,8 @@ export const LandingPageCmsView: React.FC<Props> = ({ onToast }) => {
     setLoading(true);
     try {
       const [secRes, pageRes] = await Promise.all([
-        fetch('http://localhost:8000/api/v1/cms/landing'),
-        fetch('http://localhost:8000/api/v1/cms/pages'),
+        fetch('/api/v1/cms/landing'),
+        fetch('/api/v1/cms/pages'),
       ]);
       const secJson = await secRes.json();
       const pageJson = await pageRes.json();
@@ -48,7 +48,7 @@ export const LandingPageCmsView: React.FC<Props> = ({ onToast }) => {
 
   const handleToggleSection = async (sec: any) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/cms/sections/${sec.id}`, {
+      const res = await fetch(`/api/v1/admin/cms/sections/${sec.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ is_visible: !sec.is_visible }),
@@ -72,7 +72,7 @@ export const LandingPageCmsView: React.FC<Props> = ({ onToast }) => {
     };
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/cms/sections/${sec.id}`, {
+      const res = await fetch(`/api/v1/admin/cms/sections/${sec.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
@@ -92,7 +92,7 @@ export const LandingPageCmsView: React.FC<Props> = ({ onToast }) => {
     if (!selectedPage) return;
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/cms/pages/${selectedPage.slug}`, {
+      const res = await fetch(`/api/v1/admin/cms/pages/${selectedPage.slug}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({

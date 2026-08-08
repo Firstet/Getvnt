@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { apiClient } from '../../../../shared/src';
 import {
   Ticket, Search, QrCode, Download, Mail, RefreshCw, CheckCircle2,
   Calendar, MapPin, ShieldCheck, ArrowRight, ChevronLeft, AlertCircle,
@@ -37,8 +38,7 @@ export const TicketManagementPortal: React.FC<Props> = ({
     setTicketResult(null);
 
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/orders/lookup?query=${encodeURIComponent(searchQuery.trim())}`);
-      const json = await res.json();
+      const json = await apiClient.get(`/orders/lookup?query=${encodeURIComponent(searchQuery.trim())}`);
 
       setTimeout(() => {
         if (json.success && json.data) {

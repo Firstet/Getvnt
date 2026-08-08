@@ -124,7 +124,7 @@ export const MobileAppResourceCard: React.FC<Props> = ({ onOpenModal }) => {
         <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
           <div style={{ background: '#FFF', padding: '12px', borderRadius: '14px', display: 'inline-block' }}>
             <img
-              src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=http://localhost:3000/downloads/getvnt-organizer-v1.0.apk"
+              src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=/downloads/getvnt-organizer-v1.0.apk"
               alt="Scan QR code to download GETVNT Mobile APK"
               style={{ width: '140px', height: '140px' }}
             />

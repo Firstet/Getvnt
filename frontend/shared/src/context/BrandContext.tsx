@@ -156,7 +156,7 @@ export const BrandProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const fetchBrand = useCallback(async () => {
     try {
-      const res  = await fetch('http://localhost:8000/api/v1/brand');
+      const res  = await fetch('/api/v1/brand');
       const json = await res.json();
       if (json.success && json.data) {
         const fetched: Brand = { ...DEFAULT_BRAND, ...json.data };

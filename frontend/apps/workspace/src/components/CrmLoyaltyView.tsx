@@ -15,7 +15,7 @@ export const CrmLoyaltyView: React.FC<Props> = ({ token, onToast }) => {
   const [discountPercent, setDiscountPercent] = useState(15);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/v1/workspace/crm/profiles', {
+    fetch('/api/v1/workspace/crm/profiles', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then((res) => res.json())
@@ -31,7 +31,7 @@ export const CrmLoyaltyView: React.FC<Props> = ({ token, onToast }) => {
   const handleCreateReward = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8000/api/v1/workspace/crm/rewards', {
+      const res = await fetch('/api/v1/workspace/crm/rewards', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

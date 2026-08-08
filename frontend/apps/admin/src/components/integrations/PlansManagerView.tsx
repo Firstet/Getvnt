@@ -60,7 +60,7 @@ export const PlansManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
   const fetchPlans = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/plans', { headers: getAuthHeaders() });
+      const res = await fetch('/api/v1/admin/plans', { headers: getAuthHeaders() });
       const json = await res.json();
       if (json.success && json.data) {
         setPlans(json.data.plans || []);
@@ -110,8 +110,8 @@ export const PlansManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
     setSaving(true);
     try {
       const url = modalMode === 'edit' && editingPlan
-        ? `http://localhost:8000/api/v1/admin/plans/${editingPlan.id}`
-        : 'http://localhost:8000/api/v1/admin/plans';
+        ? `/api/v1/admin/plans/${editingPlan.id}`
+        : '/api/v1/admin/plans';
       const method = modalMode === 'edit' ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -143,7 +143,7 @@ export const PlansManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
 
   const handleDelete = async (planId: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/plans/${planId}`, {
+      const res = await fetch(`/api/v1/admin/plans/${planId}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });

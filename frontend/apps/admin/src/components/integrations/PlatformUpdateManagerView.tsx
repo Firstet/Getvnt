@@ -19,7 +19,7 @@ export const PlatformUpdateManagerView: React.FC<Props> = ({ onToast }) => {
   const fetchUpdates = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/platform/updates', { headers: getAuthHeaders() });
+      const res = await fetch('/api/v1/admin/platform/updates', { headers: getAuthHeaders() });
       const json = await res.json();
       if (json.success) {
         setUpdates(json.data || []);
@@ -52,7 +52,7 @@ export const PlatformUpdateManagerView: React.FC<Props> = ({ onToast }) => {
     formData.append('version', file.name.replace('.zip', ''));
 
     try {
-      const res = await fetch('http://localhost:8000/api/v1/admin/platform/updates/upload', {
+      const res = await fetch('/api/v1/admin/platform/updates/upload', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: formData,

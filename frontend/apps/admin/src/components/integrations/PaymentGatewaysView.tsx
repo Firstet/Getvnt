@@ -22,7 +22,7 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
   const handleTestConnection = async (id: number, name: string) => {
     setTestingId(id);
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/payment-gateways/${id}/test`, {
+      const res = await fetch(`/api/v1/admin/integrations/payment-gateways/${id}/test`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -40,7 +40,7 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Are you sure you want to disconnect ${name}?`)) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/payment-gateways/${id}`, {
+      const res = await fetch(`/api/v1/admin/integrations/payment-gateways/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -57,7 +57,7 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
   const handleToggleGatewayStatus = async (gateway: any) => {
     const newStatus = gateway.status === 'active' ? 'inactive' : 'active';
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/payment-gateways/${gateway.id}`, {
+      const res = await fetch(`/api/v1/admin/integrations/payment-gateways/${gateway.id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -236,8 +236,8 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
                 };
 
                 const url = selectedGateway
-                  ? `http://localhost:8000/api/v1/admin/integrations/payment-gateways/${selectedGateway.id}`
-                  : 'http://localhost:8000/api/v1/admin/integrations/payment-gateways';
+                  ? `/api/v1/admin/integrations/payment-gateways/${selectedGateway.id}`
+                  : '/api/v1/admin/integrations/payment-gateways';
 
                 const method = selectedGateway ? 'PUT' : 'POST';
 

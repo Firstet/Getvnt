@@ -27,7 +27,7 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
       return;
     }
     const clientId = brand?.google_client_id ? `?client_id=${encodeURIComponent(brand.google_client_id)}` : '';
-    window.location.href = `http://localhost:8000/api/v1/auth/google${clientId}`;
+    window.location.href = `/api/v1/auth/google${clientId}`;
   };
 
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);

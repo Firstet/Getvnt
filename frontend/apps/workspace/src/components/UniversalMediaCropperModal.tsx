@@ -135,7 +135,7 @@ export const UniversalMediaCropperModal: React.FC<Props> = ({
   const handleAiAutoTag = async () => {
     setAiGenerating(true);
     try {
-      const res = await fetch('http://localhost:8000/api/v1/ai/generate', {
+      const res = await fetch('/api/v1/ai/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -236,7 +236,7 @@ export const UniversalMediaCropperModal: React.FC<Props> = ({
         formData.append('folder', targetFolder);
 
         try {
-          const res = await fetch('http://localhost:8000/api/v1/media/upload', {
+          const res = await fetch('/api/v1/media/upload', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${authToken}`,

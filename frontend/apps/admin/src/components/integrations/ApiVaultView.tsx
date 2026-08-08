@@ -27,7 +27,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
 
   const handleRevealKey = async (id: number, name: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/api-vault/${id}/reveal`, {
+      const res = await fetch(`/api/v1/admin/integrations/api-vault/${id}/reveal`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -43,7 +43,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
 
   const handleRotateKey = async (id: number, name: string) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/api-vault/${id}/rotate`, {
+      const res = await fetch(`/api/v1/admin/integrations/api-vault/${id}/rotate`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -60,7 +60,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
   const handleDelete = async (id: number, name: string) => {
     if (!confirm(`Delete API Vault Key "${name}"?`)) return;
     try {
-      const res = await fetch(`http://localhost:8000/api/v1/admin/integrations/api-vault/${id}`, {
+      const res = await fetch(`/api/v1/admin/integrations/api-vault/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders(),
       });
@@ -224,7 +224,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
                 };
 
                 try {
-                  const res = await fetch('http://localhost:8000/api/v1/admin/integrations/api-vault', {
+                  const res = await fetch('/api/v1/admin/integrations/api-vault', {
                     method: 'POST',
                     headers: getAuthHeaders(),
                     body: JSON.stringify(payload),
