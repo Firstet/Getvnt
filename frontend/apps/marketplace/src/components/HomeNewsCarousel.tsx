@@ -177,11 +177,11 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
           ref={scrollRef}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          className="responsive-news-auto-grid"
           style={{
             display: 'grid',
             gridAutoFlow: 'column',
-            gridAutoColumns: 'calc(25% - 18px)',
-            gap: '24px',
+            gap: '20px',
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
             scrollbarWidth: 'none',
