@@ -18,9 +18,16 @@ services:
       - dokploy-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.getvnt-route.rule=HostRegexp(`{subdomain:.*}.getvnt.com`) || Host(`getvnt.com`) || PathPrefix(`/`)"
-      - "traefik.http.routers.getvnt-route.entrypoints=web"
-      - "traefik.http.routers.getvnt-route.service=getvnt-service"
+      # HTTP Router (Port 80)
+      - "traefik.http.routers.getvnt-http.rule=HostRegexp(`{subdomain:.*}.getvnt.com`) || Host(`getvnt.com`) || PathPrefix(`/`)"
+      - "traefik.http.routers.getvnt-http.entrypoints=web"
+      - "traefik.http.routers.getvnt-http.service=getvnt-service"
+      # HTTPS Router (Port 443 with Let's Encrypt SSL)
+      - "traefik.http.routers.getvnt-https.rule=HostRegexp(`{subdomain:.*}.getvnt.com`) || Host(`getvnt.com`) || PathPrefix(`/`)"
+      - "traefik.http.routers.getvnt-https.entrypoints=websecure"
+      - "traefik.http.routers.getvnt-https.tls=true"
+      - "traefik.http.routers.getvnt-https.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.getvnt-https.service=getvnt-service"
       - "traefik.http.services.getvnt-service.loadbalancer.server.port=80"
     depends_on:
       - api
