@@ -90,6 +90,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('onboarding')->middleware('auth:sanctum')->group(function () {
         Route::get('/status', [OnboardingController::class, 'status']);
         Route::post('/step', [OnboardingController::class, 'saveStep']);
+        Route::post('/resend-email', [OnboardingController::class, 'resendVerificationEmail']);
     });
 
     // 1. PUBLIC MARKETPLACE (getvnt.com)
@@ -132,6 +133,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/stats', [PlatformAdminController::class, 'stats']);
         Route::get('/tenants', [PlatformAdminController::class, 'tenants']);
         Route::post('/tenants/{id}/impersonate', [PlatformAdminController::class, 'impersonateTenant']);
+        Route::post('/tenants/{id}/verify', [PlatformAdminController::class, 'verifyTenant']);
         Route::get('/users', [PlatformAdminController::class, 'users']);
         Route::post('/users/{id}/impersonate', [PlatformAdminController::class, 'impersonateUser']);
         Route::post('/users/{id}/toggle-lock', [PlatformAdminController::class, 'toggleUserLock']);

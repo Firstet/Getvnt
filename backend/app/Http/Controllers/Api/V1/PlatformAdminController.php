@@ -246,6 +246,37 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'message' => $msg, 'data' => $user]);
     }
 
+    // Verify/Approve or Reject Tenant Organization KYC
+    public function verifyTenant(Request $request, $id)
+    {
+        $tenant = Tenant::find($id);
+        if (!$tenant) {
+            $tenant = Tenant::where('slug', $id)->first();
+        }
+        if (!$tenant) {
+            return response()->json(['success' => false, 'message' => 'Organization not found.'], 404);
+        }
+
+        $isVerified = $request->input('is_verified', true);
+        $status = $request->input('status', $isVerified ? 'approved' : 'rejected');
+
+        $tenant->is_verified = (bool) $isVerified;
+        $settings = $tenant->settings ?? [];
+        $settings['verification_status'] = $status;
+        $tenant->settings = $settings;
+        $tenant->save();
+
+        $msg = $isVerified
+            ? "✅ Approved KYC & Verification for {$tenant->name}."
+            : "⚠️ Rejected/Flagged KYC for {$tenant->name}.";
+
+        return response()->json([
+            'success' => true,
+            'message' => $msg,
+            'data' => $tenant
+        ]);
+    }
+
     // Force Logout User Sessions
     public function forceLogoutUser(Request $request, $id)
     {

@@ -170,6 +170,25 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
     }
   };
 
+  const handleVerifyTenant = async (tenantId: string, isVerified: boolean) => {
+    try {
+      const res = await fetch(`/api/v1/admin/tenants/${tenantId}/verify`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ is_verified: isVerified, status: isVerified ? 'approved' : 'rejected' })
+      });
+      const json = await res.json();
+      if (json.success) {
+        onTriggerToast(json.message);
+        fetchUsers();
+      } else {
+        onTriggerToast(json.message || 'Verification update failed.');
+      }
+    } catch {
+      onTriggerToast('Failed to update tenant verification status.');
+    }
+  };
+
   // Get current active tab user list
   const getCurrentTabUsers = (): UserItem[] => {
     switch (activeTab) {
@@ -832,7 +851,7 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
             {/* Tenant Identity & Document Verification Card */}
             <div style={{ background: 'rgba(13, 17, 32, 0.9)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '18px', padding: '18px' }}>
               <div style={{ fontSize: '12px', fontWeight: 800, color: '#34D399', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <ShieldCheck size={14} /> Identity & Document Verification Audit
+                <ShieldCheck size={14} /> Identity &amp; Document Verification Audit
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12.5px', color: '#D1D5DB', marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -841,20 +860,36 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#9CA3AF' }}>Bank Settlement Account:</span>
-                  <span style={{ fontWeight: 800, color: '#34D399' }}>Paystack Verified (0123456789)</span>
+                  <span style={{ fontWeight: 800, color: '#34D399' }}>Paystack Verified Account</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#9CA3AF' }}>Verification Status:</span>
-                  <span style={{ fontWeight: 900, color: '#34D399', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: '6px' }}>
-                    🟢 VERIFIED
+                  <span style={{ fontWeight: 900, color: (selectedUser.tenant || selectedUser.organization)?.status === 'active' ? '#34D399' : '#FBBF24', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: '6px' }}>
+                    {(selectedUser.tenant || selectedUser.organization)?.status === 'active' ? '🟢 APPROVED & VERIFIED' : '🟡 PENDING APPROVAL'}
                   </span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button className="admin-btn admin-btn-success" style={{ flex: 1, fontSize: '11px', padding: '6px' }} onClick={() => onTriggerToast(`Verified identity for ${selectedUser.name}`)}>
-                  Approve Document
+                <button
+                  className="admin-btn admin-btn-success"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px' }}
+                  onClick={() => {
+                    const tenantId = (selectedUser.tenant || selectedUser.organization)?.id;
+                    if (tenantId) handleVerifyTenant(tenantId, true);
+                    else onTriggerToast('No organization ID attached to this user account.');
+                  }}
+                >
+                  Approve Document &amp; Activate
                 </button>
-                <button className="admin-btn admin-btn-secondary" style={{ flex: 1, fontSize: '11px', padding: '6px', color: '#EF4444' }} onClick={() => onTriggerToast(`Flagged document for re-upload`)}>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px', color: '#EF4444' }}
+                  onClick={() => {
+                    const tenantId = (selectedUser.tenant || selectedUser.organization)?.id;
+                    if (tenantId) handleVerifyTenant(tenantId, false);
+                    else onTriggerToast('No organization ID attached to this user account.');
+                  }}
+                >
                   Flag / Reject
                 </button>
               </div>

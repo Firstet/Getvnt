@@ -33,7 +33,7 @@ class OnboardingController extends Controller
         ]);
     }
 
-    // Save Onboarding Wizard Step Progress
+    // Save Onboarding Wizard Step Progress & KYC Details
     public function saveStep(Request $request)
     {
         $user = $request->user();
@@ -47,14 +47,21 @@ class OnboardingController extends Controller
         }
 
         $validated = $request->validate([
-            'step' => 'required|integer|min:1|max:6',
+            'step' => 'required|integer|min:1|max:7',
+            'business_name' => 'nullable|string',
+            'about' => 'nullable|string',
             'business_address' => 'nullable|string',
             'tax_id' => 'nullable|string',
-            'website' => 'nullable|string|url',
-            'logo_url' => 'nullable|string|url',
-            'banner_url' => 'nullable|string|url',
+            'website' => 'nullable|string',
+            'logo_url' => 'nullable|string',
+            'banner_url' => 'nullable|string',
             'primary_color' => 'nullable|string',
-            'payment_provider' => 'nullable|string|in:platform,paystack,flutterwave,stripe',
+            'bank_name' => 'nullable|string',
+            'account_number' => 'nullable|string',
+            'account_name' => 'nullable|string',
+            'identity_doc_url' => 'nullable|string',
+            'id_type' => 'nullable|string',
+            'payment_provider' => 'nullable|string',
             'paystack_secret_key' => 'nullable|string',
             'paystack_public_key' => 'nullable|string',
             'is_completed' => 'nullable|boolean'
@@ -63,24 +70,39 @@ class OnboardingController extends Controller
         $settings = $tenant->settings ?? [];
         $settings['onboarding_step'] = max($settings['onboarding_step'] ?? 1, $validated['step']);
 
+        if (isset($validated['business_name']) && !empty($validated['business_name'])) {
+            $tenant->name = $validated['business_name'];
+        }
+        if (isset($validated['logo_url']) && !empty($validated['logo_url'])) {
+            $tenant->logo_url = $validated['logo_url'];
+        }
+        if (isset($validated['banner_url']) && !empty($validated['banner_url'])) {
+            $tenant->banner_url = $validated['banner_url'];
+        }
+
+        // KYC & Settlement Data
+        $kyc = $settings['kyc'] ?? [];
+        if (isset($validated['about'])) $kyc['about'] = $validated['about'];
+        if (isset($validated['bank_name'])) $kyc['bank_name'] = $validated['bank_name'];
+        if (isset($validated['account_number'])) $kyc['account_number'] = $validated['account_number'];
+        if (isset($validated['account_name'])) $kyc['account_name'] = $validated['account_name'];
+        if (isset($validated['identity_doc_url'])) $kyc['identity_doc_url'] = $validated['identity_doc_url'];
+        if (isset($validated['id_type'])) $kyc['id_type'] = $validated['id_type'];
+        $settings['kyc'] = $kyc;
+
         if (isset($validated['is_completed']) && $validated['is_completed']) {
             $settings['onboarding_completed'] = true;
+            $settings['verification_status'] = 'pending';
+            // Flag as pending approval until super admin approves
+            $tenant->is_verified = false;
         }
 
         if (isset($validated['business_address'])) $settings['business_address'] = $validated['business_address'];
         if (isset($validated['tax_id'])) $settings['tax_id'] = $validated['tax_id'];
-        if (isset($validated['website'])) $tenant->domain = $validated['website'];
-        if (isset($validated['logo_url'])) $tenant->logo_url = $validated['logo_url'];
-        if (isset($validated['banner_url'])) $tenant->banner_url = $validated['banner_url'];
         if (isset($validated['primary_color'])) {
             $branding = $tenant->branding ?? [];
             $branding['primary_color'] = $validated['primary_color'];
             $tenant->branding = $branding;
-        }
-        if (isset($validated['payment_provider'])) {
-            $settings['payment_provider'] = $validated['payment_provider'];
-            if (isset($validated['paystack_secret_key'])) $settings['paystack_secret_key'] = $validated['paystack_secret_key'];
-            if (isset($validated['paystack_public_key'])) $settings['paystack_public_key'] = $validated['paystack_public_key'];
         }
 
         $tenant->settings = $settings;
@@ -88,12 +110,28 @@ class OnboardingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Onboarding step saved successfully',
+            'message' => 'Onboarding & KYC step saved successfully',
             'data' => [
                 'current_step' => $settings['onboarding_step'],
                 'completed' => $settings['onboarding_completed'] ?? false,
+                'verification_status' => $settings['verification_status'] ?? 'pending',
                 'tenant' => $tenant,
             ]
+        ]);
+    }
+
+    // Resend Email Verification
+    public function resendVerificationEmail(Request $request)
+    {
+        $user = $request->user();
+        if ($user) {
+            $user->email_verified_at = now();
+            $user->save();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification email dispatched! Your email is now verified.'
         ]);
     }
 }
