@@ -85,7 +85,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   ];
 
   return (
-    <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden', width: '100%', boxSizing: 'border-box' }}>
+    <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font-body)' }}>
       
       {/* ── 1. HERO SECTION ── */}
       <section className="tixup-hero-section">
@@ -144,7 +144,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 2. FEATURED EVENT (IMAGE 3 SCREENSHOT MATCH) ── */}
+      {/* ── 2. FEATURED EVENT (EXACT IMAGE 3 MATCH) ── */}
       <section className="landing-section-wrap">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
           <Crown size={24} color="#F59E0B" />
@@ -153,9 +153,9 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
           </h2>
         </div>
 
-        <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
           
-          <div style={{ borderRadius: '20px', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '340px', width: '100%' }}>
+          <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '340px', width: '100%' }}>
             <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} objectFit="cover" style={{ width: '100%', height: '100%' }} />
           </div>
 
@@ -226,7 +226,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 4. UPCOMING EVENTS (2-COL HORIZONTAL CARDS) ── */}
+      {/* ── 4. UPCOMING EVENTS ── */}
       <section className="landing-section-wrap">
         <div style={{ marginBottom: '24px' }}>
           <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>CALENDAR SCHEDULE</span>
@@ -243,7 +243,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '18px',
+                borderRadius: '20px',
                 padding: '16px 20px',
                 display: 'flex',
                 alignItems: 'center',
@@ -267,7 +267,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
                     {ev.title}
                   </h3>
                   <div style={{ fontSize: '12.5px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -311,7 +311,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
               <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 }}>
                 <div>
-                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', marginBottom: '8px', lineHeight: 1.3 }}>{ev.title}</h3>
+                  <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', marginBottom: '8px', lineHeight: 1.3, fontFamily: 'var(--font-heading)' }}>{ev.title}</h3>
                   <div style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '14px' }}>
                     <MapPin size={13} style={{ display: 'inline', marginRight: '4px' }} />
                     {ev.venue_name}, {ev.city}
@@ -332,7 +332,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 6. EVENTS YOU WILL LIKE (IMAGE 1 SCREENSHOT MATCH) ── */}
+      {/* ── 6. EVENTS YOU WILL LIKE (EXACT IMAGE 1 MATCH) ── */}
       <section className="landing-section-wrap">
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
@@ -353,7 +353,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '16px',
+                borderRadius: '20px',
                 padding: '16px 20px',
                 display: 'flex',
                 alignItems: 'center',
@@ -378,7 +378,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: idx === 3 ? '#FF9900' : '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: idx === 3 ? '#FF9900' : '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
                     {ev.title}
                   </h3>
                   <div style={{ fontSize: '13px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -395,7 +395,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 7. TOP RATED ORGANIZERS (IMAGE 2 SCREENSHOT MATCH) ── */}
+      {/* ── 7. TOP RATED ORGANIZERS (EXACT IMAGE 2 MATCH) ── */}
       <section className="landing-section-wrap">
         <div style={{ marginBottom: '24px' }}>
           <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
@@ -421,7 +421,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 style={{
                   background: 'rgba(255,255,255,0.03)',
                   border: '1px solid rgba(255,255,255,0.08)',
-                  borderRadius: '16px',
+                  borderRadius: '20px',
                   padding: '16px 24px',
                   display: 'flex',
                   alignItems: 'center',
@@ -486,7 +486,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px 24px', cursor: 'pointer', width: '100%', boxSizing: 'border-box', transition: 'all 0.2s ease' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: 0 }}>{faq.question}</h4>
+                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>{faq.question}</h4>
                 <ChevronRight size={18} color="#60A5FA" style={{ transform: openFaq === idx ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease', flexShrink: 0 }} />
               </div>
               {openFaq === idx && (
