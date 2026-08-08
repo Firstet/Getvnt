@@ -12,27 +12,31 @@
   --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --touch-target-min: 44px;
 
-  /* ── 8-POINT SPACING SYSTEM ── */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-  --space-12: 48px;
-  --space-16: 64px;
-  --space-20: 80px;
-  --space-24: 96px;
+  /* ── FLUID 8-POINT SPACING SYSTEM ── */
+  --space-1: clamp(3px, 0.3vw, 4px);
+  --space-2: clamp(6px, 0.6vw, 8px);
+  --space-3: clamp(10px, 1vw, 12px);
+  --space-4: clamp(14px, 1.4vw, 16px);
+  --space-6: clamp(20px, 2vw, 24px);
+  --space-8: clamp(26px, 2.8vw, 32px);
+  --space-10: clamp(32px, 3.5vw, 40px);
+  --space-12: clamp(40px, 4vw, 48px);
+  --space-16: clamp(52px, 5.5vw, 64px);
+  --space-20: clamp(64px, 7vw, 80px);
+  --space-24: clamp(76px, 8.5vw, 96px);
 
-  /* ── FLUID TYPOGRAPHY (CLAMP) ── */
+  /* ── FLUID TYPOGRAPHY SCALE (CLAMP) ── */
   --font-xs: clamp(0.7rem, 0.8vw, 0.75rem);
   --font-sm: clamp(0.8rem, 1vw, 0.875rem);
   --font-base: clamp(0.9rem, 1.2vw, 1rem);
   --font-lg: clamp(1.1rem, 1.5vw, 1.25rem);
   --font-xl: clamp(1.3rem, 2vw, 1.5rem);
-  --font-2xl: clamp(1.6rem, 2.5vw, 2rem);
-  --font-3xl: clamp(2rem, 3.5vw, 2.75rem);
+  --font-2xl: clamp(1.6rem, 2.8vw, 2.25rem);
+  --font-3xl: clamp(2.2rem, 4.5vw, 3.5rem);
+  --font-hero: clamp(2.5rem, 6.5vw, 5.25rem);
+
+  /* ── CONTAINER MAX-WIDTH ENGINE ── */
+  --container-max-width: clamp(1180px, 92vw, 1680px);
 }
 
 * {
@@ -896,11 +900,12 @@ p, span, div {
   }
 }
 
-/* ── MOBILE RESPONSIVE OPTIMIZATIONS (< 768px) ── */
+/* ── FLUID RESPONSIVE CONTAINER ENGINE ── */
 .landing-section-wrap {
-  max-width: 1280px;
-  margin: 0 auto 100px auto;
-  padding: 0 24px;
+  max-width: var(--container-max-width);
+  margin: 0 auto clamp(60px, 8vw, 120px) auto;
+  padding: 0 clamp(16px, 3.5vw, 48px);
+  box-sizing: border-box;
 }
 
 .hero-landing-section {
