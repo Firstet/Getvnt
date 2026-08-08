@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Sparkles, ArrowRight, CheckCircle2, Zap, Shield, Smartphone, Download, QrCode,
   TrendingUp, Users, DollarSign, Calendar, MapPin, Star, Play, ChevronRight,
-  Compass, Crown, Clock, HelpCircle, BarChart3, Layers, Bot, Globe, Check, ArrowUpRight, Ticket, Rss, Search, Award, Heart
+  Crown, Clock, HelpCircle, Rss, Search, Heart, Share2, Music, Briefcase, Mic, GraduationCap, Laptop, Trophy, Utensils, Shirt, Award
 } from 'lucide-react';
 import { LazyImage } from '../../../../shared/src';
 import { AndroidAppPromotion } from './AndroidAppPromotion';
@@ -48,18 +48,15 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
     { name: 'London', flag: '🇬🇧' },
   ];
 
-  const categoriesList = [
-    { id: 'All', label: '⚡ All Events' },
-    { id: 'Music', label: '🎵 Music' },
-    { id: 'Tech', label: '💻 Tech' },
-    { id: 'Business', label: '💼 Business' },
-    { id: 'Comedy', label: '🎭 Comedy' },
-    { id: 'Networking', label: '🤝 Networking' },
-    { id: 'Education', label: '📚 Education' },
-    { id: 'Fashion', label: '👗 Fashion' },
-    { id: 'Food', label: '🍷 Food & Drinks' },
-    { id: 'Sports', label: '⚽ Sports' },
-    { id: 'Lifestyle', label: '✨ Lifestyle' },
+  const categoryCards = [
+    { id: 'Music', label: 'Music & Concerts', icon: <Music size={24} color="#60A5FA" />, count: '142 Events' },
+    { id: 'Business', label: 'Business & Summits', icon: <Briefcase size={24} color="#34D399" />, count: '89 Events' },
+    { id: 'Tech', label: 'Tech & AI Conferences', icon: <Laptop size={24} color="#A78BFA" />, count: '116 Events' },
+    { id: 'Comedy', label: 'Comedy Shows', icon: <Mic size={24} color="#FBBF24" />, count: '45 Events' },
+    { id: 'Education', label: 'Education & Workshops', icon: <GraduationCap size={24} color="#F472B6" />, count: '62 Events' },
+    { id: 'Sports', label: 'Sports & Esports', icon: <Trophy size={24} color="#60A5FA" />, count: '38 Events' },
+    { id: 'Food', label: 'Food & Wine Festivals', icon: <Utensils size={24} color="#34D399" />, count: '51 Events' },
+    { id: 'Fashion', label: 'Fashion & Arts', icon: <Shirt size={24} color="#FBBF24" />, count: '29 Events' },
   ];
 
   const filteredEvents = events.filter((ev) => {
@@ -77,20 +74,20 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   ];
 
   const topOrganizers = [
-    { name: 'AfroNation Global Events', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', isFeatured: false },
-    { name: 'Bankole & Partners Live', growth: '↑ 84.20%', avatar: '', isFeatured: false },
-    { name: 'Samora & Co. Studios', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', isFeatured: true },
-    { name: 'De Brilliance Luxury Events', growth: '↑ 52.10%', avatar: '', isFeatured: false },
-    { name: 'Opemipo Live Entertainment', growth: '↑ 41.80%', avatar: '', isFeatured: false },
+    { name: 'AfroNation Global Events', followers: '142k Followers • ₦480M GMV', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', rating: '4.9 ★', isFeatured: false },
+    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '', rating: '4.8 ★', isFeatured: false },
+    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', rating: '5.0 ★', isFeatured: true },
+    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '', rating: '4.7 ★', isFeatured: false },
+    { name: 'Opemipo Live Entertainment', followers: '51k Followers • ₦140M GMV', growth: '↑ 41.80%', avatar: '', rating: '4.7 ★', isFeatured: false },
   ];
 
   return (
     <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font-body)' }}>
       
-      {/* ── 1. HERO SECTION ── */}
+      {/* ── 1. HERO SECTION (FULL VIEWPORT INTEGRATION) ── */}
       <section className="tixup-hero-section">
         
-        <div style={{ position: 'absolute', top: '-140px', left: '50%', transform: 'translateX(-50%)', width: 'min(100%, 1200px)', height: '480px', background: 'radial-gradient(circle, rgba(37,99,235,0.22) 0%, rgba(124,58,237,0.08) 50%, transparent 75%)', filter: 'blur(100px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-140px', left: '50%', transform: 'translateX(-50%)', width: 'min(100%, 1400px)', height: '540px', background: 'radial-gradient(circle, rgba(37,99,235,0.25) 0%, rgba(124,58,237,0.12) 45%, transparent 75%)', filter: 'blur(110px)', pointerEvents: 'none' }} />
 
         <div className="landing-section-wrap" style={{ position: 'relative', zIndex: 2, marginBottom: 0 }}>
           
@@ -99,12 +96,12 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>GETVNT OS v2.0 • Premium Global Ticketing Infrastructure</span>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(36px, 6vw, 68px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#FFFFFF', marginBottom: '20px', fontFamily: 'var(--font-heading)' }}>
+          <h1 style={{ fontSize: 'clamp(40px, 6vw, 68px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#FFFFFF', marginBottom: '20px', fontFamily: 'var(--font-heading)' }}>
             Discover &amp; Experience <br />
             <span style={{ color: '#60A5FA', background: 'linear-gradient(135deg, #60A5FA 0%, #2563EB 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>World-Class Live Events.</span>
           </h1>
 
-          <p style={{ fontSize: 'clamp(16px, 1.8vw, 20px)', color: '#9CA3AF', lineHeight: 1.55, maxWidth: '720px', margin: '0 auto 36px auto', fontWeight: 500 }}>
+          <p style={{ fontSize: 'clamp(16px, 1.8vw, 20px)', color: '#9CA3AF', lineHeight: 1.55, maxWidth: '740px', margin: '0 auto 36px auto', fontWeight: 500 }}>
             Book verified passes for concerts, festivals, and summits. Powered by instant <strong style={{ color: '#E2E8F0' }}>&lt;500ms encrypted QR check-in</strong>.
           </p>
 
@@ -144,93 +141,106 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 2. FEATURED EVENT (EXACT IMAGE 3 MATCH) ── */}
+      {/* ── 2. FEATURED EVENT DOMINANCE ── */}
       <section className="landing-section-wrap">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <Crown size={24} color="#F59E0B" />
-          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 32px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
-            Featured Event
-          </h2>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Crown size={26} color="#F59E0B" />
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 38px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
+              Featured Event Drop
+            </h2>
+          </div>
+          <span style={{ background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', color: '#F59E0B', padding: '6px 14px', borderRadius: '99px', fontSize: '12px', fontWeight: 800 }}>
+            🔥 88% Sold Out
+          </span>
         </div>
 
-        <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
+        <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '36px', alignItems: 'center', width: '100%', boxSizing: 'border-box', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
           
-          <div style={{ borderRadius: '16px', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '340px', width: '100%' }}>
+          <div style={{ borderRadius: '20px', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '360px', width: '100%', position: 'relative' }}>
             <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} objectFit="cover" style={{ width: '100%', height: '100%' }} />
+            <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'rgba(7,9,15,0.85)', backdropFilter: 'blur(10px)', color: '#FF9900', fontSize: '11.5px', fontWeight: 900, padding: '6px 14px', borderRadius: '99px', border: '1px solid rgba(255,153,0,0.3)' }}>
+              ⭐ FEATURED PASS
+            </span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 34px)', fontWeight: 900, color: '#FF9900', textTransform: 'uppercase', margin: '0 0 16px 0', fontFamily: 'var(--font-heading)', letterSpacing: '0.02em' }}>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#FF9900', textTransform: 'uppercase', margin: '0 0 16px 0', fontFamily: 'var(--font-heading)', letterSpacing: '0.02em', lineHeight: 1.1 }}>
               {featuredEvent.title}
             </h2>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#9CA3AF', fontSize: '13.5px', marginBottom: '20px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', color: '#9CA3AF', fontSize: '14px', marginBottom: '20px', flexWrap: 'wrap' }}>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={15} color="#9CA3AF" /> {featuredEvent.venue_name}
+                <MapPin size={16} color="#60A5FA" /> {featuredEvent.venue_name}
               </span>
               <span style={{ color: '#4B5563' }}>|</span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <Calendar size={15} color="#9CA3AF" /> Wed • Sep 30, 2026 • 07:00 pm GMT+1
+                <Calendar size={16} color="#34D399" /> Sep 30, 2026 • 07:00 PM GMT+1
               </span>
             </div>
 
-            <p style={{ color: '#9CA3AF', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '28px' }}>
+            <p style={{ color: '#9CA3AF', fontSize: '15.5px', lineHeight: 1.6, marginBottom: '32px' }}>
               PARKFLIX is an outdoor cinema experience, it isn't just another event. It's an experience where people come together to relax, connect, and enjoy a carefully curated night under the stars.
             </p>
 
-            <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
               <button
                 onClick={() => onSelectEvent(featuredEvent)}
                 className="tixup-btn-primary"
-                style={{ padding: '14px 32px', borderRadius: '12px', background: '#2563EB', color: '#FFF', fontWeight: 800, fontSize: '14.5px', border: 'none', cursor: 'pointer' }}
+                style={{ padding: '0 36px', height: '54px', fontSize: '16px' }}
               >
-                Get Ticket
+                Get Ticket • ₦35,000
               </button>
+              <span style={{ color: '#9CA3AF', fontSize: '13.5px', fontWeight: 600 }}>
+                ⚡ Instant Digital Pass via Email &amp; SMS
+              </span>
             </div>
           </div>
 
         </div>
       </section>
 
-      {/* ── 3. EXPLORE CATEGORIES (HORIZONTAL PILLS) ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 3. EXPLORE CATEGORIES (ICON CARDS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-          <h2 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#FFF', fontFamily: 'var(--font-heading)' }}>Explore Categories</h2>
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>BROWSE BY INTEREST</span>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
+            Explore Categories
+          </h2>
         </div>
-        <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '12px', scrollbarWidth: 'none' }}>
-          {categoriesList.map((cat) => (
-            <button
+
+        <div className="category-icon-grid">
+          {categoryCards.map((cat) => (
+            <div
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
+              className="category-icon-card"
               style={{
-                padding: '12px 22px',
-                borderRadius: '99px',
-                border: '1px solid',
-                borderColor: selectedCategory === cat.id ? '#2563EB' : 'rgba(255,255,255,0.12)',
-                background: selectedCategory === cat.id ? 'rgba(37,99,235,0.22)' : 'rgba(255,255,255,0.04)',
-                color: selectedCategory === cat.id ? '#60A5FA' : '#9CA3AF',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-                transition: 'all 0.2s ease',
-                minHeight: '48px',
-                display: 'inline-flex',
-                alignItems: 'center'
+                borderColor: selectedCategory === cat.id ? '#2563EB' : 'rgba(255,255,255,0.08)',
+                background: selectedCategory === cat.id ? 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(13,17,32,0.95) 100%)' : 'rgba(13,17,32,0.85)'
               }}
             >
-              {cat.label}
-            </button>
+              <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
+                {cat.icon}
+              </div>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', fontFamily: 'var(--font-heading)' }}>{cat.label}</h3>
+                <span style={{ fontSize: '12.5px', color: '#9CA3AF', fontWeight: 500 }}>{cat.count}</span>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── 4. UPCOMING EVENTS ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 4. UPCOMING EVENTS (HORIZONTAL CARDS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ marginBottom: '24px' }}>
-          <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>CALENDAR SCHEDULE</span>
-          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+        <div style={{ marginBottom: '28px' }}>
+          <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>SCHEDULE</span>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
             Upcoming Events
           </h2>
         </div>
@@ -241,56 +251,58 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               key={ev.id}
               onClick={() => onSelectEvent(ev)}
               style={{
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(13,17,32,0.85)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '20px',
-                padding: '16px 20px',
+                padding: '20px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 gap: '16px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.25s ease',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
               className="tixup-event-card"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-                <div style={{ width: '54px', height: '54px', borderRadius: '12px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ fontSize: '10px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '18px', flex: 1, minWidth: 0 }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '14px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }}>
+                  <span style={{ fontSize: '11px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
                     {new Date(ev.start_date).toLocaleDateString('en-US', { month: 'short' })}
                   </span>
-                  <span style={{ fontSize: '20px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
+                  <span style={{ fontSize: '22px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
                     {new Date(ev.start_date).getDate()}
                   </span>
                 </div>
 
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
+                  <h3 style={{ fontSize: '16.5px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
                     {ev.title}
                   </h3>
-                  <div style={{ fontSize: '12.5px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <div style={{ fontSize: '13px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     20:00 • {ev.venue_name}, {ev.city}
                   </div>
                 </div>
               </div>
 
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ChevronRight size={16} color="#60A5FA" />
+              <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ChevronRight size={18} color="#60A5FA" />
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 5. LATEST EVENTS (4-COL GRID) ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 5. LATEST VERIFIED EVENTS (RICHER CARDS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
           <div>
-            <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>EXPLORE ALL</span>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: '4px 0 0 0', fontFamily: 'var(--font-heading)' }}>
-              Latest Events
+            <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>DISCOVER ALL</span>
+            <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', margin: '4px 0 0 0', fontFamily: 'var(--font-heading)' }}>
+              Latest Verified Events
             </h2>
           </div>
         </div>
@@ -322,7 +334,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                   <span style={{ fontSize: '18px', fontWeight: 900, color: '#FFF' }}>
                     {ev.ticket_types?.[0] ? `₦${ev.ticket_types[0].price.toLocaleString()}` : 'FREE'}
                   </span>
-                  <button className="tixup-btn-primary" style={{ minHeight: '40px', padding: '8px 16px', fontSize: '13px' }} onClick={(e) => { e.stopPropagation(); onSelectEvent(ev); }}>
+                  <button className="tixup-btn-primary" style={{ minHeight: '44px', padding: '0 20px', fontSize: '13.5px' }} onClick={(e) => { e.stopPropagation(); onSelectEvent(ev); }}>
                     Get Ticket
                   </button>
                 </div>
@@ -332,97 +344,107 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 6. EVENTS YOU WILL LIKE (EXACT IMAGE 1 MATCH) ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 6. EVENTS YOU WILL LIKE (AI RECOMMENDATIONS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
+        <div style={{ marginBottom: '28px' }}>
+          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>AI PERSONALIZED MATCH</span>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', margin: '4px 0 0 0', fontFamily: 'var(--font-heading)' }}>
             Events You Will Like
           </h2>
         </div>
 
         <div className="tixup-grid-2col">
           {[
-            { id: 'rec-1', title: 'Sneakers Fest: The Culture Experience', date: 'SEP 12', time: '20:00', venue: 'Elysium Oasis, Car Park, Onikoko Road, Adjacent to Ogun Fire Service Station, Abeokuta' },
-            { id: 'rec-2', title: 'Omidan Ogun 2026', date: 'OCT 11', time: '10:00', venue: 'Olusegun Obasanjo Presidential Library, Abeokuta' },
-            { id: 'rec-3', title: 'Jamisdepe Comedy Hangout (TUNGBAFIESTA) & HEADSET AFTER PARTY', date: 'SEP 20', time: '15:00', venue: 'The Mayfair Executive, Ibara Housing Estate, Abeokuta Ogun State.' },
-            { id: 'rec-4', title: 'Mask Night party Crazy Games & After Party', date: 'AUG 30', time: '22:00', venue: 'Ajah Lekki Phase one Admiralty' },
+            { id: 'rec-1', tag: '⚡ AI MATCH: Because you liked Afrobeats', title: 'Sneakers Fest: The Culture Experience', date: 'SEP 12', time: '20:00', venue: 'Elysium Oasis, Car Park, Onikoko Road, Abeokuta' },
+            { id: 'rec-2', tag: '🔥 Trending in Lagos', title: 'Omidan Ogun 2026', date: 'OCT 11', time: '10:00', venue: 'Olusegun Obasanjo Presidential Library, Abeokuta' },
+            { id: 'rec-3', tag: '🎭 Popular Comedy Special', title: 'Jamisdepe Comedy Hangout (TUNGBAFIESTA) & AFTER PARTY', date: 'SEP 20', time: '15:00', venue: 'The Mayfair Executive, Ibara Housing Estate, Abeokuta' },
+            { id: 'rec-4', tag: '💼 Recommended for Founders', title: 'Mask Night party Crazy Games & After Party', date: 'AUG 30', time: '22:00', venue: 'Ajah Lekki Phase one Admiralty' },
           ].map((ev, idx) => (
             <div
               key={idx}
               onClick={() => onSelectEvent(events[0])}
               style={{
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(13,17,32,0.85)',
                 border: '1px solid rgba(255,255,255,0.08)',
                 borderRadius: '20px',
-                padding: '16px 20px',
+                padding: '20px',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '16px',
+                flexDirection: 'column',
+                gap: '12px',
                 cursor: 'pointer',
-                transition: 'all 0.2s ease',
+                transition: 'all 0.25s ease',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
               className="tixup-event-card"
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-                {/* Date Block */}
-                <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }}>
-                  <span style={{ fontSize: '10.5px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
-                    {ev.date.split(' ')[0]}
-                  </span>
-                  <span style={{ fontSize: '20px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
-                    {ev.date.split(' ')[1]}
-                  </span>
-                </div>
-
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: idx === 3 ? '#FF9900' : '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
-                    {ev.title}
-                  </h3>
-                  <div style={{ fontSize: '13px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                    {ev.time} &nbsp; {ev.venue}
-                  </div>
-                </div>
+              <div style={{ fontSize: '11px', color: '#60A5FA', fontWeight: 800 }}>
+                {ev.tag}
               </div>
 
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ChevronRight size={16} color="#60A5FA" />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                  <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.08)' }}>
+                    <span style={{ fontSize: '10.5px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
+                      {ev.date.split(' ')[0]}
+                    </span>
+                    <span style={{ fontSize: '20px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
+                      {ev.date.split(' ')[1]}
+                    </span>
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: 800, color: idx === 3 ? '#FF9900' : '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-heading)' }}>
+                      {ev.title}
+                    </h3>
+                    <div style={{ fontSize: '13px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {ev.time} &nbsp; {ev.venue}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ width: '38px', height: '38px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <ChevronRight size={18} color="#60A5FA" />
+                </div>
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 7. TOP RATED ORGANIZERS (EXACT IMAGE 2 MATCH) ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 7. TOP RATED ORGANIZERS LEADERBOARD (TIXUP TABLE STYLE) ── */}
       <section className="landing-section-wrap">
-        <div style={{ marginBottom: '24px' }}>
-          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
+        <div style={{ marginBottom: '28px' }}>
+          <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>PROMOTER LEADERBOARD</span>
+          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
             Top Rated Organizers
           </h2>
         </div>
 
         <div style={{ width: '100%', boxSizing: 'border-box' }}>
-          {/* Table Column Headers */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 12px 24px', fontSize: '11px', color: '#6B7280', fontWeight: 800, letterSpacing: '1px' }}>
+          {/* Table Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 14px 24px', fontSize: '11px', color: '#6B7280', fontWeight: 800, letterSpacing: '1px' }}>
             <div style={{ display: 'flex', gap: '48px', alignItems: 'center' }}>
               <span style={{ width: '20px', textAlign: 'center' }}>#</span>
-              <span>NAME</span>
+              <span>ORGANIZER NAME</span>
             </div>
-            <span>7D %</span>
+            <span>7D % GROWTH</span>
           </div>
 
-          {/* Leaderboard Rows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Table Rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {topOrganizers.map((org, idx) => (
               <div
                 key={idx}
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
+                  background: 'rgba(13,17,32,0.85)',
                   border: '1px solid rgba(255,255,255,0.08)',
                   borderRadius: '20px',
-                  padding: '16px 24px',
+                  padding: '18px 24px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -432,24 +454,28 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                   <div style={{ width: '24px', textAlign: 'center', fontSize: '16px', fontWeight: 900, color: '#FFF', display: 'flex', justifyContent: 'center' }}>
-                    {idx === 0 ? <Crown size={20} color="#F59E0B" /> : idx + 1}
+                    {idx === 0 ? <Crown size={22} color="#F59E0B" /> : idx + 1}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                    <div style={{ width: '44px', height: '44px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#7C3AED,#2563EB)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: '#FFF' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#7C3AED,#2563EB)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: '#FFF' }}>
                       {org.avatar ? <LazyImage src={org.avatar} alt={org.name} objectFit="cover" style={{ width: '100%', height: '100%' }} /> : org.name.charAt(0)}
                     </div>
-                    <span style={{ fontSize: '16px', fontWeight: 800, color: org.isFeatured ? '#FF9900' : '#FFF' }}>
-                      {org.name}
-                    </span>
+                    <div>
+                      <div style={{ fontSize: '16.5px', fontWeight: 800, color: org.isFeatured ? '#FF9900' : '#FFF', fontFamily: 'var(--font-heading)' }}>
+                        {org.name}
+                      </div>
+                      <div style={{ fontSize: '12.5px', color: '#9CA3AF' }}>
+                        {org.followers} &nbsp;•&nbsp; <span style={{ color: '#F59E0B' }}>{org.rating}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* 7D % Sparkline Curve */}
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
                   <svg width="100" height="24" viewBox="0 0 100 24" fill="none">
                     <path d={idx % 2 === 0 ? "M0 18 Q 35 22, 60 12 T 85 4 T 100 8" : "M0 6 Q 30 20, 60 16 T 85 22 T 100 18"} stroke="#10B981" strokeWidth="2" fill="none" />
                   </svg>
-                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#10B981' }}>{org.growth}</span>
+                  <span style={{ fontSize: '13px', fontWeight: 800, color: '#10B981' }}>{org.growth}</span>
                 </div>
               </div>
             ))}
@@ -457,12 +483,16 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 8. DOWNLOAD GETVNT APP ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 8. UNBOXED ANDROID SCANNER APP SHOWCASE ── */}
       <section className="landing-section-wrap">
         <AndroidAppPromotion />
       </section>
 
-      {/* ── 9. BLOG / PULSE MEDIA ── */}
+      <div className="glass-section-divider" />
+
+      {/* ── 9. APPLE NEWS-STYLE PULSE BLOG ── */}
       <section className="landing-section-wrap">
         <HomeNewsCarousel
           onOpenArticle={(slug) => onNavigateToBlog(slug)}
@@ -470,10 +500,12 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         />
       </section>
 
+      <div className="glass-section-divider" />
+
       {/* ── 10. FAQ ACCORDION ── */}
-      <section style={{ maxWidth: '880px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(16px, 3vw, 80px)', boxSizing: 'border-box' }}>
+      <section style={{ maxWidth: '880px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 72px)', boxSizing: 'border-box' }}>
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>QUESTIONS</span>
+          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>KNOWLEDGE BASE</span>
           <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
             Frequently Asked Questions
           </h2>
@@ -483,14 +515,14 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             <div
               key={idx}
               onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-              style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px 24px', cursor: 'pointer', width: '100%', boxSizing: 'border-box', transition: 'all 0.2s ease' }}
+              style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '22px 26px', cursor: 'pointer', width: '100%', boxSizing: 'border-box', transition: 'all 0.2s ease' }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>{faq.question}</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>{faq.question}</h4>
                 <ChevronRight size={18} color="#60A5FA" style={{ transform: openFaq === idx ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease', flexShrink: 0 }} />
               </div>
               {openFaq === idx && (
-                <p style={{ color: '#9CA3AF', fontSize: '14.5px', lineHeight: 1.6, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
+                <p style={{ color: '#9CA3AF', fontSize: '15px', lineHeight: 1.6, marginTop: '16px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
                   {faq.answer}
                 </p>
               )}
@@ -498,6 +530,83 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
           ))}
         </div>
       </section>
+
+      {/* ── 11. CLEAN 4-COLUMN FOOTER & NEWSLETTER ── */}
+      <footer style={{ background: '#05070D', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '64px', paddingBottom: '48px' }}>
+        <div className="landing-section-wrap" style={{ marginBottom: 0 }}>
+          
+          {/* Newsletter Card */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(13,17,32,0.9) 100%)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px', padding: '36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', marginBottom: '64px' }}>
+            <div>
+              <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>Subscribe to Event Intelligence</h3>
+              <p style={{ color: '#9CA3AF', fontSize: '14.5px', margin: 0 }}>Get weekly curated drops, concert announcements, and promoter strategy reports.</p>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flex: 1, maxWidth: '480px' }}>
+              <input
+                type="email"
+                placeholder="Enter your email address..."
+                style={{ flex: 1, background: 'rgba(7,9,15,0.85)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '999px', padding: '0 20px', color: '#FFF', outline: 'none', fontSize: '14px', height: '52px' }}
+              />
+              <button className="tixup-btn-primary" style={{ height: '52px', padding: '0 28px' }}>
+                Subscribe
+              </button>
+            </div>
+          </div>
+
+          {/* 4 Footer Columns */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px', marginBottom: '48px' }}>
+            <div>
+              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Discover</h4>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Explore All Events</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Featured Concerts</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Tech &amp; AI Summits</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('pulse')}>Pulse Entertainment Blog</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Company</h4>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>About GETVNT OS</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Press &amp; Media Kit</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Careers</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Brand Guidelines</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Organizers</h4>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Organizer OS Suite</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Real-Time Payouts</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>QR Gate Scanner App</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Enterprise Pricing</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Support</h4>
+              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>Help Center &amp; FAQs</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('manage_ticket')}>Lookup Ticket Order</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>API Documentation</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>Contact Security Team</a></li>
+              </ul>
+            </div>
+          </div>
+
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', color: '#6B7280', fontSize: '13px' }}>
+            <div>© 2026 GETVNT Global Ticketing Inc. All rights reserved.</div>
+            <div style={{ display: 'flex', gap: '20px' }}>
+              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Privacy Policy</a>
+              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Terms of Service</a>
+              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Security Portal</a>
+            </div>
+          </div>
+
+        </div>
+      </footer>
 
     </div>
   );
