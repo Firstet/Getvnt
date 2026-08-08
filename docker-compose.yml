@@ -19,11 +19,11 @@ services:
     labels:
       - "traefik.enable=true"
       # HTTP Router (Port 80)
-      - "traefik.http.routers.getvnt-http.rule=Host(`getvnt.com`, `www.getvnt.com`, `app.getvnt.com`, `admin.getvnt.com`, `api.getvnt.com`) || HostRegexp(`{subdomain:.*}.getvnt.com`) || PathPrefix(`/`)"
+      - "traefik.http.routers.getvnt-http.rule=Host(`getvnt.com`) || Host(`app.getvnt.com`) || Host(`admin.getvnt.com`) || Host(`api.getvnt.com`) || PathPrefix(`/`)"
       - "traefik.http.routers.getvnt-http.entrypoints=web"
       - "traefik.http.routers.getvnt-http.service=getvnt-service"
       # HTTPS Router (Port 443 with Let's Encrypt SSL)
-      - "traefik.http.routers.getvnt-https.rule=Host(`getvnt.com`, `www.getvnt.com`, `app.getvnt.com`, `admin.getvnt.com`, `api.getvnt.com`) || HostRegexp(`{subdomain:.*}.getvnt.com`)"
+      - "traefik.http.routers.getvnt-https.rule=Host(`getvnt.com`) || Host(`app.getvnt.com`) || Host(`admin.getvnt.com`) || Host(`api.getvnt.com`)"
       - "traefik.http.routers.getvnt-https.entrypoints=websecure"
       - "traefik.http.routers.getvnt-https.tls=true"
       - "traefik.http.routers.getvnt-https.tls.certresolver=letsencrypt"
