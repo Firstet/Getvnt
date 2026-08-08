@@ -41,15 +41,18 @@ class AuthProvider extends Model
         ];
 
         foreach ($defaults as $provider) {
+            $apiBase = rtrim(env('API_URL', env('APP_URL', 'https://api.getvnt.com')), '/');
+            $defaultRedirect = "{$apiBase}/api/v1/auth/{$provider['provider_slug']}/callback";
+
             self::firstOrCreate(
                 ['provider_slug' => $provider['provider_slug']],
                 [
-                    'name'         => $provider['name'],
-                    'is_enabled'   => false,
-                    'client_id'    => '',
-                    'client_secret'=> '',
-                    'redirect_uri' => "http://localhost:8000/api/v1/auth/{$provider['provider_slug']}/callback",
-                    'scopes'       => $provider['scopes'],
+                    'name'          => $provider['name'],
+                    'is_enabled'    => false,
+                    'client_id'     => '',
+                    'client_secret' => '',
+                    'redirect_uri'  => $defaultRedirect,
+                    'scopes'        => $provider['scopes'],
                 ]
             );
         }
