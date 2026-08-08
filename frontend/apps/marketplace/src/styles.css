@@ -131,27 +131,152 @@ body {
   width: 100%;
 }
 
+/* ── REDESIGNED PREMIUM HEADER & NAVIGATION SYSTEM ── */
 .top-header {
-  height: 72px;
-  background-color: rgba(6, 9, 19, 0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 0 32px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  height: 80px;
+  background-color: rgba(8, 10, 20, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
-  gap: 16px;
   width: 100%;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.top-header.scrolled {
+  height: 72px;
+  background-color: rgba(8, 10, 20, 0.94);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.header-container {
+  width: min(100%, 1600px);
+  margin: 0 auto;
+  padding-inline: clamp(20px, 4vw, 64px);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.header-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  margin-left: 64px;
+}
+
+.header-nav-item {
+  position: relative;
+  font-size: 16px;
+  font-weight: 600;
+  color: #D1D5DB;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.header-nav-item:hover,
+.header-nav-item.active {
+  color: #60A5FA;
+}
+
+.header-nav-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2563EB;
+  border-radius: 99px;
+  transform: scaleX(0);
+  transition: transform 0.2s ease;
+}
+
+.header-nav-item:hover::after,
+.header-nav-item.active::after {
+  transform: scaleX(1);
+}
+
+/* Mega Dropdown Menu */
+.header-mega-menu {
+  position: absolute;
+  top: 100%;
+  left: -20px;
+  width: 460px;
+  background: #0D1120;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+  animation: megaMenuFade 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 200;
+}
+
+@keyframes megaMenuFade {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.header-pill-search {
+  width: clamp(280px, 24vw, 380px);
+  height: 52px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease;
+}
+
+.header-pill-search:focus-within {
+  border-color: #2563EB;
+  background: rgba(37, 99, 235, 0.08);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+.header-cta-primary {
+  height: 52px;
+  padding: 0 32px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  color: #FFFFFF;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  min-height: 52px;
+}
+
+.header-cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.6);
 }
 
 .mobile-hamburger-btn {
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 10px;
-  padding: 8px;
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
   color: #FFF;
   cursor: pointer;
   display: none;
@@ -159,16 +284,20 @@ body {
   justify-content: center;
 }
 
+@media (max-width: 1024px) {
+  .top-header {
+    height: 72px;
+  }
+}
+
 @media (max-width: 900px) {
   .top-header {
     height: 64px;
-    padding: 0 16px;
-    flex-wrap: nowrap;
   }
   .header-nav-links,
-  .header-search-desktop,
+  .header-pill-search,
   .desktop-only-link,
-  .desktop-only-btn {
+  .header-cta-primary {
     display: none !important;
   }
   .mobile-hamburger-btn {

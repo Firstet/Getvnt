@@ -40,6 +40,16 @@ function MarketplaceContent() {
   const [category, setCategory] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showExploreDropdown, setShowExploreDropdown] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -266,91 +276,137 @@ function MarketplaceContent() {
   return (
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#07090F', color: '#FFF' }}>
       
-      {/* ── 1. FULL-WIDTH TOP HEADER ── */}
-      {/* ── 1. STICKY TOP NAVBAR (TixUp / Linear Style) ── */}
-      <header className="top-header">
-        
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
-            <GetvntLogo height={42} theme="dark" />
-          </a>
-        </div>
-
-        {/* Center Header Navigation Links (Desktop Only) */}
-        <nav className="header-nav-links">
-          <a className={`nav-link ${activeTab === 'home' ? 'active' : ''}`} style={{ color: activeTab === 'home' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
-            Explore Events
-          </a>
-          <a className={`nav-link ${activeTab === 'manage_ticket' ? 'active' : ''}`} style={{ color: activeTab === 'manage_ticket' ? '#34D399' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={(e) => { e.preventDefault(); navigateTo('manage_ticket'); }}>
-            <Ticket size={16} color="#34D399" /> Manage Ticket
-          </a>
-          <a className={`nav-link ${activeTab === 'pulse' ? 'active' : ''}`} style={{ color: activeTab === 'pulse' ? '#EC4899' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>
-            <Rss size={16} color="#EC4899" /> Pulse Blog
-          </a>
-          <a className={`nav-link ${activeTab === 'about' ? 'active' : ''}`} style={{ color: activeTab === 'about' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>
-            About Us
-          </a>
-          <a className={`nav-link ${activeTab === 'help' ? 'active' : ''}`} style={{ color: activeTab === 'help' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>
-            Help Center
-          </a>
-        </nav>
-
-        {/* Right Desktop Action CTAs & Mobile Hamburger */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="header-search-desktop" style={{ maxWidth: '200px' }}>
-            <div className="search-input-wrap">
-              <Search className="search-icon" size={15} />
-              <input
-                type="text"
-                className="search-field"
-                placeholder="Search events..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+      {/* ── 1. REDESIGNED STICKY TOP NAVBAR (3-COLUMN RESPONSIVE LAYOUT) ── */}
+      <header className={`top-header ${isScrolled ? 'scrolled' : ''}`}>
+        <div className="header-container">
+          
+          {/* Column 1: Getvnt Brand Logo */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
+              <GetvntLogo height={46} theme="dark" />
+            </a>
           </div>
 
-          <a
-            href={getAppUrl('workspace')}
-            className="desktop-only-link"
-            style={{ color: '#A5B4FC', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          >
-            Organizer Login
-          </a>
+          {/* Column 2: Center Header Navigation Menu (16px, 600 weight, 36px gap) */}
+          <nav className="header-nav-links">
+            <div
+              className="header-nav-item-wrap"
+              onMouseEnter={() => setShowExploreDropdown(true)}
+              onMouseLeave={() => setShowExploreDropdown(false)}
+              style={{ position: 'relative' }}
+            >
+              <a
+                className={`header-nav-item ${activeTab === 'home' ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); navigateTo('home'); }}
+              >
+                Explore Events <ChevronRight size={14} style={{ transform: showExploreDropdown ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease' }} />
+              </a>
 
-          <a
-            href={getAppUrl('workspace')}
-            className="btn-cta desktop-only-btn"
-            style={{
-              background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-              color: '#FFF', padding: '9px 18px', fontSize: '13px', fontWeight: 900,
-              borderRadius: '99px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
-              boxShadow: '0 4px 14px rgba(37,99,235,0.4)', whiteSpace: 'nowrap'
-            }}
-          >
-            <Sparkles size={14} /> Become an Organizer
-          </a>
+              {/* Mega Dropdown Menu */}
+              {showExploreDropdown && (
+                <div className="header-mega-menu">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>CURATED SELECTIONS</div>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        ⭐ Featured Events
+                      </a>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        🔥 Latest Events
+                      </a>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        ⚡ Trending Across Africa
+                      </a>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>POPULAR CATEGORIES</div>
+                      {['Music & Concerts', 'Tech & AI', 'Business & Summits', 'Comedy Shows', 'Networking'].map((cat) => (
+                        <a key={cat} style={{ display: 'block', padding: '6px 12px', color: '#9CA3AF', fontSize: '13px', textDecoration: 'none' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                          {cat}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Mobile Hamburger Toggle Button */}
-          <button
-            className="mobile-hamburger-btn"
-            aria-label="Toggle Mobile Menu"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X size={22} color="#FFF" /> : <Menu size={22} color="#FFF" />}
-          </button>
+            <a className={`header-nav-item ${activeTab === 'manage_ticket' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('manage_ticket'); }}>
+              Manage Ticket
+            </a>
+            <a className={`header-nav-item ${activeTab === 'pulse' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>
+              Pulse
+            </a>
+            <a className={`header-nav-item ${activeTab === 'about' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>
+              Pricing
+            </a>
+            <a className={`header-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>
+              Help
+            </a>
+          </nav>
+
+          {/* Column 3: Right Action Area (Pill Search Capsule, Login, Become an Organizer CTA) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+            <div className="header-pill-search">
+              <Search size={16} color="#60A5FA" style={{ flexShrink: 0 }} />
+              <input
+                type="text"
+                placeholder="Search events, cities or organizers..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '14px', outline: 'none' }}
+              />
+            </div>
+
+            <a
+              href={getAppUrl('workspace')}
+              style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '16px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease' }}
+              className="desktop-only-link"
+            >
+              Organizer Login
+            </a>
+
+            <a
+              href={getAppUrl('workspace')}
+              className="header-cta-primary"
+            >
+              Become an Organizer
+            </a>
+
+            {/* Mobile Touch Targets */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="mobile-hamburger-btn"
+                aria-label="Search Events"
+                onClick={() => navigateTo('home')}
+                style={{ width: '48px', height: '48px' }}
+              >
+                <Search size={20} color="#FFF" />
+              </button>
+
+              <button
+                className="mobile-hamburger-btn"
+                aria-label="Toggle Mobile Menu"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                style={{ width: '48px', height: '48px' }}
+              >
+                {mobileMenuOpen ? <X size={22} color="#FFF" /> : <Menu size={22} color="#FFF" />}
+              </button>
+            </div>
+
+          </div>
+
         </div>
       </header>
 
-      {/* ── MOBILE SLIDING DRAWER MENU ── */}
+      {/* ── MOBILE FULL-SCREEN SLIDING DRAWER ── */}
       {mobileMenuOpen && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
             zIndex: 999,
-            background: 'rgba(7,9,15,0.98)',
+            background: 'rgba(8,10,20,0.98)',
             backdropFilter: 'blur(24px)',
             display: 'flex',
             flexDirection: 'column',
@@ -362,34 +418,53 @@ function MarketplaceContent() {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
             <GetvntLogo height={38} theme="dark" />
             <button
-              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', cursor: 'pointer' }}
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', cursor: 'pointer' }}
               onClick={() => setMobileMenuOpen(false)}
             >
-              <X size={20} />
+              <X size={22} />
             </button>
           </div>
 
-          <a style={{ fontSize: '17px', fontWeight: 800, color: activeTab === 'home' ? '#60A5FA' : '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('home'); setMobileMenuOpen(false); }}>
-            Explore Events
-          </a>
-          <a style={{ fontSize: '17px', fontWeight: 800, color: '#34D399', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => { navigateTo('manage_ticket'); setMobileMenuOpen(false); }}>
-            <Ticket size={18} /> Manage My Tickets
-          </a>
-          <a style={{ fontSize: '17px', fontWeight: 800, color: '#EC4899', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => { navigateTo('pulse'); setMobileMenuOpen(false); }}>
-            <Rss size={18} /> Pulse Entertainment Blog
-          </a>
-          <a style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('about'); setMobileMenuOpen(false); }}>
-            About Us
-          </a>
-          <a style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('help'); setMobileMenuOpen(false); }}>
-            Help Center
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[
+              { label: 'Explore Events', tab: 'home' },
+              { label: 'Categories', tab: 'home' },
+              { label: 'Upcoming Events', tab: 'home' },
+              { label: 'Featured Events', tab: 'home' },
+              { label: 'Latest Events', tab: 'home' },
+              { label: 'Events You Will Like', tab: 'home' },
+              { label: 'Top Organizers', tab: 'home' },
+              { label: 'Pulse Blog', tab: 'pulse' },
+              { label: 'Pricing', tab: 'about' },
+              { label: 'Help Center', tab: 'help' },
+              { label: 'Organizer Login', external: getAppUrl('workspace') },
+            ].map((item, idx) => (
+              item.external ? (
+                <a
+                  key={idx}
+                  href={item.external}
+                  style={{ fontSize: '16px', fontWeight: 600, color: '#A5B4FC', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  key={idx}
+                  style={{ fontSize: '16px', fontWeight: 600, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+                  onClick={() => { navigateTo(item.tab as TabType); setMobileMenuOpen(false); }}
+                >
+                  {item.label}
+                </a>
+              )
+            ))}
+          </div>
 
-          <div style={{ marginTop: 'auto', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', borderRadius: '14px', fontWeight: 800, fontSize: '14px', textDecoration: 'none' }}>
-              Organizer Login
-            </a>
-            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: '#2563EB', color: '#FFF', borderRadius: '14px', fontWeight: 900, fontSize: '14px', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.4)' }}>
+          <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
+            <a
+              href={getAppUrl('workspace')}
+              className="header-cta-primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
               Become an Organizer
             </a>
           </div>
