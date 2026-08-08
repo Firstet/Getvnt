@@ -150,16 +150,10 @@ body {
     gap: 12px;
   }
   .header-nav-links {
-    order: 3;
-    width: 100%;
-    overflow-x: auto;
-    justify-content: flex-start !important;
-    padding-bottom: 6px;
-    -webkit-overflow-scrolling: touch;
-    white-space: nowrap;
+    display: none !important;
   }
-  .header-nav-links::-webkit-scrollbar {
-    display: none;
+  .mobile-hamburger-btn {
+    display: flex !important;
   }
 }
 

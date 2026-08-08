@@ -15,7 +15,6 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
   final MobileScannerController _scannerController = MobileScannerController();
   bool _isProcessing = false;
   String? _lastScanResult;
-  bool _scanSuccess = false;
   final _manualCodeController = TextEditingController();
 
   void _onDetect(BarcodeCapture capture) async {
@@ -33,7 +32,6 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
     setState(() {
       _isProcessing = true;
       _lastScanResult = code;
-      _scanSuccess = true;
     });
 
     // Save scan to offline queue
@@ -70,7 +68,7 @@ class _QrScannerScreenState extends State<QrScannerScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Ticket #$code',
+                'Ticket #${_lastScanResult ?? code}',
                 style: const TextStyle(color: AppColors.textPrimary, fontSize: 18, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 4),

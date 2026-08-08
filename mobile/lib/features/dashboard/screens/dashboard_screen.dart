@@ -53,17 +53,73 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.logout, color: AppColors.textMuted),
-            onPressed: () async {
-              await StorageService.logout();
-              if (!mounted) return;
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => const LoginScreen()),
-              );
-            },
-          ),
         ],
+      ),
+      drawer: Drawer(
+        backgroundColor: AppColors.bgSurface,
+        child: Column(
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(
+                color: AppColors.bgCanvas,
+                border: Border(bottom: BorderSide(color: AppColors.border)),
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const GetvntLogo(size: 28),
+                    const SizedBox(height: 12),
+                    Text(
+                      _user?['name'] ?? 'Organizer User',
+                      style: const TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w900, fontSize: 16),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      _user?['email'] ?? 'organizer@getvnt.com',
+                      style: const TextStyle(color: AppColors.textMuted, fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.dashboard, color: AppColors.primary),
+              title: const Text('Dashboard', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+              onTap: () => Navigator.pop(context),
+            ),
+            ListTile(
+              leading: const Icon(Icons.qr_code_scanner, color: AppColors.primary),
+              title: const Text('QR Gate Check-in', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrScannerScreen()));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.auto_awesome, color: AppColors.secondary),
+              title: const Text('AI Agent Companion', style: TextStyle(color: AppColors.textPrimary, fontWeight: FontWeight.w700)),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AiAssistantScreen()));
+              },
+            ),
+            const Divider(color: AppColors.border),
+            const Spacer(),
+            ListTile(
+              leading: const Icon(Icons.logout, color: AppColors.warning),
+              title: const Text('Log Out', style: TextStyle(color: AppColors.warning, fontWeight: FontWeight.w700)),
+              onTap: () async {
+                await StorageService.logout();
+                if (!mounted) return;
+                Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
