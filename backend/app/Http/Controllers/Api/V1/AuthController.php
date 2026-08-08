@@ -10,6 +10,8 @@ use App\Models\Subscription;
 use App\Models\LoginHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -343,10 +345,18 @@ class AuthController extends Controller
         $brand = \App\Models\PlatformBrand::global();
         $authProvider = \App\Models\AuthProvider::where('provider_slug', 'google')->first();
 
+        // Resolve client ID — never fall back to a demo/placeholder value
         $clientId = $request->query('client_id')
             ?: ($authProvider->client_id ?? null)
             ?: ($brand->google_client_id ?? null)
-            ?: env('GOOGLE_CLIENT_ID', '1029384756-demo.apps.googleusercontent.com');
+            ?: env('GOOGLE_CLIENT_ID');
+
+        if (empty($clientId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID in your environment or configure it via the Admin panel.'
+            ], 503);
+        }
 
         $enabled = $authProvider ? $authProvider->is_enabled : ($brand->google_login_enabled ?? true);
 
@@ -357,10 +367,19 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $redirectUri = urlencode($authProvider->redirect_uri ?? 'http://localhost:8000/api/v1/auth/google/callback');
-        $scope = urlencode('email profile');
+        $redirectUri = $authProvider->redirect_uri ?? env('GOOGLE_REDIRECT_URI', url('/api/v1/auth/google/callback'));
+        $scope = 'email profile';
+        $state = csrf_token();
 
-        $googleUrl = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={$clientId}&redirect_uri={$redirectUri}&scope={$scope}&prompt=select_account";
+        $googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+            'response_type' => 'code',
+            'client_id'     => $clientId,
+            'redirect_uri'  => $redirectUri,
+            'scope'         => $scope,
+            'prompt'        => 'select_account',
+            'state'         => $state,
+            'access_type'   => 'online',
+        ]);
 
         return redirect()->away($googleUrl);
     }
@@ -369,30 +388,79 @@ class AuthController extends Controller
     public function googleCallback(Request $request)
     {
         $code = $request->query('code');
+        $frontendUrl = env('FRONTEND_URL', 'https://getvnt.com');
+
         if (!$code) {
-            return redirect('http://localhost:3000/login?error=google_auth_failed');
+            return redirect($frontendUrl . '/login?error=google_auth_failed');
         }
 
-        // Demo / Fallback account creation or user lookup for Google user
-        $email = $request->query('email', 'google_user_' . rand(100, 999) . '@getvnt.com');
+        $authProvider = \App\Models\AuthProvider::where('provider_slug', 'google')->first();
+        $brand = \App\Models\PlatformBrand::global();
 
-        $user = User::where('email', strtolower($email))->first();
+        $clientId     = ($authProvider->client_id ?? null) ?: ($brand->google_client_id ?? null) ?: env('GOOGLE_CLIENT_ID');
+        $clientSecret = ($authProvider->client_secret ?? null) ?: ($brand->google_client_secret ?? null) ?: env('GOOGLE_CLIENT_SECRET');
+        $redirectUri  = $authProvider->redirect_uri ?? env('GOOGLE_REDIRECT_URI', url('/api/v1/auth/google/callback'));
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return redirect($frontendUrl . '/login?error=google_not_configured');
+        }
+
+        // Exchange code for tokens
+        $tokenResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            'code'          => $code,
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+            'redirect_uri'  => $redirectUri,
+            'grant_type'    => 'authorization_code',
+        ]);
+
+        if (!$tokenResponse->successful()) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth token exchange failed', [
+                'status'   => $tokenResponse->status(),
+                'response' => $tokenResponse->json(),
+            ]);
+            return redirect($frontendUrl . '/login?error=google_token_exchange_failed');
+        }
+
+        $accessToken = $tokenResponse->json('access_token');
+
+        // Fetch user info from Google
+        $googleUser = \Illuminate\Support\Facades\Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/oauth2/v3/userinfo')
+            ->json();
+
+        $email     = strtolower($googleUser['email'] ?? '');
+        $firstName = $googleUser['given_name'] ?? 'Google';
+        $lastName  = $googleUser['family_name'] ?? 'User';
+        $avatar    = $googleUser['picture'] ?? null;
+
+        if (empty($email)) {
+            return redirect($frontendUrl . '/login?error=google_no_email');
+        }
+
+        $user = User::where('email', $email)->first();
         if (!$user) {
             $user = User::create([
-                'id' => (string) Str::uuid(),
-                'first_name' => 'Google',
-                'last_name' => 'User',
-                'name' => 'Google User',
-                'email' => strtolower($email),
-                'password' => Hash::make(Str::random(16)),
-                'role' => 'attendee',
-                'is_active' => true,
-                'email_verified_at' => now(),
+                'id'                 => (string) Str::uuid(),
+                'first_name'         => $firstName,
+                'last_name'          => $lastName,
+                'name'               => trim($firstName . ' ' . $lastName),
+                'email'              => $email,
+                'avatar_url'         => $avatar,
+                'password'           => Hash::make(Str::random(24)),
+                'role'               => 'attendee',
+                'is_active'          => true,
+                'email_verified_at'  => now(),
             ]);
+        } else {
+            // Update avatar if available
+            if ($avatar && empty($user->avatar_url)) {
+                $user->update(['avatar_url' => $avatar]);
+            }
         }
 
         $token = $user->createToken('google_oauth_token')->plainTextToken;
 
-        return redirect("http://localhost:3000/auth/callback?token={$token}&email=" . urlencode($user->email));
+        return redirect($frontendUrl . '/auth/callback?token=' . $token . '&email=' . urlencode($user->email));
     }
 }
