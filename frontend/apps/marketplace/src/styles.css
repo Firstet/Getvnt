@@ -1055,7 +1055,61 @@ p, span, div {
     grid-template-columns: 1fr;
     gap: 16px;
   }
+
+  .android-app-promotion-section {
+    padding: 24px 16px !important;
+    border-radius: 24px !important;
+    margin: 36px 0 !important;
+  }
+
+  .android-promo-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+
+  .vip-card,
+  .flash-drop-card,
+  .organizers-card,
+  .faq-section {
+    padding: 20px 16px !important;
+    border-radius: 20px !important;
+    flex-direction: column !important;
+  }
+
+  .events-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .carousel-card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .carousel-banner-wrap {
+    height: 180px !important;
+  }
+
+  .city-selector-bar {
+    padding-bottom: 8px;
+  }
 }
+
+@media (max-width: 480px) {
+  .landing-section-wrap {
+    padding: 0 12px;
+  }
+
+  .featured-event-responsive-card {
+    padding: 16px;
+  }
+
+  .btn-cta, .btn-buy {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 
 
