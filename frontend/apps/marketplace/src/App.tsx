@@ -267,17 +267,18 @@ function MarketplaceContent() {
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#07090F', color: '#FFF' }}>
       
       {/* ── 1. FULL-WIDTH TOP HEADER ── */}
-      <header className="top-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(7, 9, 15, 0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
+      {/* ── 1. STICKY TOP NAVBAR (TixUp / Linear Style) ── */}
+      <header className="top-header">
         
         {/* Brand Logo */}
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
-            <GetvntLogo height={45} theme="dark" />
+            <GetvntLogo height={42} theme="dark" />
           </a>
         </div>
 
-        {/* Center Header Navigation Links */}
-        <nav className="header-nav-links" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', flex: 1 }}>
+        {/* Center Header Navigation Links (Desktop Only) */}
+        <nav className="header-nav-links">
           <a className={`nav-link ${activeTab === 'home' ? 'active' : ''}`} style={{ color: activeTab === 'home' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
             Explore Events
           </a>
@@ -295,9 +296,9 @@ function MarketplaceContent() {
           </a>
         </nav>
 
-        {/* Organizer B2B Conversion Action CTAs */}
+        {/* Right Desktop Action CTAs & Mobile Hamburger */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div className="header-search" style={{ maxWidth: '220px' }}>
+          <div className="header-search-desktop" style={{ maxWidth: '200px' }}>
             <div className="search-input-wrap">
               <Search className="search-icon" size={15} />
               <input
@@ -312,6 +313,7 @@ function MarketplaceContent() {
 
           <a
             href={getAppUrl('workspace')}
+            className="desktop-only-link"
             style={{ color: '#A5B4FC', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
             Organizer Login
@@ -319,7 +321,7 @@ function MarketplaceContent() {
 
           <a
             href={getAppUrl('workspace')}
-            className="btn-cta"
+            className="btn-cta desktop-only-btn"
             style={{
               background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
               color: '#FFF', padding: '9px 18px', fontSize: '13px', fontWeight: 900,
@@ -333,20 +335,10 @@ function MarketplaceContent() {
           {/* Mobile Hamburger Toggle Button */}
           <button
             className="mobile-hamburger-btn"
-            style={{
-              background: 'rgba(255,255,255,0.08)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: '10px',
-              padding: '8px',
-              color: '#FFF',
-              cursor: 'pointer',
-              display: 'none',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
+            aria-label="Toggle Mobile Menu"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {mobileMenuOpen ? <X size={22} color="#FFF" /> : <Menu size={22} color="#FFF" />}
           </button>
         </div>
       </header>
@@ -358,42 +350,46 @@ function MarketplaceContent() {
             position: 'fixed',
             inset: 0,
             zIndex: 999,
-            background: 'rgba(7,9,15,0.95)',
-            backdropFilter: 'blur(16px)',
+            background: 'rgba(7,9,15,0.98)',
+            backdropFilter: 'blur(24px)',
             display: 'flex',
             flexDirection: 'column',
-            padding: '24px',
-            gap: '18px',
+            padding: '20px 24px 32px 24px',
+            gap: '14px',
+            overflowY: 'auto'
           }}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <GetvntLogo height={40} theme="dark" />
-            <button style={{ background: 'none', border: 'none', color: '#FFF', cursor: 'pointer' }} onClick={() => setMobileMenuOpen(false)}>
-              <X size={24} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <GetvntLogo height={38} theme="dark" />
+            <button
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '10px', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', cursor: 'pointer' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X size={20} />
             </button>
           </div>
 
-          <a style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }} onClick={() => { navigateTo('home'); setMobileMenuOpen(false); }}>
+          <a style={{ fontSize: '17px', fontWeight: 800, color: activeTab === 'home' ? '#60A5FA' : '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('home'); setMobileMenuOpen(false); }}>
             Explore Events
           </a>
-          <a style={{ fontSize: '16px', fontWeight: 800, color: '#34D399', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { navigateTo('manage_ticket'); setMobileMenuOpen(false); }}>
-            <Ticket size={18} /> Manage Ticket
+          <a style={{ fontSize: '17px', fontWeight: 800, color: '#34D399', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => { navigateTo('manage_ticket'); setMobileMenuOpen(false); }}>
+            <Ticket size={18} /> Manage My Tickets
           </a>
-          <a style={{ fontSize: '16px', fontWeight: 800, color: '#EC4899', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', gap: '8px' }} onClick={() => { navigateTo('pulse'); setMobileMenuOpen(false); }}>
+          <a style={{ fontSize: '17px', fontWeight: 800, color: '#EC4899', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => { navigateTo('pulse'); setMobileMenuOpen(false); }}>
             <Rss size={18} /> Pulse Entertainment Blog
           </a>
-          <a style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }} onClick={() => { navigateTo('about'); setMobileMenuOpen(false); }}>
+          <a style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('about'); setMobileMenuOpen(false); }}>
             About Us
           </a>
-          <a style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }} onClick={() => { navigateTo('help'); setMobileMenuOpen(false); }}>
+          <a style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.06)' }} onClick={() => { navigateTo('help'); setMobileMenuOpen(false); }}>
             Help Center
           </a>
 
-          <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: '#2563EB', color: '#FFF', borderRadius: '14px', fontWeight: 800 }}>
+          <div style={{ marginTop: 'auto', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#FFF', borderRadius: '14px', fontWeight: 800, fontSize: '14px', textDecoration: 'none' }}>
               Organizer Login
             </a>
-            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: 'linear-gradient(135deg, #2563EB, #7C3AED)', color: '#FFF', borderRadius: '14px', fontWeight: 900 }}>
+            <a href={getAppUrl('workspace')} className="btn-cta" style={{ textAlign: 'center', padding: '14px', background: '#2563EB', color: '#FFF', borderRadius: '14px', fontWeight: 900, fontSize: '14px', textDecoration: 'none', boxShadow: '0 8px 24px rgba(37,99,235,0.4)' }}>
               Become an Organizer
             </a>
           </div>
