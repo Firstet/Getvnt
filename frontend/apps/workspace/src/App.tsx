@@ -564,7 +564,7 @@ function WorkspaceContent() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '20px' }}>
                   <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', margin: 0 }}>
-                      Good Morning, {user?.first_name || user?.name || 'Kelvin'} 👋
+                      Good Morning, {user?.first_name || user?.name || 'Organizer'} 👋
                     </h1>
                     <p style={{ color: '#A5B4FC', fontSize: '14px', marginTop: '4px', fontWeight: 600 }}>
                       Welcome back to your Getvnt Event Business Operating System.
@@ -1069,8 +1069,8 @@ function WorkspaceContent() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   {[
-                    { label: 'FULL NAME', value: user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Super Admin' },
-                    { label: 'EMAIL ADDRESS', value: user?.email || 'admin@getvnt.com' },
+                    { label: 'FULL NAME', value: user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Organizer' },
+                    { label: 'EMAIL ADDRESS', value: user?.email || '—' },
                     { label: 'ACCOUNT ROLE', value: getRoleBadgeLabel(user?.role) },
                     { label: 'MEMBER SINCE', value: user?.created_at ? new Date(user.created_at).toLocaleDateString() : '01/08/2026' },
                   ].map((row, i) => (

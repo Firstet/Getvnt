@@ -78,6 +78,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getInitialToken = (): { token: string | null; isImp: boolean; org: string | null } => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      if (urlToken) {
+        localStorage.setItem('getvnt_auth_token', urlToken);
+        urlParams.delete('token');
+        urlParams.delete('email');
+        const newSearch = urlParams.toString();
+        const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '');
+        window.history.replaceState({}, '', newUrl);
+
+        return { token: urlToken, isImp: false, org: null };
+      }
+
       const impersonateToken = urlParams.get('impersonate_token');
       if (impersonateToken) {
         const orgName = urlParams.get('org') || 'Organizer Workspace';

@@ -369,7 +369,13 @@ class AuthController extends Controller
 
         $redirectUri = $authProvider->redirect_uri ?? env('GOOGLE_REDIRECT_URI', url('/api/v1/auth/google/callback'));
         $scope = 'email profile';
-        $state = csrf_token();
+
+        $redirectTo = $request->query('redirect_to', 'marketplace');
+        $statePayload = json_encode([
+            'csrf' => csrf_token(),
+            'redirect_to' => $redirectTo
+        ]);
+        $state = base64_encode($statePayload);
 
         $googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
             'response_type' => 'code',
@@ -388,7 +394,19 @@ class AuthController extends Controller
     public function googleCallback(Request $request)
     {
         $code = $request->query('code');
-        $frontendUrl = env('FRONTEND_URL', 'https://getvnt.com');
+        $frontendUrl  = env('FRONTEND_URL', 'https://getvnt.com');
+        $workspaceUrl = env('WORKSPACE_URL', 'https://app.getvnt.com');
+        $adminUrl     = env('ADMIN_URL', 'https://admin.getvnt.com');
+
+        // Extract redirect target from OAuth state
+        $stateRaw = $request->query('state');
+        $redirectTo = 'marketplace';
+        if ($stateRaw) {
+            $decoded = json_decode(base64_decode($stateRaw), true);
+            if (is_array($decoded) && !empty($decoded['redirect_to'])) {
+                $redirectTo = $decoded['redirect_to'];
+            }
+        }
 
         if (!$code) {
             return redirect($frontendUrl . '/login?error=google_auth_failed');
@@ -440,6 +458,22 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
         if (!$user) {
+            $isWorkspaceTarget = ($redirectTo === 'workspace');
+            $role = $isWorkspaceTarget ? 'organizer_owner' : 'attendee';
+
+            // Create Tenant if logging in from Workspace as a new user
+            $tenantId = null;
+            if ($isWorkspaceTarget) {
+                $tenant = Tenant::create([
+                    'id' => (string) Str::uuid(),
+                    'name' => trim($firstName . "'s Organization"),
+                    'slug' => Str::slug($firstName . '-org') . '-' . rand(100, 999),
+                    'status' => 'active',
+                    'is_verified' => true,
+                ]);
+                $tenantId = $tenant->id;
+            }
+
             $user = User::create([
                 'id'                 => (string) Str::uuid(),
                 'first_name'         => $firstName,
@@ -448,10 +482,15 @@ class AuthController extends Controller
                 'email'              => $email,
                 'avatar_url'         => $avatar,
                 'password'           => Hash::make(Str::random(24)),
-                'role'               => 'attendee',
+                'role'               => $role,
+                'tenant_id'          => $tenantId,
                 'is_active'          => true,
                 'email_verified_at'  => now(),
             ]);
+
+            if ($tenantId && isset($tenant)) {
+                $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+            }
         } else {
             // Update avatar if available
             if ($avatar && empty($user->avatar_url)) {
@@ -461,6 +500,15 @@ class AuthController extends Controller
 
         $token = $user->createToken('google_oauth_token')->plainTextToken;
 
-        return redirect($frontendUrl . '/auth/callback?token=' . $token . '&email=' . urlencode($user->email));
+        // Route user to appropriate portal based on role & initiation context
+        if ($user->role === 'super_admin' || $user->role === 'platform_staff') {
+            $baseUrl = ($redirectTo === 'admin') ? $adminUrl : $workspaceUrl;
+        } elseif ($user->role === 'organizer_owner' || $user->role === 'organizer_staff' || $redirectTo === 'workspace') {
+            $baseUrl = $workspaceUrl;
+        } else {
+            $baseUrl = $frontendUrl;
+        }
+
+        return redirect($baseUrl . '/?token=' . $token . '&email=' . urlencode($user->email));
     }
 }

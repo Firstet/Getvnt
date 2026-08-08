@@ -26,8 +26,10 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
       setError('Google Sign-In is currently disabled by Super Admin.');
       return;
     }
-    const clientId = brand?.google_client_id ? `?client_id=${encodeURIComponent(brand.google_client_id)}` : '';
-    window.location.href = `/api/v1/auth/google${clientId}`;
+    const isWorkspace = window.location.host.includes('app') || window.location.pathname.includes('workspace');
+    const target = isWorkspace ? 'workspace' : 'marketplace';
+    const clientIdParam = brand?.google_client_id ? `&client_id=${encodeURIComponent(brand.google_client_id)}` : '';
+    window.location.href = `/api/v1/auth/google?redirect_to=${target}${clientIdParam}`;
   };
 
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
