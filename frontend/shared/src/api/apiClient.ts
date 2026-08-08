@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 /**
  * GETVNT Enterprise Unified API Client
  * Consumes single-source-of-truth endpoints across Marketplace, Workspace, and Admin apps.
@@ -6,8 +8,9 @@
 const getApiBaseUrl = (): string => {
   if (typeof window !== 'undefined') {
     // 1. Explicit environment variable override
-    if (import.meta.env.VITE_API_URL) {
-      return import.meta.env.VITE_API_URL;
+    const metaEnv = (import.meta as any).env;
+    if (metaEnv && metaEnv.VITE_API_URL) {
+      return metaEnv.VITE_API_URL;
     }
     
     // 2. Dynamic subdomain resolution for getvnt.com
