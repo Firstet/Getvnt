@@ -30,11 +30,11 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
   const featuredEvent = events[0] || {
     id: 'feat-1',
-    title: 'Afrobeats Worldwide Festival Lagos 2026',
-    venue_name: 'Eko Atlantic City',
-    city: 'Lagos',
+    title: 'PARKFLIX EXPERIENCE',
+    venue_name: 'AFROGRAMS, ITA-EKO ABEOKUTA',
+    city: 'Abeokuta',
     country: 'Nigeria',
-    start_date: '2026-11-20T18:00:00Z',
+    start_date: '2026-09-30T19:00:00Z',
     banner_url: '/afrobeat_festival_banner.png',
     ticket_types: [{ price: 35000, name: 'VIP Pass' }]
   };
@@ -77,10 +77,11 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   ];
 
   const topOrganizers = [
-    { name: 'AfroNation Global', eventsHosted: '48 Events', rating: '4.95 ★', verified: true, avatar: '/afrobeat_festival_banner.png' },
-    { name: 'Nairobi Tech Summit', eventsHosted: '32 Events', rating: '4.98 ★', verified: true, avatar: '/tech_summit_banner.png' },
-    { name: 'Lagos Fashion Week', eventsHosted: '26 Events', rating: '4.92 ★', verified: true, avatar: '/fashion_week_banner.png' },
-    { name: 'Cape Town Jazz Fest', eventsHosted: '19 Events', rating: '4.96 ★', verified: true, avatar: '/jazz_fest_banner.png' },
+    { name: 'Abk1stson', growth: '↑ 100.00%', avatar: '/afrobeat_festival_banner.png', isFeatured: false },
+    { name: 'Bankz', growth: '↑ 0.00%', avatar: '', isFeatured: false },
+    { name: 'Samora of Tixup', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', isFeatured: true },
+    { name: 'De brill cedar Place', growth: '↑ 0.00%', avatar: '', isFeatured: false },
+    { name: 'Opemipo Ogunyemi', growth: '↑ 0.00%', avatar: '', isFeatured: false },
   ];
 
   return (
@@ -107,7 +108,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             Book verified passes for concerts, festivals, and summits. Powered by instant <strong style={{ color: '#E2E8F0' }}>&lt;500ms encrypted QR check-in</strong>.
           </p>
 
-          {/* Integrated Fluid Search Bar */}
+          {/* Integrated Search Bar */}
           <div className="hero-search-container">
             <div className="hero-search-field">
               <Search size={18} color="#60A5FA" style={{ flexShrink: 0 }} />
@@ -143,41 +144,47 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 2. FEATURED EVENT SHOWCASE (TIXUP SPEC) ── */}
+      {/* ── 2. FEATURED EVENT (IMAGE 3 SCREENSHOT MATCH) ── */}
       <section className="landing-section-wrap">
-        <div className="featured-event-responsive-card" style={{ overflow: 'hidden', boxSizing: 'border-box' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+          <Crown size={24} color="#F59E0B" />
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 32px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
+            Featured Event
+          </h2>
+        </div>
+
+        <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '32px', alignItems: 'center', width: '100%', boxSizing: 'border-box' }}>
           
-          <div style={{ borderRadius: '20px', overflow: 'hidden', minHeight: '260px', position: 'relative' }}>
+          <div style={{ borderRadius: '20px', overflow: 'hidden', aspectRatio: '1/1', maxHeight: '340px', width: '100%' }}>
             <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} objectFit="cover" style={{ width: '100%', height: '100%' }} />
-            <span style={{ position: 'absolute', top: '14px', left: '14px', background: 'rgba(245,158,11,0.95)', color: '#0B0F19', fontSize: '11px', fontWeight: 900, padding: '6px 14px', borderRadius: '99px', boxShadow: '0 4px 14px rgba(0,0,0,0.4)' }}>
-              <Crown size={13} style={{ display: 'inline', marginRight: '4px' }} /> FEATURED DROP
-            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
-            <div>
-              <span style={{ color: '#F87171', fontSize: '12px', fontWeight: 800, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', padding: '4px 12px', borderRadius: '99px', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                <Clock size={13} /> Live Flash Drop • 88% Sold Out
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 34px)', fontWeight: 900, color: '#FF9900', textTransform: 'uppercase', margin: '0 0 16px 0', fontFamily: 'var(--font-heading)', letterSpacing: '0.02em' }}>
+              {featuredEvent.title}
+            </h2>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#9CA3AF', fontSize: '13.5px', marginBottom: '20px', flexWrap: 'wrap' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <MapPin size={15} color="#9CA3AF" /> {featuredEvent.venue_name}
               </span>
-              <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', marginTop: '14px', marginBottom: '14px', fontFamily: 'var(--font-heading)', lineHeight: 1.15 }}>
-                {featuredEvent.title}
-              </h2>
-              <p style={{ color: '#9CA3AF', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
-                {featuredEvent.venue_name}, {featuredEvent.city} • Experience live Afrobeats stars, VIP champagne lounge seating, and instant encrypted ticket delivery.
-              </p>
+              <span style={{ color: '#4B5563' }}>|</span>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={15} color="#9CA3AF" /> Wed • Sep 30, 2026 • 07:00 pm GMT+1
+              </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap' }}>
-              <div>
-                <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 700, letterSpacing: '0.5px' }}>TICKET STARTS AT</span>
-                <div style={{ fontSize: '28px', fontWeight: 900, color: '#F59E0B' }}>₦35,000</div>
-              </div>
+            <p style={{ color: '#9CA3AF', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '28px' }}>
+              PARKFLIX is an outdoor cinema experience, it isn't just another event. It's an experience where people come together to relax, connect, and enjoy a carefully curated night under the stars.
+            </p>
+
+            <div>
               <button
                 onClick={() => onSelectEvent(featuredEvent)}
                 className="tixup-btn-primary"
-                style={{ padding: '14px 28px', borderRadius: '14px', background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', color: '#07090F', fontWeight: 900, fontSize: '14px', border: 'none', cursor: 'pointer', boxShadow: '0 8px 24px rgba(245,158,11,0.35)' }}
+                style={{ padding: '14px 32px', borderRadius: '12px', background: '#2563EB', color: '#FFF', fontWeight: 800, fontSize: '14.5px', border: 'none', cursor: 'pointer' }}
               >
-                <Zap size={16} /> Get VIP Ticket
+                Get Ticket
               </button>
             </div>
           </div>
@@ -185,7 +192,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 3. EXPLORE CATEGORIES (HORIZONTAL SCROLL PILLS) ── */}
+      {/* ── 3. EXPLORE CATEGORIES (HORIZONTAL PILLS) ── */}
       <section className="landing-section-wrap">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
           <h2 style={{ fontSize: 'clamp(22px, 3vw, 32px)', fontWeight: 900, color: '#FFF', fontFamily: 'var(--font-heading)' }}>Explore Categories</h2>
@@ -219,12 +226,12 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 4. UPCOMING EVENTS (2-COLUMN HORIZONTAL CARDS) ── */}
+      {/* ── 4. UPCOMING EVENTS (2-COL HORIZONTAL CARDS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ marginBottom: '28px' }}>
+        <div style={{ marginBottom: '24px' }}>
           <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>CALENDAR SCHEDULE</span>
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
-            Upcoming Events This Month
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
+            Upcoming Events
           </h2>
         </div>
 
@@ -234,58 +241,56 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               key={ev.id}
               onClick={() => onSelectEvent(ev)}
               style={{
-                background: 'rgba(13, 17, 32, 0.85)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '24px',
-                padding: '24px',
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '18px',
+                padding: '16px 20px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '20px',
+                justifyContent: 'space-between',
+                gap: '16px',
                 cursor: 'pointer',
-                transition: 'all 0.25s ease',
+                transition: 'all 0.2s ease',
                 width: '100%',
                 boxSizing: 'border-box'
               }}
               className="tixup-event-card"
             >
-              {/* Date Block */}
-              <div style={{ width: '70px', height: '70px', borderRadius: '16px', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <span style={{ fontSize: '11px', color: '#60A5FA', fontWeight: 800, textTransform: 'uppercase' }}>
-                  {new Date(ev.start_date).toLocaleDateString('en-US', { month: 'short' })}
-                </span>
-                <span style={{ fontSize: '22px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
-                  {new Date(ev.start_date).getDate()}
-                </span>
-              </div>
-
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 700, marginBottom: '4px' }}>
-                  <Clock size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                  {new Date(ev.start_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} • {ev.city}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                <div style={{ width: '54px', height: '54px', borderRadius: '12px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontSize: '10px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
+                    {new Date(ev.start_date).toLocaleDateString('en-US', { month: 'short' })}
+                  </span>
+                  <span style={{ fontSize: '20px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
+                    {new Date(ev.start_date).getDate()}
+                  </span>
                 </div>
-                <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: '0 0 6px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {ev.title}
-                </h3>
-                <div style={{ fontSize: '13px', color: '#60A5FA', fontWeight: 700 }}>
-                  {ev.ticket_types?.[0] ? `₦${ev.ticket_types[0].price.toLocaleString()}` : 'FREE'}
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ fontSize: '15.5px', fontWeight: 800, color: '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ev.title}
+                  </h3>
+                  <div style={{ fontSize: '12.5px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    20:00 • {ev.venue_name}, {ev.city}
+                  </div>
                 </div>
               </div>
 
-              <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <ArrowRight size={18} color="#60A5FA" />
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ChevronRight size={16} color="#60A5FA" />
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 5. LATEST EVENTS (4-COLUMN GRID, 16:9 IMAGES) ── */}
+      {/* ── 5. LATEST EVENTS (4-COL GRID) ── */}
       <section className="landing-section-wrap">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '32px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '28px' }}>
           <div>
             <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>EXPLORE ALL</span>
-            <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', margin: '6px 0 0 0', fontFamily: 'var(--font-heading)' }}>
-              Latest Verified Events
+            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: '4px 0 0 0', fontFamily: 'var(--font-heading)' }}>
+              Latest Events
             </h2>
           </div>
         </div>
@@ -327,84 +332,128 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 6. EVENTS YOU WILL LIKE (3-COLUMN RECOMMENDATIONS) ── */}
+      {/* ── 6. EVENTS YOU WILL LIKE (IMAGE 1 SCREENSHOT MATCH) ── */}
       <section className="landing-section-wrap">
-        <div style={{ marginBottom: '32px' }}>
-          <span style={{ color: '#C084FC', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>RECOMMENDED FOR YOU</span>
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
             Events You Will Like
           </h2>
         </div>
 
-        <div className="tixup-grid-3col">
-          {filteredEvents.slice(0, 3).map((ev) => (
+        <div className="tixup-grid-2col">
+          {[
+            { id: 'rec-1', title: 'Sneakers Fest: The Culture Experience', date: 'SEP 12', time: '20:00', venue: 'Elysium Oasis, Car Park, Onikoko Road, Adjacent to Ogun Fire Service Station, Abeokuta' },
+            { id: 'rec-2', title: 'Omidan Ogun 2026', date: 'OCT 11', time: '10:00', venue: 'Olusegun Obasanjo Presidential Library, Abeokuta' },
+            { id: 'rec-3', title: 'Jamisdepe Comedy Hangout (TUNGBAFIESTA) & HEADSET AFTER PARTY', date: 'SEP 20', time: '15:00', venue: 'The Mayfair Executive, Ibara Housing Estate, Abeokuta Ogun State.' },
+            { id: 'rec-4', title: 'Mask Night party Crazy Games & After Party', date: 'AUG 30', time: '22:00', venue: 'Ajah Lekki Phase one Admiralty' },
+          ].map((ev, idx) => (
             <div
-              key={ev.id}
-              onClick={() => onSelectEvent(ev)}
+              key={idx}
+              onClick={() => onSelectEvent(events[0])}
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: '16px',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '16px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
               className="tixup-event-card"
             >
-              <div className="tixup-card-image-wrap">
-                <LazyImage src={ev.banner_url} alt={ev.title} objectFit="cover" style={{ width: '100%', height: '100%' }} />
-                <span style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(239,68,68,0.9)', color: '#FFF', fontSize: '11px', fontWeight: 800, padding: '4px 10px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Heart size={12} fill="#FFF" /> 98% Match
-                </span>
-              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
+                {/* Date Block */}
+                <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#111827', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid rgba(255,255,255,0.06)' }}>
+                  <span style={{ fontSize: '10.5px', color: '#60A5FA', fontWeight: 900, textTransform: 'uppercase' }}>
+                    {ev.date.split(' ')[0]}
+                  </span>
+                  <span style={{ fontSize: '20px', color: '#FFF', fontWeight: 900, lineHeight: 1 }}>
+                    {ev.date.split(' ')[1]}
+                  </span>
+                </div>
 
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 }}>
-                <div>
-                  <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFF', marginBottom: '8px' }}>{ev.title}</h3>
-                  <div style={{ fontSize: '13.5px', color: '#9CA3AF', marginBottom: '16px' }}>
-                    {ev.venue_name}, {ev.city}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <h3 style={{ fontSize: '16px', fontWeight: 800, color: idx === 3 ? '#FF9900' : '#FFF', margin: '0 0 4px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ev.title}
+                  </h3>
+                  <div style={{ fontSize: '13px', color: '#9CA3AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {ev.time} &nbsp; {ev.venue}
                   </div>
                 </div>
+              </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                  <span style={{ fontSize: '20px', fontWeight: 900, color: '#60A5FA' }}>
-                    {ev.ticket_types?.[0] ? `₦${ev.ticket_types[0].price.toLocaleString()}` : 'FREE'}
-                  </span>
-                  <button className="tixup-btn-primary" style={{ minHeight: '44px', padding: '10px 20px', fontSize: '13.5px' }} onClick={(e) => { e.stopPropagation(); onSelectEvent(ev); }}>
-                    Book Pass
-                  </button>
-                </div>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <ChevronRight size={16} color="#60A5FA" />
               </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 7. TOP RATED ORGANIZERS ── */}
+      {/* ── 7. TOP RATED ORGANIZERS (IMAGE 2 SCREENSHOT MATCH) ── */}
       <section className="landing-section-wrap">
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <span style={{ color: '#F59E0B', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>VERIFIED DIRECTORS</span>
-          <h2 style={{ fontSize: 'clamp(26px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
-            Top Rated Event Organizers
+        <div style={{ marginBottom: '24px' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
+            Top Rated Organizers
           </h2>
         </div>
 
-        <div className="tixup-grid-4col">
-          {topOrganizers.map((org, idx) => (
-            <div
-              key={idx}
-              style={{
-                background: 'rgba(13, 17, 32, 0.85)',
-                border: '1px solid rgba(255, 255, 255, 0.08)',
-                borderRadius: '24px',
-                padding: '24px',
-                textAlign: 'center',
-                transition: 'all 0.25s ease'
-              }}
-              className="tixup-event-card"
-            >
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', overflow: 'hidden', margin: '0 auto 16px auto', border: '2px solid #2563EB' }}>
-                <LazyImage src={org.avatar} alt={org.name} objectFit="cover" style={{ width: '100%', height: '100%' }} />
-              </div>
-              <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', marginBottom: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                {org.name} <Award size={15} color="#60A5FA" />
-              </h3>
-              <div style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '14px' }}>{org.eventsHosted}</div>
-              <div style={{ fontSize: '13.5px', color: '#F59E0B', fontWeight: 800 }}>{org.rating}</div>
+        <div style={{ width: '100%', boxSizing: 'border-box' }}>
+          {/* Table Column Headers */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 24px 12px 24px', fontSize: '11px', color: '#6B7280', fontWeight: 800, letterSpacing: '1px' }}>
+            <div style={{ display: 'flex', gap: '48px', alignItems: 'center' }}>
+              <span style={{ width: '20px', textAlign: 'center' }}>#</span>
+              <span>NAME</span>
             </div>
-          ))}
+            <span>7D %</span>
+          </div>
+
+          {/* Leaderboard Rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {topOrganizers.map((org, idx) => (
+              <div
+                key={idx}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '16px',
+                  padding: '16px 24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  width: '100%',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                  <div style={{ width: '24px', textAlign: 'center', fontSize: '16px', fontWeight: 900, color: '#FFF', display: 'flex', justifyContent: 'center' }}>
+                    {idx === 0 ? <Crown size={20} color="#F59E0B" /> : idx + 1}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={{ width: '44px', height: '44px', borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#7C3AED,#2563EB)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', fontWeight: 900, color: '#FFF' }}>
+                      {org.avatar ? <LazyImage src={org.avatar} alt={org.name} objectFit="cover" style={{ width: '100%', height: '100%' }} /> : org.name.charAt(0)}
+                    </div>
+                    <span style={{ fontSize: '16px', fontWeight: 800, color: org.isFeatured ? '#FF9900' : '#FFF' }}>
+                      {org.name}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 7D % Sparkline Curve */}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  <svg width="100" height="24" viewBox="0 0 100 24" fill="none">
+                    <path d={idx % 2 === 0 ? "M0 18 Q 35 22, 60 12 T 85 4 T 100 8" : "M0 6 Q 30 20, 60 16 T 85 22 T 100 18"} stroke="#10B981" strokeWidth="2" fill="none" />
+                  </svg>
+                  <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#10B981' }}>{org.growth}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
