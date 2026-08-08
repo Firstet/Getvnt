@@ -4,8 +4,20 @@
  */
 
 const getApiBaseUrl = (): string => {
-  // If running behind gateway proxy or relative path
   if (typeof window !== 'undefined') {
+    // 1. Explicit environment variable override
+    if (import.meta.env.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL;
+    }
+    
+    // 2. Dynamic subdomain resolution for getvnt.com
+    const host = window.location.hostname;
+    const protocol = window.location.protocol;
+    if (host.endsWith('getvnt.com')) {
+      return `${protocol}//api.getvnt.com/api/v1`;
+    }
+
+    // 3. Fallback relative path for gateway proxy, IP, and preview URLs
     return '/api/v1';
   }
   return 'http://localhost:8000/api/v1';
