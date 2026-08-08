@@ -74,37 +74,30 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   ];
 
   return (
-    <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden' }}>
+    <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden', width: '100%', boxSizing: 'border-box' }}>
       
-      {/* ── 1. HERO WITH INTEGRATED SEARCH (Mobile Optimized) ── */}
+      {/* ── 1. HERO WITH INTEGRATED SEARCH ── */}
       <section className="hero-landing-section">
         
-        {/* Background Ambient Radial Glow */}
         <div style={{ position: 'absolute', top: '-120px', left: '50%', transform: 'translateX(-50%)', width: '920px', height: '460px', background: 'radial-gradient(circle, rgba(37,99,235,0.2) 0%, transparent 70%)', filter: 'blur(90px)', pointerEvents: 'none' }} />
 
-        <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 16px', position: 'relative', zIndex: 2, boxSizing: 'border-box' }}>
           
-          {/* Release Tag Pill */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '99px', background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.3)', color: '#60A5FA', fontSize: '11.5px', fontWeight: 800, marginBottom: '20px', maxWidth: '100%' }}>
             <Sparkles size={14} color="#60A5FA" style={{ flexShrink: 0 }} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>GETVNT OS v2.0 • Discover &amp; Host World-Class Events</span>
           </div>
 
-          {/* Large Hero Title */}
           <h1 style={{ fontSize: 'clamp(32px, 7vw, 68px)', fontWeight: 900, lineHeight: 1.08, letterSpacing: '-0.03em', color: '#FFFFFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>
             Discover &amp; Experience <br />
             <span style={{ color: '#60A5FA' }}>World-Class Events.</span>
           </h1>
 
-          {/* Subheading */}
           <p style={{ fontSize: 'clamp(15px, 2.2vw, 19px)', color: '#9CA3AF', lineHeight: 1.55, maxWidth: '680px', margin: '0 auto 28px auto', fontWeight: 500 }}>
             Book verified tickets for concerts, Afrobeats festivals, and tech summits. Powered by instant <strong style={{ color: '#E2E8F0' }}>&lt;500ms gate scanning</strong>.
           </p>
 
-          {/* Responsive Hero Search Bar */}
           <div className="hero-search-container">
-            
-            {/* Input 1: Search Query */}
             <div className="hero-search-field">
               <Search size={18} color="#60A5FA" style={{ flexShrink: 0 }} />
               <input
@@ -116,7 +109,6 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               />
             </div>
 
-            {/* Input 2: City Selector */}
             <div className="hero-city-field">
               <MapPin size={16} color="#34D399" style={{ flexShrink: 0 }} />
               <select
@@ -132,11 +124,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               </select>
             </div>
 
-            {/* Search Submit CTA Button */}
-            <button
-              onClick={() => {}}
-              className="btn-cta hero-search-btn"
-            >
+            <button onClick={() => {}} className="btn-cta hero-search-btn">
               <Search size={16} /> Discover Events
             </button>
           </div>
@@ -144,18 +132,18 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 2. FEATURED EVENTS SHOWCASE (Mobile Responsive Grid) ── */}
+      {/* ── 2. FEATURED EVENTS SHOWCASE ── */}
       <section className="landing-section-wrap">
-        <div className="featured-event-responsive-card">
+        <div className="featured-event-responsive-card" style={{ overflow: 'hidden', boxSizing: 'border-box' }}>
           
-          <div style={{ borderRadius: '20px', overflow: 'hidden', minHeight: '220px', position: 'relative' }}>
+          <div style={{ borderRadius: '20px', overflow: 'hidden', minHeight: '200px', position: 'relative' }}>
             <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} objectFit="cover" style={{ width: '100%', height: '100%' }} />
             <span style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(245,158,11,0.95)', color: '#0B0F19', fontSize: '10.5px', fontWeight: 900, padding: '4px 10px', borderRadius: '99px' }}>
               <Crown size={12} style={{ display: 'inline', marginRight: '4px' }} /> FEATURED DROP
             </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', width: '100%', boxSizing: 'border-box' }}>
             <div>
               <span style={{ color: '#F87171', fontSize: '11.5px', fontWeight: 800, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', padding: '3px 10px', borderRadius: '99px', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
                 <Clock size={12} /> Live Flash Drop • 88% Sold Out
@@ -186,7 +174,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 3. GETVNT PULSE BLOG (1 Row Auto-Scrolling Carousel with Mobile Touch Snap) ── */}
+      {/* ── 3. GETVNT PULSE BLOG CAROUSEL ── */}
       <section className="landing-section-wrap">
         <HomeNewsCarousel
           onOpenArticle={(slug) => onNavigateToBlog(slug)}
@@ -250,6 +238,8 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                width: '100%',
+                boxSizing: 'border-box'
               }}
               className="carousel-card"
             >
@@ -288,7 +278,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       {/* ── 6. WHY GETVNT ── */}
       <section className="landing-section-wrap">
-        <div className="responsive-split-grid">
+        <div className="responsive-split-grid" style={{ overflow: 'hidden', boxSizing: 'border-box' }}>
           <div>
             <span style={{ color: '#2563EB', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px' }}>WHY GETVNT</span>
             <h2 style={{ fontSize: 'clamp(24px, 4vw, 38px)', fontWeight: 900, color: '#FFF', marginTop: '6px', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>
@@ -303,7 +293,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               <div style={{ color: '#34D399', fontSize: '13.5px', fontWeight: 700 }}>✓ AI Marketing Assistant &amp; Price Optimizer</div>
             </div>
           </div>
-          <div style={{ background: '#0D1120', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '24px', textAlign: 'center' }}>
+          <div style={{ background: '#0D1120', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', padding: '24px', textAlign: 'center', width: '100%', boxSizing: 'border-box' }}>
             <Shield size={56} color="#60A5FA" style={{ margin: '0 auto 14px auto' }} />
             <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#FFF' }}>100% Anti-Counterfeiting RSA Security</h3>
             <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '8px', lineHeight: 1.5 }}>Every ticket is assigned a dynamic 4096-bit cryptographic signature that prevents screenshots and duplicate pass entries.</p>
@@ -326,7 +316,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             { title: 'AI Sponsorship Decks', desc: 'Generate multi-page sponsorship pitch decks tailored for corporate partners.', icon: <BarChart3 size={20} color="#C084FC" /> },
             { title: 'Branded QR Studio', desc: 'Create high-contrast custom branded QR codes with embedded logos.', icon: <QrCode size={20} color="#38BDF8" /> },
           ].map((card, idx) => (
-            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px' }}>
+            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px', width: '100%', boxSizing: 'border-box' }}>
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px' }}>
                 {card.icon}
               </div>
@@ -339,7 +329,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       {/* ── 8. AI EVENT MANAGEMENT FEATURES ── */}
       <section className="landing-section-wrap">
-        <div style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(13,17,32,0.9) 100%)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '24px', padding: '28px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', alignItems: 'center' }}>
+        <div className="responsive-ai-card-wrap">
           <div>
             <span style={{ color: '#C084FC', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}>🤖 AI CO-PILOT ENGINE</span>
             <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 900, color: '#FFF', marginTop: '6px', marginBottom: '12px', fontFamily: 'var(--font-heading)' }}>
@@ -352,7 +342,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               Explore AI Suite
             </button>
           </div>
-          <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
+          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px', width: '100%', boxSizing: 'border-box' }}>
             <div style={{ color: '#C084FC', fontSize: '11.5px', fontWeight: 800, marginBottom: '6px' }}>AI PRICE RECOMMENDATION</div>
             <p style={{ color: '#E2E8F0', fontSize: '13.5px', lineHeight: 1.5, margin: 0 }}>
               "Ticket velocity is 28% above average. Increasing Tier 2 passes by ₦5,000 will yield an estimated +₦3.4M in GMV."
@@ -369,16 +359,16 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             Real-Time Revenue Radar
           </h2>
         </div>
-        <div style={{ background: '#0D1120', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.8)', padding: '20px', textAlign: 'left' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px', marginBottom: '20px' }}>
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ background: '#0D1120', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 25px 60px rgba(0,0,0,0.8)', padding: '20px', textAlign: 'left', width: '100%', boxSizing: 'border-box' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', width: '100%', boxSizing: 'border-box' }}>
               <div style={{ fontSize: '10.5px', color: '#9CA3AF', fontWeight: 800 }}>LIVE TICKET REVENUE</div>
-              <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', margin: '3px 0' }}>₦48,650,000</div>
+              <div style={{ fontSize: '20px', fontWeight: 900, color: '#FFF', margin: '3px 0' }}>₦48,650,000</div>
               <div style={{ fontSize: '11px', color: '#34D399', fontWeight: 700 }}>↑ +42% vs last week</div>
             </div>
-            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ background: 'rgba(255,255,255,0.03)', padding: '14px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)', width: '100%', boxSizing: 'border-box' }}>
               <div style={{ fontSize: '10.5px', color: '#9CA3AF', fontWeight: 800 }}>ATTENDEE CHECK-INS</div>
-              <div style={{ fontSize: '22px', fontWeight: 900, color: '#60A5FA', margin: '3px 0' }}>14,280 / 15,000</div>
+              <div style={{ fontSize: '20px', fontWeight: 900, color: '#60A5FA', margin: '3px 0' }}>14,280 / 15,000</div>
               <div style={{ fontSize: '11px', color: '#60A5FA', fontWeight: 700 }}>95% Gate Occupancy</div>
             </div>
           </div>
@@ -397,17 +387,17 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       {/* ── 11. TESTIMONIALS ── */}
       <section className="landing-section-wrap">
-        <div style={{ background: 'linear-gradient(135deg, rgba(30,27,75,0.6) 0%, rgba(13,17,32,0.9) 100%)', border: '1px solid rgba(124,58,237,0.3)', borderRadius: '24px', padding: '28px', textAlign: 'center' }}>
+        <div className="responsive-testimonial-card-wrap">
           <span style={{ color: '#C084FC', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase' }}>ORGANIZER STORIES</span>
           <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 900, color: '#FFF', marginTop: '4px', marginBottom: '24px', fontFamily: 'var(--font-heading)' }}>
             Trusted by Festival Directors &amp; Promoters
           </h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '20px', textAlign: 'left' }}>
+          <div className="responsive-testimonial-grid">
             {[
               { quote: '"GETVNT transformed how we run Afrobeats festivals in Lagos. Gate scan times dropped below 400ms."', author: 'Tunde Bakare', role: 'AfroNation Lagos' },
               { quote: '"The AI assistant generated our entire sponsorship deck. We sold out 15,000 passes in less than 4 days."', author: 'Amina Osei', role: 'Nairobi Tech Expo' },
             ].map((t, idx) => (
-              <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
+              <div key={idx} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px', width: '100%', boxSizing: 'border-box' }}>
                 <p style={{ color: '#E2E8F0', fontSize: '13.5px', lineHeight: 1.55, fontStyle: 'italic', marginBottom: '14px' }}>{t.quote}</p>
                 <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFF' }}>{t.author}</div>
                 <div style={{ fontSize: '11.5px', color: '#60A5FA', fontWeight: 600 }}>{t.role}</div>
@@ -418,7 +408,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
       </section>
 
       {/* ── 12. FAQ ACCORDION ── */}
-      <section style={{ maxWidth: '840px', margin: '0 auto 80px auto', padding: '0 16px' }}>
+      <section style={{ maxWidth: '840px', margin: '0 auto 80px auto', padding: '0 16px', boxSizing: 'border-box' }}>
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase' }}>QUESTIONS</span>
           <h2 style={{ fontSize: 'clamp(22px, 3.5vw, 32px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>
@@ -430,7 +420,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             <div
               key={idx}
               onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-              style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 20px', cursor: 'pointer' }}
+              style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '16px 20px', cursor: 'pointer', width: '100%', boxSizing: 'border-box' }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px' }}>
                 <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#FFF', margin: 0 }}>{faq.question}</h4>
