@@ -299,6 +299,13 @@ function MarketplaceContent() {
           </div>
 
           <a
+            href={getAppUrl('admin')}
+            style={{ color: '#EF4444', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
+          >
+            Super Admin
+          </a>
+
+          <a
             href={getAppUrl('workspace')}
             style={{ color: '#A5B4FC', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
           >
@@ -653,6 +660,7 @@ function MarketplaceContent() {
             <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>For Event Organizers</h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
               <li><a href={getAppUrl('workspace')} style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
+              <li><a href={getAppUrl('admin')} style={{ color: '#EF4444', textDecoration: 'none', fontWeight: 700 }}>Super Admin Console</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>AI Event Marketing Guide</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Ticket Designer Desk</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Branded QR Code Studio</a></li>

@@ -14,8 +14,8 @@ fi
 
 # 2. Build and launch containers
 echo "📦 Building and starting containerized services..."
-docker compose build --parallel
-docker compose up -d
+docker compose build --no-cache web api
+docker compose up -d --remove-orphans
 
 echo "------------------------------------------------------"
 echo "✅ Deployment Successful!"

@@ -25,8 +25,8 @@ import { LandingPageCmsView } from './components/integrations/LandingPageCmsView
 import { PlatformUpdateManagerView } from './components/integrations/PlatformUpdateManagerView';
 import { FeatureFlagsView } from './components/integrations/FeatureFlagsView';
 import { useResponsiveSidebar } from '../../../shared/src/hooks/useResponsiveSidebar';
-import { apiClient, GeneralAiAssistantModal, PasswordField } from '../../../shared/src';
-import { CheckCircle, ShieldAlert, Menu, Lock, LogOut, ArrowRight, AlertCircle, Sparkles, Eye, EyeOff, KeyRound, Bot } from 'lucide-react';
+import { apiClient, GeneralAiAssistantModal, PasswordField, getAppUrl } from '../../../shared/src';
+import { CheckCircle, ShieldAlert, Menu, Lock, LogOut, ArrowRight, AlertCircle, Sparkles, Eye, EyeOff, KeyRound, Bot, Globe, LayoutDashboard } from 'lucide-react';
 import './styles.css';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean; error: any }> {
@@ -467,22 +467,37 @@ export default function App() {
             </p>
           </div>
 
-          {/* User Profile Capsule */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '8px 14px' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #EF4444 0%, #3B82F6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#FFF', fontSize: '13px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)' }}>
-              SA
-            </div>
-            <div>
-              <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#FFF', lineHeight: 1.2 }}>
-                {adminUser.first_name ? `${adminUser.first_name} ${adminUser.last_name || ''}` : adminUser.name}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <a
+              href={getAppUrl('marketplace')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#9CA3AF', textDecoration: 'none', fontSize: '12.5px', fontWeight: 700, padding: '7px 12px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <Globe size={14} /> Marketplace
+            </a>
+            <a
+              href={getAppUrl('workspace')}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#06B6D4', textDecoration: 'none', fontSize: '12.5px', fontWeight: 700, padding: '7px 12px', background: 'rgba(6,182,212,0.1)', borderRadius: '10px', border: '1px solid rgba(6,182,212,0.2)' }}
+            >
+              <LayoutDashboard size={14} /> Organizer OS
+            </a>
+
+            {/* User Profile Capsule */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', padding: '8px 14px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #EF4444 0%, #3B82F6 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#FFF', fontSize: '13px', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.3)' }}>
+                SA
               </div>
-              <div style={{ fontSize: '11px', color: '#EF4444', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#EF4444' }} /> Super Admin Operator
+              <div>
+                <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#FFF', lineHeight: 1.2 }}>
+                  {adminUser.first_name ? `${adminUser.first_name} ${adminUser.last_name || ''}` : adminUser.name}
+                </div>
+                <div style={{ fontSize: '11px', color: '#EF4444', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#EF4444' }} /> Super Admin Operator
+                </div>
               </div>
+              <button className="header-icon-btn" title="Sign Out" onClick={handleLogout} style={{ marginLeft: '4px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px', borderRadius: '8px', color: '#9CA3AF', cursor: 'pointer' }}>
+                <LogOut size={16} />
+              </button>
             </div>
-            <button className="header-icon-btn" title="Sign Out" onClick={handleLogout} style={{ marginLeft: '4px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', padding: '6px', borderRadius: '8px', color: '#9CA3AF', cursor: 'pointer' }}>
-              <LogOut size={16} />
-            </button>
           </div>
         </header>
 
