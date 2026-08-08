@@ -77,11 +77,11 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   ];
 
   const topOrganizers = [
-    { name: 'Abk1stson', growth: '↑ 100.00%', avatar: '/afrobeat_festival_banner.png', isFeatured: false },
-    { name: 'Bankz', growth: '↑ 0.00%', avatar: '', isFeatured: false },
-    { name: 'Samora of Tixup', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', isFeatured: true },
-    { name: 'De brill cedar Place', growth: '↑ 0.00%', avatar: '', isFeatured: false },
-    { name: 'Opemipo Ogunyemi', growth: '↑ 0.00%', avatar: '', isFeatured: false },
+    { name: 'AfroNation Global Events', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', isFeatured: false },
+    { name: 'Bankole & Partners Live', growth: '↑ 84.20%', avatar: '', isFeatured: false },
+    { name: 'Samora & Co. Studios', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', isFeatured: true },
+    { name: 'De Brilliance Luxury Events', growth: '↑ 52.10%', avatar: '', isFeatured: false },
+    { name: 'Opemipo Live Entertainment', growth: '↑ 41.80%', avatar: '', isFeatured: false },
   ];
 
   return (
