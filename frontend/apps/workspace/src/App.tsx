@@ -162,6 +162,16 @@ function WorkspaceContent() {
   useEffect(() => { fetchPlans(); }, []);
   useEffect(() => { if (token) fetchInvoices(); }, [token]);
 
+  // Body scroll lock effect for mobile sidebar and dialogs
+  useEffect(() => {
+    if (sidebarOpen || showAndroidModal || showCreateEventWizard) {
+      document.body.classList.add('body-scroll-lock');
+    } else {
+      document.body.classList.remove('body-scroll-lock');
+    }
+    return () => document.body.classList.remove('body-scroll-lock');
+  }, [sidebarOpen, showAndroidModal, showCreateEventWizard]);
+
   const fetchPlans = async () => {
     try {
       const json = await apiClient.get('/subscriptions/plans');

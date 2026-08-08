@@ -55,7 +55,7 @@ export const AndroidAppPromotion: React.FC = () => {
         }}
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
+      <div className="android-promo-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
         {/* LEFT COLUMN: APPS SHOWCASE INFORMATION */}
         <div>
           {/* Category Pill */}
@@ -79,7 +79,7 @@ export const AndroidAppPromotion: React.FC = () => {
             <Smartphone size={14} /> Official {brand?.platform_name || 'GETVNT'} Android OS v1.0
           </div>
 
-          <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 36px)', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: '14px', fontFamily: 'var(--font-heading)' }}>
+          <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: '14px', fontFamily: 'var(--font-heading)' }}>
             Take {brand?.platform_name || 'GETVNT'} Everywhere
           </h2>
 
@@ -88,7 +88,7 @@ export const AndroidAppPromotion: React.FC = () => {
           </p>
 
           {/* Feature Bullets Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px 18px', marginBottom: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px 18px', marginBottom: '32px' }}>
             {featureBullets.map((bullet, idx) => (
               <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#E2E8F0', fontSize: '13.5px', fontWeight: 600 }}>
                 <CheckCircle2 size={16} color="#38BDF8" style={{ flexShrink: 0 }} />
@@ -98,7 +98,7 @@ export const AndroidAppPromotion: React.FC = () => {
           </div>
 
           {/* Action CTAs */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '28px' }}>
+          <div className="android-btn-group" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '28px' }}>
             {deviceType === 'ios' ? (
               <div
                 style={{
@@ -342,7 +342,37 @@ export const AndroidAppPromotion: React.FC = () => {
       <style>{`
         @keyframes floatPhone {
           0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
+          50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+          .android-app-promotion-section {
+            padding: 28px 20px !important;
+            margin: 40px 0 32px 0 !important;
+            border-radius: 24px !important;
+          }
+
+          .floating-phone-wrapper {
+            width: 230px !important;
+            height: 440px !important;
+            border-width: 4px !important;
+            border-radius: 36px !important;
+          }
+
+          .android-promo-grid {
+            grid-template-columns: 1fr !important;
+            gap: 28px !important;
+          }
+
+          .android-btn-group {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+
+          .android-btn-group > * {
+            width: 100% !important;
+            justify-content: center !important;
+          }
         }
       `}</style>
     </section>

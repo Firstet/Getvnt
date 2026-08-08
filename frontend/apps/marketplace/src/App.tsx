@@ -51,6 +51,16 @@ function MarketplaceContent() {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
 
+  // Body scroll lock effect for accessibility and touch UX
+  useEffect(() => {
+    if (mobileMenuOpen || selectedEvent) {
+      document.body.classList.add('body-scroll-lock');
+    } else {
+      document.body.classList.remove('body-scroll-lock');
+    }
+    return () => document.body.classList.remove('body-scroll-lock');
+  }, [mobileMenuOpen, selectedEvent]);
+
   // News Stream & Standalone Blog Article State
   const [activeArticleSlug, setActiveArticleSlug] = useState<string | null>(null);
 
@@ -689,18 +699,50 @@ function MarketplaceContent() {
 
       </div>
 
-      {/* ── 3. FULL ENTERPRISE FOOTER ── */}
-      <footer style={{ background: '#04060E', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '56px 28px 32px', marginTop: '60px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '48px' }}>
+      {/* ── 3. FULL ENTERPRISE SAAS FOOTER ── */}
+      <footer style={{ background: '#04060E', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '64px 28px 36px', marginTop: '80px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '48px', marginBottom: '48px' }}>
           
-          {/* Col 1: Platform Brand */}
-          <div>
+          {/* Col 1: Brand & Newsletter */}
+          <div style={{ gridColumn: 'span 1' }}>
             <GetvntLogo height={38} theme="dark" />
-            <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '16px', lineHeight: '1.6', maxWidth: '280px' }}>
-              Getvnt is the premier AI-powered Event Business Operating System &amp; Global Ticket Marketplace across Africa and worldwide.
+            <p style={{ color: '#9CA3AF', fontSize: '13.5px', marginTop: '16px', lineHeight: '1.6', maxWidth: '300px' }}>
+              The premier AI-powered Event Business Operating System &amp; Global Ticket Marketplace for Africa and beyond.
             </p>
+            
+            {/* Newsletter Input Box */}
+            <div style={{ marginTop: '20px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 800, color: '#FFF', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Stay Updated on VIP Drops
+              </div>
+              <form onSubmit={(e) => { e.preventDefault(); alert('Subscribed to GETVNT VIP newsletter!'); }} style={{ display: 'flex', gap: '8px' }}>
+                <input
+                  type="email"
+                  placeholder="Enter email..."
+                  required
+                  style={{
+                    flex: 1,
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: '10px',
+                    padding: '8px 12px',
+                    color: '#FFF',
+                    fontSize: '13px',
+                    outline: 'none'
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="btn-cta"
+                  style={{ background: '#2563EB', color: '#FFF', padding: '8px 14px', borderRadius: '10px', fontSize: '12.5px', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                >
+                  Join
+                </button>
+              </form>
+            </div>
+
             <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <span style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', fontSize: '12px', color: '#60A5FA', fontWeight: 700 }}>
+              <span style={{ padding: '6px 12px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', fontSize: '12px', color: '#34D399', fontWeight: 700 }}>
                 ● 100% Uptime Operational
               </span>
             </div>
@@ -708,8 +750,8 @@ function MarketplaceContent() {
 
           {/* Col 2: Discover Events */}
           <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Discover Events &amp; Blog</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
+            <h4 style={{ fontSize: '12.5px', fontWeight: 900, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '18px' }}>Discover &amp; Media</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#9CA3AF' }}>
               <li><a href="/blog" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>Pulse Entertainment Blog</a></li>
               <li><a href="/about" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>Music Concerts &amp; Afrobeats</a></li>
               <li><a href="/about" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>Lagos &amp; Nairobi Event Guides</a></li>
@@ -719,31 +761,20 @@ function MarketplaceContent() {
 
           {/* Col 3: Organizers */}
           <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>For Event Organizers</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href={getAppUrl('workspace')} style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
-              <li><a href={getAppUrl('admin')} style={{ color: '#EF4444', textDecoration: 'none', fontWeight: 700 }}>Super Admin Console</a></li>
+            <h4 style={{ fontSize: '12.5px', fontWeight: 900, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '18px' }}>For Event Organizers</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#9CA3AF' }}>
+              <li><a href={getAppUrl('workspace')} style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 800 }}>Getvnt Organizer OS</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>AI Event Marketing Guide</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Ticket Designer Desk</a></li>
               <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Branded QR Code Studio</a></li>
             </ul>
           </div>
 
-          {/* Col 4: GETVNT Mobile App */}
+          {/* Col 4: GETVNT Mobile & Support */}
           <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>GETVNT Mobile</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href="/downloads/getvnt-organizer-v1.0.apk" download style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>📱 Download Android APK v1.0</a></li>
-              <li><span style={{ fontSize: '12px', color: '#64748B' }}>Min OS: Android 8.0+ (28 MB)</span></li>
-              <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Mobile App System Requirements</a></li>
-              <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Release Notes (v1.0 Build 104)</a></li>
-            </ul>
-          </div>
-
-          {/* Col 5: Support & Legal */}
-          <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Support &amp; Legal</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
+            <h4 style={{ fontSize: '12.5px', fontWeight: 900, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '18px' }}>GETVNT Mobile &amp; Support</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13.5px', color: '#9CA3AF' }}>
+              <li><a href="/downloads/getvnt-organizer-v1.0.apk" download style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>📱 Download Android APK v1.0</a></li>
               <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Help &amp; Knowledge Center</a></li>
               <li><a href="/api-docs" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('api'); }}>Developer API &amp; Webhooks</a></li>
               <li><a href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('privacy'); }}>Privacy Policy &amp; Security</a></li>
@@ -754,21 +785,15 @@ function MarketplaceContent() {
         </div>
 
         {/* Bottom Copyright */}
-        <div style={{ maxWidth: '1280px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6B7280', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', paddingTop: '28px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px', color: '#6B7280', flexWrap: 'wrap', gap: '16px' }}>
           <div>{brand.copyright_text || `© ${new Date().getFullYear()} Getvnt Enterprise Platform. All rights reserved.`}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             {brand.support_email && (
-              <a href={`mailto:${brand.support_email}`} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '12px' }}>{brand.support_email}</a>
+              <a href={`mailto:${brand.support_email}`} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '12.5px' }}>{brand.support_email}</a>
             )}
-            {brand.social_links?.twitter && (
-              <a href={brand.social_links.twitter} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>𝕏</a>
-            )}
-            {brand.social_links?.instagram && (
-              <a href={brand.social_links.instagram} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>IG</a>
-            )}
-            {brand.social_links?.linkedin && (
-              <a href={brand.social_links.linkedin} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>in</a>
-            )}
+            <a href="https://twitter.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '13px', textDecoration: 'none', fontWeight: 800 }}>𝕏</a>
+            <a href="https://instagram.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '13px', textDecoration: 'none', fontWeight: 800 }}>IG</a>
+            <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '13px', textDecoration: 'none', fontWeight: 800 }}>in</a>
           </div>
         </div>
       </footer>

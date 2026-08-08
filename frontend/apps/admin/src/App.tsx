@@ -194,6 +194,16 @@ export default function App() {
     }, 4000);
   };
 
+  // Body scroll lock effect for AI Assistant modal
+  useEffect(() => {
+    if (showAdminAiModal) {
+      document.body.classList.add('body-scroll-lock');
+    } else {
+      document.body.classList.remove('body-scroll-lock');
+    }
+    return () => document.body.classList.remove('body-scroll-lock');
+  }, [showAdminAiModal]);
+
   const fetchAllData = async () => {
     try {
       const [
