@@ -346,21 +346,21 @@ function MarketplaceContent() {
           </nav>
 
           {/* Column 3: Right Action Area (Pill Search Capsule, Login, Become an Organizer CTA) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 1.5vw, 20px)', flexShrink: 0 }}>
             <div className="header-pill-search">
-              <Search size={16} color="#60A5FA" style={{ flexShrink: 0 }} />
+              <Search size={15} color="#60A5FA" style={{ flexShrink: 0 }} />
               <input
                 type="text"
-                placeholder="Search events, cities or organizers..."
+                placeholder="Search events..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '14px', outline: 'none' }}
+                style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '13.5px', outline: 'none' }}
               />
             </div>
 
             <a
               href={getAppUrl('workspace')}
-              style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '16px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease' }}
+              style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '14.5px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease', flexShrink: 0 }}
               className="desktop-only-link"
             >
               Organizer Login
