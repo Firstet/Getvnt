@@ -4,7 +4,11 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Tenant;
+use App\Models\User;
+use App\Models\SubscriptionPlan;
+use App\Models\Subscription;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class OnboardingController extends Controller
 {
@@ -39,11 +43,40 @@ class OnboardingController extends Controller
         $user = $request->user();
         $tenant = $user->tenant;
 
+        // Auto-create Tenant (Organizer Workspace) for registered Users upgrading to Organizer
         if (!$tenant) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Organization not found'
-            ], 404);
+            $bizName = $request->input('business_name') ?: ($user->name . ' Organization');
+            $tenant = Tenant::create([
+                'id' => (string) Str::uuid(),
+                'name' => $bizName,
+                'slug' => Str::slug($bizName) . '-' . rand(100, 999),
+                'status' => 'active',
+                'is_verified' => false,
+                'settings' => [
+                    'onboarding_step' => 1,
+                    'onboarding_completed' => false,
+                    'verification_status' => 'pending',
+                ]
+            ]);
+
+            $user->tenant_id = $tenant->id;
+            $user->role = 'organizer_owner';
+            $user->save();
+
+            $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+
+            $plan = SubscriptionPlan::where('slug', 'starter')->first();
+            if ($plan) {
+                Subscription::create([
+                    'id' => (string) Str::uuid(),
+                    'tenant_id' => $tenant->id,
+                    'plan_id' => $plan->id,
+                    'status' => 'trial',
+                    'billing_cycle' => 'monthly',
+                    'starts_at' => now(),
+                    'ends_at' => now()->addDays($plan->trial_days ?? 14),
+                ]);
+            }
         }
 
         $validated = $request->validate([
