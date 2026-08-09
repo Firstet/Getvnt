@@ -2,48 +2,55 @@
  * Role Formatting Utilities for GETVNT Platform
  */
 
-export type UserRole = 'super_admin' | 'tenant_admin' | 'organizer_owner' | 'organizer_admin' | 'tenant_staff' | 'attendee' | 'client_user' | string;
+export type V3Role = 'super_admin' | 'user' | 'organizer' | 'trusted_organizer' | 'organizer_pro';
+export type UserRole = V3Role | 'tenant_admin' | 'organizer_owner' | 'organizer_staff' | 'attendee' | string;
 
 export function getRoleBadgeLabel(role?: string): string {
-  if (!role) return 'TENANT_ADMIN';
+  if (!role) return 'USER';
   const clean = role.toLowerCase().trim();
 
   switch (clean) {
     case 'super_admin':
+    case 'platform_staff':
       return 'SUPER_ADMIN';
-    case 'tenant_admin':
+    case 'organizer_pro':
+      return 'ORGANIZER_PRO';
+    case 'trusted_organizer':
+      return 'TRUSTED_ORGANIZER';
+    case 'organizer':
     case 'organizer_owner':
     case 'organizer_admin':
-      return 'TENANT_ADMIN';
-    case 'tenant_staff':
-      return 'TENANT_STAFF';
+      return 'ORGANIZER';
+    case 'user':
     case 'attendee':
     case 'client_user':
     case 'marketplace_user':
-      return 'CLIENT_USER';
     default:
-      return clean.toUpperCase();
+      return 'USER';
   }
 }
 
 export function getRoleDescription(role?: string): string {
-  if (!role) return 'Tenant Administrator';
+  if (!role) return 'User Account';
   const clean = role.toLowerCase().trim();
 
   switch (clean) {
     case 'super_admin':
-      return 'Platform Super Admin (Full Governance & System Vault Access)';
-    case 'tenant_admin':
+    case 'platform_staff':
+      return 'Super Admin Operator (Full Platform Governance & Infrastructure Vault)';
+    case 'organizer_pro':
+      return 'Organizer Pro (Enterprise Subscriber with Website Builder & Custom Domains)';
+    case 'trusted_organizer':
+      return 'Trusted Organizer (KYC Verified Creator with Marketing & AI Studio)';
+    case 'organizer':
     case 'organizer_owner':
     case 'organizer_admin':
-      return 'Tenant Admin (Organization Owner & Event Operator)';
-    case 'tenant_staff':
-      return 'Tenant Staff (Scanner & Event Operator)';
+      return 'Organizer (Event Creator & Ticket Seller)';
+    case 'user':
     case 'attendee':
     case 'client_user':
     case 'marketplace_user':
-      return 'Client Attendee (Ticket Buyer & Event Discoverer)';
     default:
-      return role;
+      return 'User (Event Discoverer & Ticket Buyer)';
   }
 }
