@@ -843,13 +843,82 @@ function WorkspaceContent() {
 
 
           {/* ══════════════════════════════════════════
-              BILLING VIEW
+              FINANCIAL WALLET & PAYOUTS ENGINE VIEW
           ══════════════════════════════════════════ */}
           {view === 'billing' && (
             <div>
-              <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '6px' }}>Billing & Subscriptions</h1>
-                <p style={{ color: '#6B7280', fontSize: '14px' }}>Manage subscription plans, billing cycles, and invoice receipts.</p>
+              <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                <div>
+                  <h1 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '6px' }}>Revenue, Payouts & Wallet OS</h1>
+                  <p style={{ color: '#6B7280', fontSize: '14px' }}>Real-time balance settlement, fee breakdowns, automated bank disbursals, and subscription invoices.</p>
+                </div>
+                <button
+                  className="btn-cta"
+                  style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF' }}
+                  onClick={() => alert('Payout Request Triggered: Settlements process within 24 hours to your verified bank account.')}
+                >
+                  <DollarSign size={16} /> Request Manual Payout
+                </button>
+              </div>
+
+              {/* Wallet Financial Balances Hero Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '36px' }}>
+                <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#34D399', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Available Balance</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦1,420,500.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Ready for automated bank withdrawal</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#FBBF24', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Pending Escrow</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦380,000.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Settles within 24h of event completion</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#60A5FA', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Lifetime Gross Sales</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦8,450,000.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Total ticket sales processed</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#C084FC', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Platform & Gateway Fees</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    6.5% <span style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 700 }}>(5% Platform + 1.5% Gateway)</span>
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Zero hidden fees or booking charges</div>
+                </div>
+              </div>
+
+              {/* Settlement Account & Tax Verification Card */}
+              <div style={{ background: 'rgba(22,29,46,0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px', marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFF', marginBottom: '16px' }}>Verified Settlement Bank Account & Tax Status</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Bank Name</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>Zenith Bank Plc</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Account Number</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>2184****92</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Account Name</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>{user?.tenant?.name || 'Verified Event Organization'}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>KYC Verification</span>
+                    <div style={{ color: '#34D399', fontWeight: 800, fontSize: '15px', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={16} /> Trusted Organizer Verified
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Current plan hero */}
