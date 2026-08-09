@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Layout, Globe, Sparkles, Download, Eye, ExternalLink, Palette, Smartphone, Monitor, CheckCircle2, Lock, Shield, Settings, FileText, Image, MessageSquare, Award } from 'lucide-react';
+import {
+  Layout, Globe, Sparkles, Download, Eye, ExternalLink, Palette, Smartphone, Monitor, CheckCircle2, Lock, Shield, Settings, FileText, Image, MessageSquare, Award, ArrowRight, Check, Plus, RefreshCw, Key
+} from 'lucide-react';
 
 interface Props {
   onToast: (msg: string) => void;
@@ -7,30 +9,38 @@ interface Props {
 }
 
 export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = 'PRO' }) => {
-  const [selectedTemplate, setSelectedTemplate] = useState('corporate_conference');
+  const [selectedTemplate, setSelectedTemplate] = useState('music_festival');
   const [deviceMode, setDeviceMode] = useState<'desktop' | 'mobile'>('desktop');
   const [eventTitle, setEventTitle] = useState('AFROBEAT FESTIVAL & TECH SUMMIT 2026');
   const [tagline, setTagline] = useState('Africa\'s Premier Global Event Operating System');
   const [eventDate, setEventDate] = useState('August 15, 2026 • 04:00 PM');
   const [venue, setVenue] = useState('Eko Hotel Convention Center, Lagos, Nigeria');
-  const [ctaText, setCtaText] = useState('CLAIM VIP PASSES NOW');
-  const [customDomain, setCustomDomain] = useState('event.getvnt.com');
+  const [ctaText, setCtaText] = useState('BUY TICKETS NOW');
+  
+  // Domain Setup Options: free_subdomain | custom_domain | buy_domain
+  const [domainOption, setDomainOption] = useState<'free_subdomain' | 'custom_domain' | 'buy_domain'>('free_subdomain');
+  const [subdomainName, setSubdomainName] = useState('afrobeatfest');
+  const [customDomainInput, setCustomDomainInput] = useState('www.afrobobeatfest.com');
+  const [dnsStatus, setDnsStatus] = useState<'pending' | 'verified'>('verified');
+
   const [primaryColor, setPrimaryColor] = useState('#2563EB');
   const [accentColor, setAccentColor] = useState('#7C3AED');
-  const [activeCmsTab, setActiveCmsTab] = useState<'general' | 'seo' | 'pages' | 'sponsors'>('general');
+  const [activeCmsTab, setActiveCmsTab] = useState<'templates' | 'content' | 'domains' | 'seo' | 'sections'>('templates');
 
-  // 10 Professional Organizer Website Templates
+  // 12 Professional Event Category Templates
   const templates = [
-    { id: 'corporate_conference', name: '1. Corporate Conference (Sleek Tech Navy)', heroBg: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', badge: '💼 CORPORATE CONVENTION', primary: '#2563EB', accent: '#38BDF8' },
-    { id: 'music_festival', name: '2. Music Festival (Neon Dark Glass)', heroBg: 'linear-gradient(135deg, #1E1B4B 0%, #0D1222 100%)', badge: '🔥 NEON MUSIC FESTIVAL', primary: '#EC4899', accent: '#7C3AED' },
-    { id: 'wedding_planner', name: '3. Wedding Planner (Blush Rose & Gold)', heroBg: 'linear-gradient(135deg, #2D0B1E 0%, #0F050B 100%)', badge: '💍 LUXURY WEDDING', primary: '#F43F5E', accent: '#F59E0B' },
-    { id: 'church_event', name: '4. Church & Ministry Summit (Grace Royal)', heroBg: 'linear-gradient(135deg, #1E1035 0%, #080312 100%)', badge: '⛪ CHURCH & MINISTRY', primary: '#8B5CF6', accent: '#60A5FA' },
-    { id: 'university', name: '5. University & Academic Expo (Oxford Blue)', heroBg: 'linear-gradient(135deg, #0A192F 0%, #020C1B 100%)', badge: '🎓 UNIVERSITY EXPO', primary: '#0284C7', accent: '#34D399' },
-    { id: 'sports_event', name: '6. Sports Championship (Emerald Arena)', heroBg: 'linear-gradient(135deg, #064E3B 0%, #022C22 100%)', badge: '⚽ SPORTS CHAMPIONSHIP', primary: '#10B981', accent: '#F59E0B' },
-    { id: 'exhibition', name: '7. Exhibition & Trade Fair (Industrial Onyx)', heroBg: 'linear-gradient(135deg, #18181B 0%, #09090B 100%)', badge: '🏛️ TRADE FAIR EXPO', primary: '#F97316', accent: '#E11D48' },
-    { id: 'community', name: '8. Community Gathering (Warm Amber)', heroBg: 'linear-gradient(135deg, #451A03 0%, #1A0601 100%)', badge: '🤝 COMMUNITY SUMMIT', primary: '#F59E0B', accent: '#10B981' },
-    { id: 'luxury_gala', name: '9. Luxury Gala & Fashion (Onyx & Gold)', heroBg: 'linear-gradient(135deg, #1C1917 0%, #0C0A09 100%)', badge: '👑 VIP LUXURY GALA', primary: '#D97706', accent: '#FBBF24' },
-    { id: 'creative_agency', name: '10. Creative Agency Showcase (Cyber Purple)', heroBg: 'linear-gradient(135deg, #3B0764 0%, #170326 100%)', badge: '🎨 CREATIVE AGENCY', primary: '#A855F7', accent: '#EC4899' },
+    { id: 'music_festival', category: 'Music Festival', name: '1. Music Festival (Neon Dark Glass)', heroBg: 'linear-gradient(135deg, #1E1B4B 0%, #0D1222 100%)', badge: '🔥 NEON MUSIC FESTIVAL', primary: '#EC4899', accent: '#7C3AED' },
+    { id: 'church', category: 'Church & Ministry', name: '2. Church & Ministry Summit (Grace Royal)', heroBg: 'linear-gradient(135deg, #1E1035 0%, #080312 100%)', badge: '⛪ CHURCH & MINISTRY', primary: '#8B5CF6', accent: '#60A5FA' },
+    { id: 'conference', category: 'Conference', name: '3. Global Tech Conference (Navy Cyber)', heroBg: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)', badge: '💼 TECH CONFERENCE', primary: '#2563EB', accent: '#38BDF8' },
+    { id: 'summit', category: 'Summit', name: '4. Executive Leadership Summit (Onyx Gold)', heroBg: 'linear-gradient(135deg, #1C1917 0%, #0C0A09 100%)', badge: '👑 LEADERSHIP SUMMIT', primary: '#D97706', accent: '#FBBF24' },
+    { id: 'workshop', category: 'Workshop', name: '5. Creative Masterclass Workshop', heroBg: 'linear-gradient(135deg, #3B0764 0%, #170326 100%)', badge: '🎨 MASTERCLASS WORKSHOP', primary: '#A855F7', accent: '#EC4899' },
+    { id: 'expo', category: 'Expo & Trade', name: '6. International Trade Expo (Industrial)', heroBg: 'linear-gradient(135deg, #18181B 0%, #09090B 100%)', badge: '🏛️ TRADE FAIR EXPO', primary: '#F97316', accent: '#E11D48' },
+    { id: 'comedy', category: 'Comedy', name: '7. Comedy Night Showcase (Vibrant Amber)', heroBg: 'linear-gradient(135deg, #451A03 0%, #1A0601 100%)', badge: '🎭 COMEDY NIGHT SHOW', primary: '#F59E0B', accent: '#10B981' },
+    { id: 'wedding', category: 'Wedding', name: '8. Luxury Wedding Gala (Blush Rose)', heroBg: 'linear-gradient(135deg, #2D0B1E 0%, #0F050B 100%)', badge: '💍 LUXURY WEDDING', primary: '#F43F5E', accent: '#F59E0B' },
+    { id: 'university', category: 'University', name: '9. University Academic Campus Expo', heroBg: 'linear-gradient(135deg, #0A192F 0%, #020C1B 100%)', badge: '🎓 UNIVERSITY EXPO', primary: '#0284C7', accent: '#34D399' },
+    { id: 'sports', category: 'Sports', name: '10. Sports Championship Arena', heroBg: 'linear-gradient(135deg, #064E3B 0%, #022C22 100%)', badge: '⚽ SPORTS CHAMPIONSHIP', primary: '#10B981', accent: '#F59E0B' },
+    { id: 'corporate', category: 'Corporate', name: '11. Corporate Annual General Assembly', heroBg: 'linear-gradient(135deg, #0F172A 0%, #0284C7 100%)', badge: '🏢 CORPORATE ASSEMBLY', primary: '#0284C7', accent: '#38BDF8' },
+    { id: 'fashion_week', category: 'Fashion Week', name: '12. High Fashion Runway Week', heroBg: 'linear-gradient(135deg, #881337 0%, #4C0519 100%)', badge: '👠 FASHION RUNWAY WEEK', primary: '#F43F5E', accent: '#FB7185' },
   ];
 
   const currentPreset = templates.find((t) => t.id === selectedTemplate) || templates[0];
@@ -54,10 +64,10 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
             <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg,#2563EB,#7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Globe size={20} color="#FFF" />
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 900 }}>Event Website Builder &amp; CMS</h1>
+            <h1 style={{ fontSize: '26px', fontWeight: 900 }}>Event Website Builder OS</h1>
           </div>
           <p style={{ color: '#6B7280', fontSize: '14px', marginTop: '4px' }}>
-            Build responsive multi-page event websites with custom domains, speaker agendas, sponsor logos, and instant checkout.
+            Build Framer-grade event websites with 12 category templates, custom domain connection, and instant ticket checkout.
           </p>
         </div>
 
@@ -65,42 +75,26 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
           <button
             className="btn-cta"
             style={{ background: 'linear-gradient(135deg,#2563EB,#7C3AED)', color: '#FFF' }}
-            onClick={() => onToast(`Published Website live to https://${customDomain} !`)}
+            onClick={() => onToast(`🚀 Event Website Published Live to ${domainOption === 'free_subdomain' ? `${subdomainName}.getvnt.com` : customDomainInput}!`)}
           >
-            <Sparkles size={15} /> Publish Live Website
+            <Sparkles size={15} /> Publish Event Website
           </button>
         </div>
       </div>
 
-      {/* Plan Restrictions Banner */}
-      {isFreePlan && (
-        <div style={{ background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.3)', borderRadius: '18px', padding: '20px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Lock size={22} color="#F59E0B" />
-            <div>
-              <div style={{ fontWeight: 800, color: '#FFF', fontSize: '14.5px' }}>Free Plan — Basic Single Event Page Only</div>
-              <div style={{ color: '#D1D5DB', fontSize: '13px' }}>Upgrade to PRO to unlock full Organizer Website Builder, custom domains, CMS blog, &amp; 10 premium templates.</div>
-            </div>
-          </div>
-          <button className="btn-cta" style={{ background: 'linear-gradient(135deg, #F59E0B, #D97706)', color: '#000', fontWeight: 900, padding: '8px 18px', fontSize: '12.5px' }}>
-            Upgrade to PRO ($29/mo)
-          </button>
-        </div>
-      )}
-
       {/* Main Studio Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '24px' }}>
         
         {/* Controls Sidebar */}
         <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
-          {/* CMS Sub-Navigation Tabs */}
-          <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
+          {/* CMS Navigation Tabs */}
+          <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
             {[
-              { id: 'general', label: 'General' },
-              { id: 'seo', label: 'SEO' },
-              { id: 'pages', label: 'Pages' },
-              { id: 'sponsors', label: 'Sponsors' },
+              { id: 'templates', label: 'Templates' },
+              { id: 'content', label: 'Content' },
+              { id: 'domains', label: 'Domains' },
+              { id: 'sections', label: 'Sections' },
             ].map((t) => (
               <button
                 key={t.id}
@@ -115,17 +109,35 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
             ))}
           </div>
 
-          {activeCmsTab === 'general' && (
-            <>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>10 Organizer Website Templates</label>
-                <select className="search-field" value={selectedTemplate} onChange={(e) => handleTemplateChange(e.target.value)}>
-                  {templates.map((t) => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+          {/* TAB 1: 12 TEMPLATES */}
+          {activeCmsTab === 'templates' && (
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px' }}>12 Event Category Templates</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto' }}>
+                {templates.map((t) => (
+                  <div
+                    key={t.id}
+                    onClick={() => handleTemplateChange(t.id)}
+                    style={{
+                      background: selectedTemplate === t.id ? 'rgba(37,99,235,0.18)' : 'rgba(255,255,255,0.03)',
+                      border: `1px solid ${selectedTemplate === t.id ? '#2563EB' : 'rgba(255,255,255,0.08)'}`,
+                      borderRadius: '12px', padding: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: '#FFF' }}>{t.name}</div>
+                      <div style={{ fontSize: '11px', color: '#9CA3AF' }}>{t.category}</div>
+                    </div>
+                    {selectedTemplate === t.id && <CheckCircle2 size={16} color="#34D399" />}
+                  </div>
+                ))}
               </div>
+            </div>
+          )}
 
+          {/* TAB 2: CONTENT & BRANDING */}
+          {activeCmsTab === 'content' && (
+            <>
               <div>
                 <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Event / Org Title</label>
                 <input type="text" className="search-field" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} />
@@ -141,54 +153,123 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
                 <input type="text" className="search-field" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
               </div>
 
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Venue Address</label>
+                <input type="text" className="search-field" value={venue} onChange={(e) => setVenue(e.target.value)} />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>CTA Button Label</label>
+                <input type="text" className="search-field" value={ctaText} onChange={(e) => setCtaText(e.target.value)} />
+              </div>
+
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Primary</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Primary Color</label>
                   <input type="color" value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} style={{ width: '100%', height: '36px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'none', cursor: 'pointer' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Accent</label>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Accent Color</label>
                   <input type="color" value={accentColor} onChange={(e) => setAccentColor(e.target.value)} style={{ width: '100%', height: '36px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'none', cursor: 'pointer' }} />
                 </div>
               </div>
             </>
           )}
 
-          {activeCmsTab === 'seo' && (
-            <>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Custom Domain</label>
-                <input type="text" className="search-field" value={customDomain} onChange={(e) => setCustomDomain(e.target.value)} placeholder="e.g. festival.mybrand.com" />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Meta SEO Title</label>
-                <input type="text" className="search-field" defaultValue={`${eventTitle} | Official Tickets`} />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Meta Description</label>
-                <textarea className="search-field" rows={3} defaultValue={tagline} />
-              </div>
-            </>
-          )}
-
-          {activeCmsTab === 'pages' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {['Home', 'About Event', 'Speakers & Schedule', 'Sponsors', 'Blog & News', 'Contact & FAQ'].map((p, idx) => (
-                <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '10px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px' }}>
-                  <span>{p}</span>
-                  <span style={{ color: '#34D399', fontSize: '11px', fontWeight: 800 }}>ACTIVE</span>
+          {/* TAB 3: DOMAINS SETUP (3 OPTIONS) */}
+          {activeCmsTab === 'domains' && (
+            <div>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px' }}>Domain Connection Options</label>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
+                {/* Option 1: Free Subdomain */}
+                <div
+                  onClick={() => setDomainOption('free_subdomain')}
+                  style={{
+                    background: domainOption === 'free_subdomain' ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${domainOption === 'free_subdomain' ? '#2563EB' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '12px', padding: '14px', cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>1. Free Subdomain</div>
+                  <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>myevent.getvnt.com</div>
                 </div>
-              ))}
+
+                {/* Option 2: Custom Domain */}
+                <div
+                  onClick={() => setDomainOption('custom_domain')}
+                  style={{
+                    background: domainOption === 'custom_domain' ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${domainOption === 'custom_domain' ? '#2563EB' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '12px', padding: '14px', cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>2. Bring Your Own Domain</div>
+                  <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>www.africatechsummit.com</div>
+                </div>
+
+                {/* Option 3: Buy Domain */}
+                <div
+                  onClick={() => setDomainOption('buy_domain')}
+                  style={{
+                    background: domainOption === 'buy_domain' ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${domainOption === 'buy_domain' ? '#2563EB' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '12px', padding: '14px', cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>3. Buy Domain via GetVNT</div>
+                  <div style={{ fontSize: '11.5px', color: '#34D399', marginTop: '2px' }}>Instant registration &amp; auto DNS setup</div>
+                </div>
+              </div>
+
+              {/* Dynamic Inputs based on Option */}
+              {domainOption === 'free_subdomain' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Choose Subdomain</label>
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <input type="text" className="search-field" style={{ borderRadius: '10px 0 0 10px' }} value={subdomainName} onChange={(e) => setSubdomainName(e.target.value)} />
+                    <span style={{ background: 'rgba(255,255,255,0.1)', padding: '0 12px', height: '44px', display: 'flex', alignItems: 'center', fontSize: '12px', color: '#9CA3AF', borderRadius: '0 10px 10px 0', border: '1px solid rgba(255,255,255,0.1)' }}>.getvnt.com</span>
+                  </div>
+                </div>
+              )}
+
+              {domainOption === 'custom_domain' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Enter Custom Domain</label>
+                  <input type="text" className="search-field" value={customDomainInput} onChange={(e) => setCustomDomainInput(e.target.value)} />
+                  <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '10px', marginTop: '10px', fontSize: '11px', color: '#9CA3AF' }}>
+                    CNAME Record Target: <code style={{ color: '#60A5FA' }}>cname.getvnt.com</code><br />
+                    Status: <span style={{ color: '#34D399', fontWeight: 800 }}>SSL Provisioned ✓</span>
+                  </div>
+                </div>
+              )}
+
+              {domainOption === 'buy_domain' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '6px' }}>Search &amp; Buy New Domain</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input type="text" className="search-field" placeholder="e.g. myfestival2026.com" defaultValue="myfestival2026.com" />
+                    <button className="tixup-btn-primary" style={{ padding: '0 16px', fontSize: '12px' }} onClick={() => onToast('Domain registered & DNS auto-configured!')}>
+                      Buy ($12/yr)
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          {activeCmsTab === 'sponsors' && (
+          {/* TAB 4: SECTIONS & DRAG DROP */}
+          {activeCmsTab === 'sections' && (
             <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '8px' }}>Headline Sponsor Logos</label>
-              <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '12px' }}>Supported sponsors: Paystack, MTN, Pepsi, RedBull, Spotify.</div>
-              <button className="btn-cta" style={{ width: '100%', background: 'rgba(255,255,255,0.06)', color: '#FFF', justifyContent: 'center' }} onClick={() => onToast('Sponsor logo added!')}>
-                + Add Sponsor Logo
-              </button>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', marginBottom: '10px' }}>Enabled Page Sections</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {['Hero Header Banner', 'Event Schedule & Agenda', 'Keynote Speakers Grid', 'Ticket Pricing Tiers', 'Sponsor Logos Grid', 'Venue Location Map', 'FAQ & Accordion'].map((sec, idx) => (
+                  <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12.5px', color: '#FFF' }}>
+                    <span>{sec}</span>
+                    <span style={{ color: '#34D399', fontWeight: 800, fontSize: '11px' }}>ENABLED ✓</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
@@ -200,7 +281,7 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
           {/* Device Switcher Bar */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' }}>
             <div style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Eye size={15} color="#34D399" /> Live Website Canvas Preview
+              <Eye size={15} color="#34D399" /> Framer-Grade Website Canvas
             </div>
 
             <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '10px' }}>
@@ -224,7 +305,7 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
             <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <img src="/assets/getvnt-logo-white.png" alt="Getvnt" loading="lazy" style={{ height: '24px', objectFit: 'contain' }} />
               <div style={{ fontSize: '11px', fontWeight: 900, background: primaryColor, color: '#FFF', padding: '4px 12px', borderRadius: '99px' }}>
-                TICKETS LIVE
+                OFFICIAL WEBSITE
               </div>
             </div>
 

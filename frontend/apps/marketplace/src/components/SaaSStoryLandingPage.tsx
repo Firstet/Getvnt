@@ -568,6 +568,86 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
+      {/* ── 8.5 EVENT WEBSITE OS PRICING MODEL ── */}
+      <section className="landing-section-wrap">
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
+          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>
+            GETVNT ECOSYSTEM MODEL
+          </span>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
+            Sell tickets for free. Build your event brand with GetVNT Websites.
+          </h2>
+          <p style={{ color: '#9CA3AF', fontSize: '15px', maxWidth: '640px', margin: '12px auto 0', lineHeight: 1.6 }}>
+            Never pay a monthly subscription to list events or sell tickets. We only charge a 5% Platform Processing Fee on paid tickets sold.
+          </p>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+          {/* Starter Plan */}
+          <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>STARTER</span>
+            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>Free Forever</div>
+            <div style={{ fontSize: '12.5px', color: '#60A5FA', fontFamily: 'monospace' }}>organizer.getvnt.com</div>
+            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
+              Perfect for new event organizers starting out. Unlimited events and ticket sales.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
+              <div>✓ Free Organizer Portal &amp; Ticket Creation</div>
+              <div>✓ Basic Event Landing Page Subdomain</div>
+              <div>✓ QR Door Entrance Scanner App</div>
+              <div>✓ 5% Platform Processing Fee on Paid Tickets</div>
+            </div>
+            <button className="btn-cta" style={{ width: '100%', background: 'rgba(255,255,255,0.08)', color: '#FFF', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
+              Start Free Today
+            </button>
+          </div>
+
+          {/* Professional Plan */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(13,17,32,0.95) 100%)', border: '2px solid #2563EB', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 20px 50px rgba(37,99,235,0.3)' }}>
+            <span style={{ position: 'absolute', top: '16px', right: '16px', background: '#2563EB', color: '#FFF', padding: '4px 12px', borderRadius: '99px', fontSize: '10.5px', fontWeight: 900 }}>
+              MOST POPULAR
+            </span>
+            <span style={{ color: '#60A5FA', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>PROFESSIONAL</span>
+            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>₦120,000 <span style={{ fontSize: '14px', color: '#9CA3AF' }}>/year</span></div>
+            <div style={{ fontSize: '12.5px', color: '#34D399', fontFamily: 'monospace' }}>www.myfestival.com</div>
+            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
+              For growing organizers wanting custom domain branding, Framer-grade website builder, &amp; SEO.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
+              <div>✓ Everything in Starter</div>
+              <div>✓ Custom Domain Connection &amp; Auto SSL</div>
+              <div>✓ Framer-Grade Website Builder (12 Templates)</div>
+              <div>✓ Blog, SEO, Sponsors, &amp; Gallery CMS</div>
+              <div>✓ Email Newsletter &amp; Audience CRM</div>
+            </div>
+            <button className="tixup-btn-primary" style={{ width: '100%', height: '48px', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
+              Build Organizer Brand <ArrowRight size={16} />
+            </button>
+          </div>
+
+          {/* Enterprise Plan */}
+          <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ color: '#C084FC', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>ENTERPRISE</span>
+            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>Custom</div>
+            <div style={{ fontSize: '12.5px', color: '#C084FC', fontFamily: 'monospace' }}>White-Label OS</div>
+            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
+              For large festival promoters, stadium venues, &amp; enterprise agencies.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
+              <div>✓ Multiple Team Admins &amp; Role Access</div>
+              <div>✓ Dedicated Sponsor Portal &amp; White-Label</div>
+              <div>✓ Enterprise API Vault &amp; Custom Webhooks</div>
+              <div>✓ Dedicated Account Manager &amp; Priority Payouts</div>
+            </div>
+            <button className="btn-cta" style={{ width: '100%', background: 'rgba(255,255,255,0.08)', color: '#FFF', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
+              Contact Enterprise Team
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <div className="glass-section-divider" />
+
       {/* ── 9. APPLE NEWS-STYLE PULSE BLOG ── */}
       <section className="landing-section-wrap">
         <HomeNewsCarousel

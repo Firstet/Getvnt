@@ -305,33 +305,32 @@ function WorkspaceContent() {
   // ─────────────────────────────────────────────────────────────
   const navModules = [
     {
-      category: 'OVERVIEW',
+      category: 'ORGANIZER OS OVERVIEW',
       items: [
-        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Executive Dashboard' },
-        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Assistant Suite' },
+        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Organizer OS Dashboard' },
+        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Assistant' },
       ],
     },
     {
-      category: 'EVENTS & OPERATIONS',
+      category: 'EVENTS & TICKETING',
       items: [
-        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'QR Gate & Check-in Studio' },
         { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Ticket Designer Desk' },
       ],
     },
     {
-      category: 'COMMERCE & FINANCE',
+      category: 'ORDERS & GATE CONTROL',
       items: [
-        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Billing & Subscriptions' },
+        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'QR Gate & Entrance Scanner' },
       ],
     },
     {
-      category: 'CUSTOMERS & CRM',
+      category: 'WEBSITE OS & DOMAINS',
       items: [
-        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Attendee CRM & Loyalty' },
+        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Event Website Builder' },
       ],
     },
     {
-      category: 'MARKETING ENGINE',
+      category: 'MARKETING SUITE',
       items: [
         { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & AI Insights' },
         { id: 'automation', icon: <IconContainer icon={Zap} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'AI Automation Engine' },
@@ -340,15 +339,21 @@ function WorkspaceContent() {
       ],
     },
     {
-      category: 'WEBSITE & CMS',
+      category: 'AUDIENCE & CRM',
       items: [
-        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Event Website Builder' },
+        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Attendee CRM & Loyalty' },
+      ],
+    },
+    {
+      category: 'COMMERCE & FINANCE',
+      items: [
+        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Finance & Subscriptions' },
       ],
     },
     {
       category: 'WORKSPACE SETTINGS',
       items: [
-        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Organization Settings' },
+        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Organization & Verification' },
       ],
     },
   ];
@@ -578,7 +583,7 @@ function WorkspaceContent() {
                       Good Morning, {user?.first_name || user?.name || 'Organizer'} 👋
                     </h1>
                     <p style={{ color: '#A5B4FC', fontSize: '14px', marginTop: '4px', fontWeight: 600 }}>
-                      Welcome back to your Getvnt Event Business Operating System.
+                      Welcome to <strong style={{ color: '#FFF' }}>GetVNT Organizer OS</strong> — Africa's AI-Powered Event Operating System.
                     </p>
                   </div>
 
