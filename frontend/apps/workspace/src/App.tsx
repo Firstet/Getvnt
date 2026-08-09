@@ -21,6 +21,7 @@ import { EventCreationWizardModal } from './components/EventCreationWizardModal'
 import { AndroidAppModal } from './components/AndroidAppModal';
 import { MobileAppResourceCard } from './components/MobileAppResourceCard';
 import { Bot, QrCode, Palette as PaletteIcon, Share2, Award, Briefcase, Tag, Smartphone } from 'lucide-react';
+import { UserSidebar } from './components/UserSidebar';
 import './styles.css';
 
 // ─── LAZY LOADED ROUTE COMPONENTS WITH PRELOAD SUPPORTS ──────────────────────
@@ -172,10 +173,13 @@ function WorkspaceContent() {
     if (!token && !loading) {
       setView('login');
     } else if (user) {
+      const isOrganizer = (user.role as string) === 'organizer_owner' || (user.role as string) === 'organizer_staff' || !!user.tenant_id;
       const completed = user.tenant?.settings?.onboarding_completed;
-      if (!completed && (user.role as string) !== 'super_admin') {
-        setView('onboarding');
-      } else if (view === 'login' || view === 'register' || view === 'onboarding') {
+      if (isOrganizer && !completed && (user.role as string) !== 'super_admin') {
+        if (view === 'login' || view === 'register') {
+          setView('onboarding');
+        }
+      } else if (view === 'login' || view === 'register') {
         setView('dashboard');
       }
     }
@@ -461,75 +465,92 @@ function WorkspaceContent() {
       )}
 
       {/* ── Sidebar ── */}
-      <aside className={`sidebar-desktop${sidebarOpen ? ' open' : ''}`}>
-        <a className="sidebar-logo" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 0' }} onClick={() => setView('dashboard')}>
-          <BrandLogo variant="white" height={30} />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.3px', lineHeight: 1.1 }}>
-              {brand?.platform_name || 'Getvnt'}
-            </span>
-            <span style={{ fontSize: '10.5px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px' }}>
-              {user?.tenant?.name || 'Organizer Workspace'}
-            </span>
-          </div>
-        </a>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
-          {navModules.map((module, mIdx) => (
-            <div key={mIdx}>
-              <div className="sidebar-section-label" style={{ fontSize: '10px', fontWeight: 900, color: '#6B7280', letterSpacing: '0.8px', marginBottom: '6px', paddingLeft: '8px' }}>
-                {module.category}
-              </div>
-              <ul className="sidebar-nav">
-                {module.items.map(item => (
-                  <li key={item.id}>
-                    <a
-                      className={`sidebar-link${view === item.id ? ' active' : ''}`}
-                      onMouseEnter={() => prefetchRoute(item.id)}
-                      onClick={() => { setView(item.id as any); setSidebarOpen(false); }}
-                    >
-                      {item.icon}
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <a href={getAppUrl('marketplace')} className="sidebar-link" style={{ color: '#9CA3AF' }}>
-            <Globe size={17} /> Public Storefront
-          </a>
-
-          <a
-            className="sidebar-link"
-            style={{ color: '#60A5FA', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
-            onClick={() => setShowAndroidModal(true)}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Smartphone size={17} color="#60A5FA" /> Mobile App
-            </span>
-            {!hasDownloadedApp && (
-              <span style={{ fontSize: '9px', fontWeight: 900, background: 'linear-gradient(135deg, #2563EB, #7C3AED)', color: '#FFFFFF', padding: '2px 7px', borderRadius: '99px', textTransform: 'uppercase' }}>
-                NEW
+      {accountTier === 'user' ? (
+        <UserSidebar
+          activeTab={view}
+          onSelectTab={(tabId) => {
+            if (tabId === 'onboarding') {
+              setView('onboarding');
+            } else {
+              setView(tabId as any);
+            }
+            setSidebarOpen(false);
+          }}
+          onLogout={logout}
+          userName={user?.name || user?.first_name}
+          userEmail={user?.email}
+        />
+      ) : (
+        <aside className={`sidebar-desktop${sidebarOpen ? ' open' : ''}`}>
+          <a className="sidebar-logo" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px', padding: '4px 0' }} onClick={() => setView('dashboard')}>
+            <BrandLogo variant="white" height={30} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '15px', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.3px', lineHeight: 1.1 }}>
+                {brand?.platform_name || 'Getvnt'}
               </span>
-            )}
-          </a>
-        </div>
-
-        <div className="sidebar-footer">
-          <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.12),rgba(6,182,212,0.08))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '14px', padding: '14px 16px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>Active Plan</div>
-            <div style={{ fontWeight: 800, fontSize: '15px', color: '#A5B4FC' }}>
-              {user?.tenant?.subscription?.plan?.name || 'Starter'} Plan
+              <span style={{ fontSize: '10.5px', color: '#9CA3AF', fontWeight: 600, marginTop: '2px' }}>
+                {user?.tenant?.name || 'Organizer Workspace'}
+              </span>
             </div>
-            <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
-              {user?.tenant?.subscription?.plan?.commission_rate || 5}% commission rate
+          </a>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+            {navModules.map((module, mIdx) => (
+              <div key={mIdx}>
+                <div className="sidebar-section-label" style={{ fontSize: '10px', fontWeight: 900, color: '#6B7280', letterSpacing: '0.8px', marginBottom: '6px', paddingLeft: '8px' }}>
+                  {module.category}
+                </div>
+                <ul className="sidebar-nav">
+                  {module.items.map(item => (
+                    <li key={item.id}>
+                      <a
+                        className={`sidebar-link${view === item.id ? ' active' : ''}`}
+                        onMouseEnter={() => prefetchRoute(item.id)}
+                        onClick={() => { setView(item.id as any); setSidebarOpen(false); }}
+                      >
+                        {item.icon}
+                        {item.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <a href={getAppUrl('marketplace')} className="sidebar-link" style={{ color: '#9CA3AF' }}>
+              <Globe size={17} /> Public Storefront
+            </a>
+
+            <a
+              className="sidebar-link"
+              style={{ color: '#60A5FA', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+              onClick={() => setShowAndroidModal(true)}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Smartphone size={17} color="#60A5FA" /> Mobile App
+              </span>
+              {!hasDownloadedApp && (
+                <span style={{ fontSize: '9px', fontWeight: 900, background: 'linear-gradient(135deg, #2563EB, #7C3AED)', color: '#FFFFFF', padding: '2px 7px', borderRadius: '99px', textTransform: 'uppercase' }}>
+                  NEW
+                </span>
+              )}
+            </a>
+          </div>
+
+          <div className="sidebar-footer">
+            <div style={{ background: 'linear-gradient(135deg,rgba(79,70,229,0.12),rgba(6,182,212,0.08))', border: '1px solid rgba(79,70,229,0.2)', borderRadius: '14px', padding: '14px 16px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '4px' }}>Active Plan</div>
+              <div style={{ fontWeight: 800, fontSize: '15px', color: '#A5B4FC' }}>
+                {user?.tenant?.subscription?.plan?.name || 'Starter'} Plan
+              </div>
+              <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+                {user?.tenant?.subscription?.plan?.commission_rate || 5}% commission rate
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
+      )}
 
       {/* ── Main wrapper ── */}
       <div className="main-wrapper">
@@ -1155,7 +1176,7 @@ function WorkspaceContent() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '8px' }}>
                         <div style={{ width: '56px', height: '56px', borderRadius: '12px', background: '#0D1120', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                           {user?.tenant?.logo_url ? (
-                            <img src={user.tenant.logo_url} alt="Logo" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={user.tenant?.logo_url} alt="Logo" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
                             <ImageIcon size={24} color="#6B7280" />
                           )}
