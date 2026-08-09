@@ -1092,6 +1092,10 @@ p, span, div {
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 
+.category-icon-card-wrap:hover .category-card-bg-img {
+  transform: scale(1.08) !important;
+}
+
 /* Apple News-Style Pulse Blog Layout */
 .apple-news-grid {
   display: grid;

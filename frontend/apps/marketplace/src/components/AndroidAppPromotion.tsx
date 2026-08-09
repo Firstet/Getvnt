@@ -32,7 +32,7 @@ export const AndroidAppPromotion: React.FC = () => {
       className="android-app-promotion-section"
       style={{
         margin: '64px 0 48px 0',
-        background: 'linear-gradient(135deg, rgba(13,18,34,0.95) 0%, rgba(7,9,15,0.98) 100%)',
+        background: 'linear-gradient(135deg, rgba(13,18,34,0.92) 0%, rgba(7,9,15,0.97) 100%)',
         border: '1px solid rgba(37,99,235,0.3)',
         borderRadius: '32px',
         padding: '48px 36px',
@@ -41,6 +41,20 @@ export const AndroidAppPromotion: React.FC = () => {
         boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
       }}
     >
+      {/* Strategic Concert Crowd Background Image Layer */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/concert_crowd_bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.15,
+          mixBlendMode: 'luminosity',
+          pointerEvents: 'none',
+        }}
+      />
+
       {/* Background Soft Glow Radial Effect */}
       <div
         style={{

@@ -522,7 +522,17 @@ function MarketplaceContent() {
       </div>
 
       {/* ── 3. SINGLE ENTERPRISE GLOBAL FOOTER ── */}
-      <footer style={{ background: '#05070D', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '64px', paddingBottom: '48px', width: '100%' }}>
+      <footer style={{
+        position: 'relative',
+        background: '#05070D',
+        backgroundImage: 'linear-gradient(180deg, rgba(5,7,13,0.92) 0%, rgba(5,7,13,0.98) 100%), url(/concert_crowd_bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        paddingTop: '64px',
+        paddingBottom: '48px',
+        width: '100%'
+      }}>
         <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', paddingInline: 'clamp(20px, 4vw, 72px)', boxSizing: 'border-box' }}>
           
           {/* Top Row: Newsletter Card */}
