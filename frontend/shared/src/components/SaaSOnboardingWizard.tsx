@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useBrand } from '../context/BrandContext';
 import { useAuth } from '../context/AuthContext';
+import { apiClient } from '../api/apiClient';
 
 interface SaaSOnboardingWizardProps {
   onComplete: () => void;
@@ -100,7 +101,7 @@ export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onCo
     }, 800);
   };
 
-  // Execute AI Identity Verification Engine
+  // Execute AI Identity Verification Engine & Save to Backend Database
   const handleRunAiVerification = async () => {
     setStep(6);
     setIsSubmitting(true);
@@ -127,14 +128,35 @@ export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onCo
         const computedScore = 94.8;
         setAiConfidenceScore(computedScore);
 
-        setTimeout(() => {
+        setTimeout(async () => {
           setAiProcessingState('completed');
           setIsSubmitting(false);
 
+          try {
+            // PERSIST ORGANIZER CONVERSION & TENANT CREATION TO LARAVEL BACKEND DATABASE
+            const saveRes = await apiClient.post('/onboarding/step', {
+              step: 6,
+              business_name: businessName || organizerDisplayName,
+              business_address: businessAddress,
+              tax_id: taxId,
+              bank_name: selectedBank,
+              account_number: accountNumber,
+              account_name: resolvedAccountName,
+              identity_doc_url: idDocUrl,
+              id_type: idDocType,
+              is_completed: true
+            });
+
+            if (saveRes.success) {
+              if (refreshUser) await refreshUser();
+            }
+          } catch (err) {
+            console.error('Failed to save onboarding to database:', err);
+          }
+
           if (computedScore >= 90) {
             setAiDecision('auto_approved');
-            if (refreshUser) refreshUser();
-            if (onToast) onToast('🎉 AI Verification Complete! 94.8% Match Score — Organizer Access Granted!');
+            if (onToast) onToast('🎉 AI Verification Complete! Account converted to Organizer in Database!');
           } else {
             setAiDecision('pending_manual_review');
             if (onToast) onToast('ℹ️ Verification submitted for Super Admin Manual Review.');

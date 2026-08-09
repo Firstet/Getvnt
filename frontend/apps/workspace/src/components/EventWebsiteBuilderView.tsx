@@ -195,7 +195,7 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
                   <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>myevent.getvnt.com</div>
                 </div>
 
-                {/* Option 2: Custom Domain */}
+                {/* Option 2: Custom Domain (Pro Plan) */}
                 <div
                   onClick={() => setDomainOption('custom_domain')}
                   style={{
@@ -204,11 +204,16 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
                     borderRadius: '12px', padding: '14px', cursor: 'pointer'
                   }}
                 >
-                  <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>2. Bring Your Own Domain</div>
-                  <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>www.africatechsummit.com</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>2. Bring Your Own Domain</div>
+                    <span style={{ fontSize: '9px', fontWeight: 900, background: 'linear-gradient(135deg, #7C3AED, #EC4899)', color: '#FFF', padding: '2px 8px', borderRadius: '99px', textTransform: 'uppercase' }}>
+                      PRO SUBSCRIBER
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px' }}>www.afrobobeatfest.com</div>
                 </div>
 
-                {/* Option 3: Buy Domain */}
+                {/* Option 3: Buy Domain (Pro Plan) */}
                 <div
                   onClick={() => setDomainOption('buy_domain')}
                   style={{
@@ -217,7 +222,12 @@ export const EventWebsiteBuilderView: React.FC<Props> = ({ onToast, userPlan = '
                     borderRadius: '12px', padding: '14px', cursor: 'pointer'
                   }}
                 >
-                  <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>3. Buy Domain via GetVNT</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: '#FFF' }}>3. Buy Domain via GetVNT</div>
+                    <span style={{ fontSize: '9px', fontWeight: 900, background: 'linear-gradient(135deg, #7C3AED, #EC4899)', color: '#FFF', padding: '2px 8px', borderRadius: '99px', textTransform: 'uppercase' }}>
+                      PRO SUBSCRIBER
+                    </span>
+                  </div>
                   <div style={{ fontSize: '11.5px', color: '#34D399', marginTop: '2px' }}>Instant registration &amp; auto DNS setup</div>
                 </div>
               </div>
