@@ -531,82 +531,44 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         </div>
       </section>
 
-      {/* ── 11. CLEAN 4-COLUMN FOOTER & NEWSLETTER ── */}
-      <footer style={{ background: '#05070D', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '64px', paddingBottom: '48px' }}>
-        <div className="landing-section-wrap" style={{ marginBottom: 0 }}>
-          
-          {/* Newsletter Card */}
-          <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(13,17,32,0.9) 100%)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px', padding: '36px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', marginBottom: '64px' }}>
-            <div>
-              <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>Subscribe to Event Intelligence</h3>
-              <p style={{ color: '#9CA3AF', fontSize: '14.5px', margin: 0 }}>Get weekly curated drops, concert announcements, and promoter strategy reports.</p>
-            </div>
-            <div style={{ display: 'flex', gap: '12px', flex: 1, maxWidth: '480px' }}>
-              <input
-                type="email"
-                placeholder="Enter your email address..."
-                style={{ flex: 1, background: 'rgba(7,9,15,0.85)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '999px', padding: '0 20px', color: '#FFF', outline: 'none', fontSize: '14px', height: '52px' }}
-              />
-              <button className="tixup-btn-primary" style={{ height: '52px', padding: '0 28px' }}>
-                Subscribe
-              </button>
-            </div>
+      <div className="glass-section-divider" />
+
+      {/* ── 11. PRE-FOOTER PROMOTER CTA BANNER (Option 2 High-Impact CTA) ── */}
+      <section className="landing-section-wrap" style={{ marginBottom: 0 }}>
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(124,58,237,0.12) 50%, rgba(13,17,32,0.95) 100%)',
+          border: '1px solid rgba(37,99,235,0.35)',
+          borderRadius: '24px',
+          padding: 'clamp(36px, 5vw, 64px) clamp(24px, 4vw, 48px)',
+          textAlign: 'center',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.5)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '99px', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', color: '#60A5FA', fontSize: '12px', fontWeight: 800, marginBottom: '20px' }}>
+            <Sparkles size={14} color="#60A5FA" />
+            <span>FOR EVENT ORGANIZERS &amp; PROMOTERS</span>
           </div>
 
-          {/* 4 Footer Columns */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '40px', marginBottom: '48px' }}>
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Discover</h4>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Explore All Events</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Featured Concerts</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('home')}>Tech &amp; AI Summits</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('pulse')}>Pulse Entertainment Blog</a></li>
-              </ul>
-            </div>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', margin: '0 0 16px 0', fontFamily: 'var(--font-heading)' }}>
+            Ready to Host Your Next World-Class Event?
+          </h2>
 
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Company</h4>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>About GETVNT OS</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Press &amp; Media Kit</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Careers</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('about')}>Brand Guidelines</a></li>
-              </ul>
-            </div>
+          <p style={{ color: '#9CA3AF', fontSize: 'clamp(15px, 1.8vw, 18px)', maxWidth: '640px', margin: '0 auto 32px auto', lineHeight: 1.6 }}>
+            Launch your event page in under 3 minutes with custom ticket tiers, real-time settlements, and sub-500ms encrypted QR gate scanning.
+          </p>
 
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Organizers</h4>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Organizer OS Suite</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Real-Time Payouts</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>QR Gate Scanner App</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={onNavigateToWorkspace}>Enterprise Pricing</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Support</h4>
-              <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '14px', color: '#9CA3AF' }}>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>Help Center &amp; FAQs</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('manage_ticket')}>Lookup Ticket Order</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>API Documentation</a></li>
-                <li><a style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={() => onNavigateToTab('help')}>Contact Security Team</a></li>
-              </ul>
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <button
+              onClick={onNavigateToWorkspace}
+              className="tixup-btn-primary"
+              style={{ padding: '0 36px', height: '54px', fontSize: '16px' }}
+            >
+              <Sparkles size={16} /> Become an Organizer
+            </button>
           </div>
-
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', color: '#6B7280', fontSize: '13px' }}>
-            <div>© 2026 GETVNT Global Ticketing Inc. All rights reserved.</div>
-            <div style={{ display: 'flex', gap: '20px' }}>
-              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Privacy Policy</a>
-              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Terms of Service</a>
-              <a href="#" style={{ color: '#6B7280', textDecoration: 'none' }}>Security Portal</a>
-            </div>
-          </div>
-
         </div>
-      </footer>
+      </section>
 
     </div>
   );
