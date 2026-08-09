@@ -4,7 +4,7 @@ import {
   LayoutDashboard, Cpu, GitMerge, CreditCard, Percent, KeyRound,
   Mail, HardDrive, BarChart3, Webhook, Store, Activity, ShieldCheck, Settings,
   ShieldAlert, ChevronLeft, ChevronRight, X, Crown, Users, Palette, Rss, Globe, Flag, UploadCloud, Shield, Sparkles,
-  Calendar, Layers, DollarSign, Wallet, FileText, Image, MessageSquare, Lock, Globe2, Tag, Briefcase
+  Calendar, Layers, DollarSign, Wallet, FileText, Image, MessageSquare, Lock, Globe2, Tag, Briefcase, BookOpen
 } from 'lucide-react';
 
 export type IntegrationTab =
@@ -73,50 +73,35 @@ export const IntegrationsNav: React.FC<Props> = ({
   onCloseDrawer,
 }) => {
   const menuItems = [
-    // 1. Dashboard
-    { id: 'dashboard', label: '1. Dashboard', icon: LayoutDashboard, section: 'CORE PLATFORM' },
+    // EXECUTIVE & OVERVIEW
+    { id: 'dashboard', label: 'Executive Dashboard', icon: LayoutDashboard, section: 'EXECUTIVE' },
+    { id: 'analytics', label: 'Platform Analytics', icon: BarChart3, section: 'EXECUTIVE' },
+    { id: 'system_settings', label: 'System Health', icon: Activity, section: 'EXECUTIVE' },
 
-    // 2. Marketplace CMS
-    { id: 'landing_cms', label: '2. Marketplace CMS', icon: Palette, section: 'CMS & FRONT' },
+    // FINANCE & MONETIZATION
+    { id: 'transactions', label: 'Revenue & Wallet', icon: DollarSign, section: 'FINANCE' },
+    { id: 'payment_gateways', label: 'Payments & Payouts', icon: CreditCard, section: 'FINANCE' },
+    { id: 'plans', label: 'Subscriptions', icon: Crown, section: 'FINANCE' },
 
-    // 3. Users
-    { id: 'users', label: '3. Users', icon: Users, section: 'DIRECTORY' },
+    // DIRECTORY & GOVERNANCE
+    { id: 'organizers', label: 'Tenants & Organizers', icon: Briefcase, section: 'DIRECTORY' },
+    { id: 'users', label: 'Users Directory', icon: Users, section: 'DIRECTORY' },
+    { id: 'verification', label: 'KYC Queue & Approvals', icon: ShieldAlert, section: 'DIRECTORY' },
 
-    // 4. Organizers
-    { id: 'organizers', label: '4. Organizers', icon: Briefcase, section: 'DIRECTORY' },
+    // CONTENT & CMS
+    { id: 'landing_cms', label: 'CMS & Landing Pages', icon: Palette, section: 'CMS & CONTENT' },
+    { id: 'blogs', label: 'Blogs & News Hub', icon: BookOpen, section: 'CMS & CONTENT' },
+    { id: 'communication', label: 'Emails & Notifications', icon: Mail, section: 'CMS & CONTENT' },
 
-    // 5. Verification Center
-    { id: 'verification', label: '5. Verification Center', icon: ShieldAlert, section: 'DIRECTORY' },
+    // AI & PLATFORM VAULT
+    { id: 'ai_center', label: 'AI Configuration', icon: Cpu, section: 'PLATFORM VAULT' },
+    { id: 'feature_flags', label: 'Feature Flags', icon: Flag, section: 'PLATFORM VAULT' },
+    { id: 'api_vault', label: 'API Keys & Integrations', icon: KeyRound, section: 'PLATFORM VAULT' },
 
-    // 6. Events
-    { id: 'events', label: '6. Events Moderation', icon: Calendar, section: 'OPERATIONS' },
-
-    // 7. Finance
-    { id: 'transactions', label: '7. Financial Center', icon: DollarSign, section: 'FINANCE' },
-
-    // 8. Subscriptions
-    { id: 'plans', label: '8. Subscriptions', icon: Crown, section: 'FINANCE' },
-
-    // 9. AI Control Center
-    { id: 'ai_center', label: '9. AI Control Center', icon: Cpu, section: 'INTELLIGENCE' },
-
-    // 10. API & Integrations
-    { id: 'api_vault', label: '10. API & Integrations', icon: KeyRound, section: 'INFRASTRUCTURE' },
-
-    // 11. Platform Configuration
-    { id: 'feature_flags', label: '11. Platform Configuration', icon: Flag, section: 'INFRASTRUCTURE' },
-
-    // 12. Reports
-    { id: 'analytics', label: '12. Reports & Telemetry', icon: BarChart3, section: 'REPORTS' },
-
-    // 13. Audit Center
-    { id: 'audit_logs', label: '13. Audit Center', icon: ShieldCheck, section: 'SECURITY' },
-
-    // 14. Brand Settings
-    { id: 'branding', label: '14. Brand Settings', icon: Sparkles, section: 'SETTINGS' },
-
-    // 15. System Settings
-    { id: 'system_settings', label: '15. System Settings', icon: Settings, section: 'SETTINGS' },
+    // AUDIT & SETTINGS
+    { id: 'audit_logs', label: 'Audit Logs & Security', icon: ShieldCheck, section: 'AUDIT & SETTINGS' },
+    { id: 'roles', label: 'Roles & Permissions', icon: Lock, section: 'AUDIT & SETTINGS' },
+    { id: 'branding', label: 'Brand & Global Settings', icon: Sparkles, section: 'AUDIT & SETTINGS' },
   ];
 
   let currentSection = '';

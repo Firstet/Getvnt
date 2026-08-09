@@ -6,7 +6,7 @@ import {
   BarChart3, Calendar, MapPin, Key, DollarSign,
   Bell, Menu, X, RefreshCw, Building2, Globe,
   ShieldCheck, Zap, Upload, Image as ImageIcon, ShieldAlert,
-  Eye, EyeOff, Compass
+  Eye, EyeOff, Compass, Heart
 } from 'lucide-react';
 import {
   AuthProvider, useAuth, getRoleBadgeLabel, GeneralAiAssistantModal, PasswordField,
@@ -335,77 +335,66 @@ function WorkspaceContent() {
 
   // Build nav groups based on tier
   const navModules = (() => {
-    // ── USER (attendee only) ──────────────────────────────────────────────
+    // ── REGISTERED USER (Ticket Buyer Dashboard - 10 items ONLY) ───────────
     if (accountTier === 'user') {
       return [
-        { category: 'OVERVIEW', items: [
-          { id: 'dashboard',    icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Dashboard' },
+        { category: 'NAVIGATION', items: [
+          { id: 'dashboard',      icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Home' },
+          { id: 'explore_events', icon: <IconContainer icon={Compass}    color="#60A5FA" bg="rgba(96,165,250,0.12)"  containerSize={28} size={15} />, label: 'Explore Events' },
         ]},
-        { category: 'MY EVENTS', items: [
-          { id: 'my_tickets',   icon: <IconContainer icon={Ticket}     color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'My Tickets' },
-          { id: 'saved_events', icon: <IconContainer icon={Calendar}   color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Saved Events' },
-          { id: 'following',    icon: <IconContainer icon={Users}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Following' },
+        { category: 'MY ACTIVITY', items: [
+          { id: 'my_tickets',     icon: <IconContainer icon={Ticket}     color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'My Tickets' },
+          { id: 'saved_events',   icon: <IconContainer icon={Heart}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Wishlist' },
+          { id: 'following',      icon: <IconContainer icon={Users}      color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Community' },
+          { id: 'messages',       icon: <IconContainer icon={Bell}       color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Messages' },
+          { id: 'notifications',  icon: <IconContainer icon={Bell}       color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Notifications' },
         ]},
         { category: 'ACCOUNT', items: [
-          { id: 'notifications',icon: <IconContainer icon={Bell}       color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Notifications' },
-          { id: 'profile',      icon: <IconContainer icon={Building2}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Profile' },
-          { id: 'settings',     icon: <IconContainer icon={Settings}   color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings' },
+          { id: 'profile',        icon: <IconContainer icon={Building2}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Profile' },
+          { id: 'settings',       icon: <IconContainer icon={Settings}   color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings' },
+        ]},
+        { category: 'GROWTH', items: [
+          { id: 'onboarding',     icon: <IconContainer icon={Crown}      color="#FBBF24" bg="rgba(245,158,11,0.15)"  containerSize={28} size={15} />, label: 'Become an Organizer' },
         ]},
       ];
     }
 
-    // ── ORGANIZER base items (all organizer tiers share these) ────────────
-    const organizerBase = [
+    // ── TRUSTED ORGANIZER (Approved Creator Workspace - 10 items) ────────
+    const trustedOrgBase = [
       { category: 'OVERVIEW', items: [
-        { id: 'dashboard',      icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Dashboard' },
+        { id: 'dashboard',      icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Overview' },
       ]},
-      { category: 'EVENTS', items: [
-        { id: 'ticket_designer',icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Tickets' },
+      { category: 'EVENTS & ROSTER', items: [
+        { id: 'ticket_designer',icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events' },
+        { id: 'qr_studio',      icon: <IconContainer icon={QrCode}     color="#60A5FA" bg="rgba(96,165,250,0.12)"  containerSize={28} size={15} />, label: 'Orders' },
+        { id: 'tickets',        icon: <IconContainer icon={Ticket}     color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Tickets' },
+        { id: 'crm',            icon: <IconContainer icon={Users}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Customers' },
       ]},
-      { category: 'ORDERS', items: [
-        { id: 'qr_studio',      icon: <IconContainer icon={QrCode}     color="#60A5FA" bg="rgba(96,165,250,0.12)"  containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
+      { category: 'FINANCE', items: [
+        { id: 'billing',        icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Wallet' },
+        { id: 'payouts',        icon: <IconContainer icon={DollarSign} color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'Payouts' },
       ]},
-      { category: 'WALLET', items: [
-        { id: 'billing',        icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Wallet & Payouts' },
+      { category: 'GROWTH & ANALYTICS', items: [
+        { id: 'analytics',      icon: <IconContainer icon={BarChart3}  color="#06B6D4" bg="rgba(6,182,212,0.12)"   containerSize={28} size={15} />, label: 'Analytics' },
+        { id: 'marketing',      icon: <IconContainer icon={Share2}     color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Marketing' },
       ]},
       { category: 'SETTINGS', items: [
         { id: 'settings',       icon: <IconContainer icon={Settings}   color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings' },
       ]},
     ];
 
-    // ── ORGANIZER (basic) — stop here ────────────────────────────────────
-    if (accountTier === 'organizer') return organizerBase;
+    if (accountTier === 'organizer' || accountTier === 'trusted_organizer') return trustedOrgBase;
 
-    // ── TRUSTED ORGANIZER — adds Marketing, Analytics, Team, AI Studio ───
-    const trustedOrgItems = [
-      ...organizerBase.slice(0, 3), // Dashboard, Events, Orders
-      { category: 'MARKETING', items: [
-        { id: 'marketing',      icon: <IconContainer icon={Share2}     color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
-        { id: 'crm',            icon: <IconContainer icon={Award}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM' },
-        { id: 'sponsorship',    icon: <IconContainer icon={Briefcase}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship Decks' },
-      ]},
-      { category: 'ANALYTICS', items: [
-        { id: 'analytics',      icon: <IconContainer icon={BarChart3}  color="#06B6D4" bg="rgba(6,182,212,0.12)"   containerSize={28} size={15} />, label: 'Analytics' },
-      ]},
-      organizerBase[3], // Wallet
-      { category: 'TEAM', items: [
-        { id: 'team',           icon: <IconContainer icon={Users}      color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Team' },
-      ]},
-      { category: 'AI STUDIO', items: [
-        { id: 'ai_assistant',   icon: <IconContainer icon={Bot}        color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'AI Studio' },
-      ]},
-      organizerBase[4], // Settings
-    ];
-
-    if (accountTier === 'trusted_organizer') return trustedOrgItems;
-
-    // ── ORGANIZER PRO — adds Website Builder (unlocked) ──────────────────
+    // ── ORGANIZER PRO (Enterprise Subscriber — Unlocks Website Builder, AI, CRM) ──
     return [
-      ...trustedOrgItems.slice(0, -1), // everything except Settings
-      { category: 'WEBSITE BUILDER', items: [
+      ...trustedOrgBase.slice(0, 4), // Overview, Events & Roster, Finance, Growth
+      { category: 'ENTERPRISE PRO', items: [
         { id: 'website_builder',icon: <IconContainer icon={Globe}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Website Builder' },
+        { id: 'ai_assistant',   icon: <IconContainer icon={Bot}        color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'AI Assistant' },
+        { id: 'team',           icon: <IconContainer icon={Users}      color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Team Management' },
+        { id: 'sponsorship',    icon: <IconContainer icon={Briefcase}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship & Affiliates' },
       ]},
-      trustedOrgItems[trustedOrgItems.length - 1], // Settings last
+      trustedOrgBase[4], // Settings
     ];
   })();
 
