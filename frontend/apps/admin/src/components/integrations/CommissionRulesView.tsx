@@ -77,6 +77,62 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
         </button>
       </div>
 
+      {/* Global Dual-Fee Super Admin Control Panel */}
+      <div className="admin-card" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(13,18,34,0.95) 100%)', border: '1px solid rgba(37,99,235,0.3)', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <DollarSign size={20} color="#60A5FA" />
+              <h3 style={{ fontSize: '17px', fontWeight: 900, color: '#FFF', margin: 0 }}>Global Platform Dual-Fee Configuration</h3>
+            </div>
+            <p style={{ color: '#9CA3AF', fontSize: '13px', margin: '4px 0 0 0' }}>
+              Configure master fee percentages applied to all paid ticket checkouts globally across GetVNT.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="admin-btn admin-btn-primary"
+            onClick={() => onToast('⚡ Global Dual-Fee Config Saved & Broadcasted to Marketplace Engine!')}
+          >
+            Save Fee Configuration
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+              1. Platform Processing Fee (%) — GetVNT Revenue
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              className="admin-input"
+              defaultValue="5.0"
+              style={{ fontWeight: 800, color: '#60A5FA', fontSize: '16px' }}
+            />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px', display: 'block' }}>
+              Default 5.0% • Applied to subtotal before organizer payout settlement.
+            </span>
+          </div>
+
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#FBBF24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+              2. Payment Processing Fee (%) — Gateway Fee
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              className="admin-input"
+              defaultValue="1.5"
+              style={{ fontWeight: 800, color: '#FBBF24', fontSize: '16px' }}
+            />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px', display: 'block' }}>
+              Default 1.5% • Configurable per payment gateway provider rates.
+            </span>
+          </div>
+        </div>
+      </div>
+
       <div className="admin-card">
         <div className="table-container">
           <table className="admin-table">

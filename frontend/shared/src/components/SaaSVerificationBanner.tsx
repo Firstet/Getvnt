@@ -62,20 +62,20 @@ export const SaaSVerificationBanner: React.FC<SaaSVerificationBannerProps> = ({
       <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
         {isFullyVerified ? (
           <span style={{ fontSize: '12px', fontWeight: 900, background: 'rgba(34,197,94,0.2)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.4)', padding: '6px 14px', borderRadius: '99px', textTransform: 'uppercase', letterSpacing: '0.6px' }}>
-            🟢 Account Active
+            🟢 Verified Organizer Account
           </span>
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <span style={{ fontSize: '12.5px', color: '#FCD34D', fontWeight: 700 }}>
-              {completedCount} of 3 completed — Upload ID to unlock payouts
+              {completedCount} of 3 completed — Verify identity to create events
             </span>
             {onContinueVerification && (
               <button
-                className="btn-cta"
+                className="tixup-btn-primary"
                 onClick={onContinueVerification}
-                style={{ padding: '8px 14px', fontSize: '12px', background: '#2563EB', color: '#FFF', borderRadius: '10px' }}
+                style={{ padding: '10px 20px', fontSize: '13px', borderRadius: '12px', background: 'linear-gradient(135deg, #2563EB, #7C3AED)', color: '#FFF', fontWeight: 900, boxShadow: '0 4px 20px rgba(37,99,235,0.4)' }}
               >
-                Complete Setup <ArrowRight size={13} />
+                Become an Organizer <ArrowRight size={15} />
               </button>
             )}
           </div>

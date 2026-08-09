@@ -102,12 +102,24 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
+  // Dynamic Configurable Dual-Fee Settings (Super Admin Configurable)
+  const [platformFeePercent, setPlatformFeePercent] = useState<number>(5.0); // Default 5%
+  const [paymentFeePercent, setPaymentFeePercent] = useState<number>(1.5);  // Default 1.5%
+
   const activeTicket = availableTicketTypes[selectedTicketIndex] || availableTicketTypes[0];
   const rawSubtotal = (activeTicket?.price || 0) * quantity;
   const discountAmount = Math.round(rawSubtotal * appliedDiscount);
-  const totalPrice = rawSubtotal - discountAmount;
-  const serviceFee = Math.round(totalPrice * 0.025); // 2.5% platform booking fee
-  const grandTotal = totalPrice + serviceFee;
+  const subtotal = rawSubtotal - discountAmount;
+  
+  // Dual-Fee Calculations
+  const platformFee = Math.round(subtotal * (platformFeePercent / 100));
+  const paymentFee = Math.round(subtotal * (paymentFeePercent / 100));
+  const grandTotal = subtotal + platformFee + paymentFee;
+
+  // Financial Telemetry Breakdowns
+  const organizerEarnings = subtotal;
+  const platformRevenue = platformFee;
+  const gatewayFee = paymentFee;
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -484,7 +496,7 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
                     {/* Itemized Price Breakdown */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#9CA3AF', borderTop: '1px dashed rgba(255,255,255,0.1)', paddingTop: '16px', marginBottom: '16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{activeTicket.name} (x{quantity})</span>
+                        <span>Ticket Price ({activeTicket.name} x{quantity})</span>
                         <span style={{ color: '#FFF' }}>₦{rawSubtotal.toLocaleString()}</span>
                       </div>
                       {appliedDiscount > 0 && (
@@ -493,13 +505,37 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
                           <span>-₦{discountAmount.toLocaleString()}</span>
                         </div>
                       )}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', color: '#D1D5DB' }}>
+                        <span>Subtotal</span>
+                        <span style={{ color: '#FFF', fontWeight: 700 }}>₦{subtotal.toLocaleString()}</span>
+                      </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Processing Fee</span>
-                        <span style={{ color: '#FFF' }}>₦{serviceFee.toLocaleString()}</span>
+                        <span>Platform Processing Fee ({platformFeePercent}%)</span>
+                        <span style={{ color: '#FFF' }}>₦{platformFee.toLocaleString()}</span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <span>Payment Processing Fee ({paymentFeePercent}%)</span>
+                        <span style={{ color: '#FFF' }}>₦{paymentFee.toLocaleString()}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '17px', fontWeight: 900, color: '#FFF', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '4px' }}>
                         <span>Total Amount</span>
                         <span style={{ color: '#34D399' }}>₦{grandTotal.toLocaleString()}</span>
+                      </div>
+
+                      {/* Revenue & Settlement Telemetry */}
+                      <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: '10px', padding: '10px 12px', marginTop: '8px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '11.5px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#9CA3AF' }}>Organizer Earnings:</span>
+                          <span style={{ color: '#34D399', fontWeight: 800 }}>₦{organizerEarnings.toLocaleString()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#9CA3AF' }}>Platform Revenue:</span>
+                          <span style={{ color: '#60A5FA', fontWeight: 800 }}>₦{platformRevenue.toLocaleString()}</span>
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                          <span style={{ color: '#9CA3AF' }}>Gateway Fee:</span>
+                          <span style={{ color: '#FBBF24', fontWeight: 800 }}>₦{gatewayFee.toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { VerificationDeskView } from '../users/VerificationDeskView';
 import {
   Users, Lock, Unlock, LogOut, ShieldAlert, CheckCircle2,
   Search, Filter, Download, RefreshCw, ChevronRight, X,
@@ -53,7 +54,7 @@ interface UserApiResponse {
 }
 
 export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void }> = ({ onTriggerToast }) => {
-  const [activeTab, setActiveTab] = useState<'platform' | 'organization' | 'attendees'>('platform');
+  const [activeTab, setActiveTab] = useState<'platform' | 'organization' | 'attendees' | 'verification'>('platform');
 
   const [userData, setUserData] = useState<UserApiResponse>({
     platform_users: [],
@@ -501,7 +502,37 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
             {userData.totals.attendees}
           </span>
         </button>
+
+        <button
+          onClick={() => { setActiveTab('verification'); setSelectedUserIds([]); }}
+          style={{
+            padding: '12px 20px',
+            fontSize: '14px',
+            fontWeight: 800,
+            color: activeTab === 'verification' ? '#FBBF24' : '#9CA3AF',
+            background: activeTab === 'verification' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'verification' ? '3px solid #F59E0B' : '3px solid transparent',
+            borderRadius: '10px 10px 0 0',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <ShieldAlert size={16} />
+          AI Verification Desk
+          <span style={{ fontSize: '11px', background: activeTab === 'verification' ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: '#FFF', padding: '2px 8px', borderRadius: '12px' }}>
+            AI Engine
+          </span>
+        </button>
       </div>
+
+      {activeTab === 'verification' ? (
+        <VerificationDeskView onToast={onTriggerToast} />
+      ) : (
+        <>
 
       {/* ── 4. SEARCH & FILTERS TOOLBAR ── */}
       <div style={{ background: 'rgba(13, 17, 32, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '14px 18px', marginBottom: '20px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -934,6 +965,9 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
 
           </div>
         </div>
+      )}
+
+      </>
       )}
 
     </div>
