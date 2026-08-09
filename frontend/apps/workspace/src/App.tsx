@@ -156,8 +156,19 @@ function WorkspaceContent() {
     return localStorage.getItem('getvnt_app_downloaded') === 'true';
   });
 
-  // Route guard
+  // Role transition & route guard
   useEffect(() => {
+    const isApprovedOrganizer =
+      user?.role === 'organizer_owner' ||
+      (user?.tenant && (user.tenant as any).is_verified);
+
+    if (isApprovedOrganizer) {
+      if (view === 'onboarding' || view === 'saved_events' || view === 'my_tickets') {
+        setView('dashboard');
+        setToast('🎉 Verification Approved! Welcome to your Organizer Workspace.');
+      }
+    }
+
     if (!token && !loading) {
       setView('login');
     } else if (user) {
@@ -168,7 +179,7 @@ function WorkspaceContent() {
         setView('dashboard');
       }
     }
-  }, [token, user, loading]);
+  }, [token, user, loading, user?.role, (user?.tenant as any)?.is_verified]);
 
   // Fetch public plans
   useEffect(() => { fetchPlans(); }, []);
