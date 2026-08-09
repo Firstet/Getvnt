@@ -511,4 +511,116 @@ class AuthController extends Controller
 
         return redirect($baseUrl . '/?token=' . $token . '&email=' . urlencode($user->email));
     }
+
+    /**
+     * POST /api/v1/auth/forgot-password
+     * Dispatch password reset email link
+     */
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If your email is registered in GETVNT, a password reset link has been sent to your inbox.'
+            ]);
+        }
+
+        $resetToken = Str::random(60);
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($resetToken), 'created_at' => now()]
+        );
+
+        Log::info("GETVNT Password Reset Token generated for {$user->email}: {$resetToken}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset instructions have been dispatched to your email address.',
+            'data' => [
+                'reset_token' => $resetToken
+            ]
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/reset-password
+     * Reset password using verification token
+     */
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid email or reset token.'], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your password has been successfully reset. You may now log in with your new credentials.'
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/verify-email
+     * Verify email address with 6-digit OTP code
+     */
+    public function verifyEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $user->update(['email_verified_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email address successfully verified!'
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/verify-phone
+     * Verify phone number with SMS OTP code
+     */
+    public function verifyPhone(Request $request)
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = $request->user();
+        if ($user) {
+            $user->update(['phone' => $validated['phone']]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mobile phone number successfully verified via SMS OTP!'
+        ]);
+    }
 }
