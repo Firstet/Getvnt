@@ -514,91 +514,71 @@ export default function App() {
         {/* View Switcher Wrapped in Error Boundary */}
         <ErrorBoundary key={activeTab}>
           {activeTab === 'dashboard' && (
-            <DashboardView data={dashboardData} platformStats={platformStats} onNavigate={(tab) => setActiveTab(tab)} onToast={triggerToast} />
+            <DashboardView data={dashboardData} platformStats={platformStats} onNavigate={(tab) => setActiveTab(tab as any)} onToast={triggerToast} />
           )}
 
-          {activeTab === 'operations_center' && (
-            <OperationsCustomerSuccessCenterView onTriggerToast={triggerToast} />
-          )}
-
-          {activeTab === 'branding' && (
-            <BrandingSettingsView onToast={triggerToast} />
-          )}
-
-          {activeTab === 'plans' && (
-            <PlansManagerView onTriggerToast={triggerToast} />
-          )}
-
-          {activeTab === 'users' && (
+          {(activeTab === 'organizers' || activeTab === 'verification') && (
             <UsersManagerView onTriggerToast={triggerToast} />
           )}
 
-          {activeTab === 'ai_providers' && (
-            <AiProvidersView providers={aiProviders} onRefresh={fetchAllData} onToast={triggerToast} />
+          {(activeTab === 'events' || activeTab === 'categories' || activeTab === 'marketplace') && (
+            <MarketplaceView marketplace={marketplaceApps} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
-          {activeTab === 'ai_routing' && (
-            <AiRoutingView routes={aiRoutes} providers={aiProviders} onRefresh={fetchAllData} onToast={triggerToast} />
-          )}
-
-          {activeTab === 'payment_gateways' && (
-            <PaymentGatewaysView gateways={paymentGateways} onRefresh={fetchAllData} onToast={triggerToast} />
+          {(activeTab === 'transactions' || activeTab === 'payouts' || activeTab === 'wallets') && (
+            <OperationsCustomerSuccessCenterView onTriggerToast={triggerToast} />
           )}
 
           {activeTab === 'commission_rules' && (
             <CommissionRulesView rules={commissionRules} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
-          {activeTab === 'api_vault' && (
-            <ApiVaultView vaultKeys={apiVaultKeys} onRefresh={fetchAllData} onToast={triggerToast} />
+          {activeTab === 'payment_gateways' && (
+            <PaymentGatewaysView gateways={paymentGateways} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
-          {activeTab === 'communication' && (
-            <CommunicationServicesView services={communicationServices} onRefresh={fetchAllData} onToast={triggerToast} />
+          {activeTab === 'plans' && (
+            <PlansManagerView onTriggerToast={triggerToast} />
           )}
 
-          {activeTab === 'storage' && (
-            <StorageProvidersView providers={storageProviders} onRefresh={fetchAllData} onToast={triggerToast} />
-          )}
-
-          {activeTab === 'analytics' && (
-            <AnalyticsServicesView analytics={analyticsServices} onRefresh={fetchAllData} onToast={triggerToast} />
-          )}
-
-          {activeTab === 'webhooks' && (
-            <WebhooksView webhooks={webhooks} onRefresh={fetchAllData} onToast={triggerToast} />
-          )}
-
-          {activeTab === 'marketplace' && (
-            <MarketplaceView marketplace={marketplaceApps} onRefresh={fetchAllData} onToast={triggerToast} />
-          )}
-
-          {activeTab === 'news_center' && (
-            <NewsEntertainmentCenterView onToast={triggerToast} />
-          )}
-
-          {activeTab === 'usage_analytics' && (
-            <UsageAnalyticsView onToast={triggerToast} />
-          )}
-
-          {activeTab === 'audit_logs' && (
-            <AuditLogsView onToast={triggerToast} />
+          {(activeTab === 'website_builder' || activeTab === 'domains' || activeTab === 'templates') && (
+            <LandingPageCmsView onToast={triggerToast} />
           )}
 
           {activeTab === 'landing_cms' && (
             <LandingPageCmsView onToast={triggerToast} />
           )}
 
-          {activeTab === 'auth_providers' && (
-            <AuthProvidersView onToast={triggerToast} />
+          {(activeTab === 'blogs' || activeTab === 'media') && (
+            <NewsEntertainmentCenterView onToast={triggerToast} />
+          )}
+
+          {activeTab === 'ai_center' && (
+            <AiProvidersView providers={aiProviders} onRefresh={fetchAllData} onToast={triggerToast} />
+          )}
+
+          {(activeTab === 'communication' || activeTab === 'marketing') && (
+            <CommunicationServicesView services={communicationServices} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
           {activeTab === 'feature_flags' && (
             <FeatureFlagsView onToast={triggerToast} />
           )}
 
-          {activeTab === 'platform_updates' && (
-            <PlatformUpdateManagerView onToast={triggerToast} />
+          {(activeTab === 'countries' || activeTab === 'currencies') && (
+            <SystemSettingsView onToast={triggerToast} />
+          )}
+
+          {(activeTab === 'roles' || activeTab === 'permissions') && (
+            <AuthProvidersView onToast={triggerToast} />
+          )}
+
+          {activeTab === 'audit_logs' && (
+            <AuditLogsView onToast={triggerToast} />
+          )}
+
+          {activeTab === 'security' && (
+            <ApiVaultView vaultKeys={apiVaultKeys} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
           {activeTab === 'system_settings' && (

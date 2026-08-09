@@ -305,55 +305,54 @@ function WorkspaceContent() {
   // ─────────────────────────────────────────────────────────────
   const navModules = [
     {
-      category: 'ORGANIZER OS OVERVIEW',
+      category: '1. ORGANIZER OS OVERVIEW',
       items: [
-        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Organizer OS Dashboard' },
-        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Assistant' },
+        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Overview Dashboard' },
+        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Suite' },
       ],
     },
     {
-      category: 'EVENTS & TICKETING',
+      category: '2. EVENTS & TICKETING',
       items: [
-        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Ticket Designer Desk' },
+        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Ticket Designer' },
       ],
     },
     {
-      category: 'ORDERS & GATE CONTROL',
+      category: '3. ORDERS & GATE CONTROL',
       items: [
-        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'QR Gate & Entrance Scanner' },
+        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
       ],
     },
     {
-      category: 'WEBSITE OS & DOMAINS',
+      category: '4. WEBSITE BUILDER OS',
       items: [
-        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Event Website Builder' },
+        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Website Builder & Domains' },
       ],
     },
     {
-      category: 'MARKETING SUITE',
+      category: '5. MARKETING SUITE',
       items: [
-        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & AI Insights' },
+        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
         { id: 'automation', icon: <IconContainer icon={Zap} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'AI Automation Engine' },
-        { id: 'ad_studio', icon: <IconContainer icon={Share2} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Promotion & Ad Studio' },
-        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'AI Sponsorship Decks' },
+        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsors & Decks' },
       ],
     },
     {
-      category: 'AUDIENCE & CRM',
+      category: '6. AUDIENCE & CRM',
       items: [
-        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Attendee CRM & Loyalty' },
+        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM & Reviews' },
       ],
     },
     {
-      category: 'COMMERCE & FINANCE',
+      category: '7. REVENUE & FINANCIALS',
       items: [
-        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Finance & Subscriptions' },
+        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Revenue, Payouts & Wallet' },
       ],
     },
     {
-      category: 'WORKSPACE SETTINGS',
+      category: '8. SETTINGS & VERIFICATION',
       items: [
-        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Organization & Verification' },
+        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings & Verification' },
       ],
     },
   ];

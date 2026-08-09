@@ -3,34 +3,53 @@ import { GetvntLogo } from '../GetvntLogo';
 import {
   LayoutDashboard, Cpu, GitMerge, CreditCard, Percent, KeyRound,
   Mail, HardDrive, BarChart3, Webhook, Store, Activity, ShieldCheck, Settings,
-  ShieldAlert, ChevronLeft, ChevronRight, X, Crown, Users, Palette, Rss, Globe, Flag, UploadCloud, Shield, Sparkles
+  ShieldAlert, ChevronLeft, ChevronRight, X, Crown, Users, Palette, Rss, Globe, Flag, UploadCloud, Shield, Sparkles,
+  Calendar, Layers, DollarSign, Wallet, FileText, Image, MessageSquare, Lock, Globe2, Tag
 } from 'lucide-react';
 
 export type IntegrationTab =
   | 'dashboard'
-  | 'operations_center'
-  | 'branding'
-  | 'landing_cms'
-  | 'plans'
-  | 'users'
+  | 'marketplace'
+  | 'organizers'
   | 'verification'
-  | 'auth_providers'
+  | 'events'
+  | 'categories'
+  | 'transactions'
+  | 'payouts'
+  | 'wallets'
+  | 'website_builder'
+  | 'domains'
+  | 'templates'
+  | 'landing_cms'
+  | 'blogs'
+  | 'media'
+  | 'ai_center'
+  | 'communication'
+  | 'marketing'
+  | 'feature_flags'
+  | 'plans'
+  | 'commission_rules'
+  | 'payment_gateways'
+  | 'countries'
+  | 'currencies'
+  | 'roles'
+  | 'permissions'
+  | 'audit_logs'
+  | 'security'
+  | 'system_settings'
+  | 'operations_center'
+  | 'users'
   | 'ai_providers'
   | 'ai_routing'
-  | 'payment_gateways'
-  | 'commission_rules'
   | 'api_vault'
-  | 'communication'
   | 'storage'
   | 'analytics'
   | 'webhooks'
-  | 'marketplace'
-  | 'news_center'
   | 'usage_analytics'
-  | 'audit_logs'
-  | 'feature_flags'
-  | 'platform_updates'
-  | 'system_settings';
+  | 'branding'
+  | 'news_center'
+  | 'auth_providers'
+  | 'platform_updates';
 
 interface Props {
   activeTab: IntegrationTab;
@@ -55,44 +74,47 @@ export const IntegrationsNav: React.FC<Props> = ({
 }) => {
   const menuItems = [
     // 1. Platform Overview
-    { id: 'dashboard', label: 'Platform Dashboard', icon: LayoutDashboard, section: '1. Platform Overview' },
-    { id: 'operations_center', label: 'Operations & Health Desk', icon: Activity, section: '1. Platform Overview' },
-    { id: 'usage_analytics', label: 'Usage Telemetry', icon: BarChart3, section: '1. Platform Overview' },
+    { id: 'dashboard', label: 'Platform Overview', icon: LayoutDashboard, section: 'OVERVIEW' },
+    
+    // 2. Core Marketplace & Events
+    { id: 'marketplace', label: 'Marketplace Catalog', icon: Store, section: 'MARKETPLACE & EVENTS' },
+    { id: 'events', label: 'Events Moderation', icon: Calendar, section: 'MARKETPLACE & EVENTS' },
+    { id: 'categories', label: 'Categories & Taxonomy', icon: Layers, section: 'MARKETPLACE & EVENTS' },
 
-    // 2. Identity & Verification
-    { id: 'users', label: 'User Directory & Orgs', icon: Users, section: '2. Identity & Verification' },
-    { id: 'auth_providers', label: 'OAuth & Identity Providers', icon: KeyRound, section: '2. Identity & Verification' },
-    { id: 'audit_logs', label: 'Trust & Security Logs', icon: ShieldCheck, section: '2. Identity & Verification' },
-
-    // 3. Marketplace
-    { id: 'marketplace', label: 'Marketplace Catalog', icon: Store, section: '3. Marketplace' },
-    { id: 'landing_cms', label: 'Promotions & CMS', icon: Globe, section: '3. Marketplace' },
+    // 3. Organizers & KYC Verification
+    { id: 'organizers', label: 'Organizers Directory', icon: Users, section: 'ORGANIZERS & KYC' },
+    { id: 'verification', label: 'Verification Center', icon: ShieldAlert, section: 'ORGANIZERS & KYC' },
 
     // 4. Financial Center
-    { id: 'commission_rules', label: 'Commission Rules (5% Fee)', icon: Percent, section: '4. Financial Center' },
-    { id: 'payment_gateways', label: 'Payment Gateways', icon: CreditCard, section: '4. Financial Center' },
-    { id: 'plans', label: 'Subscription Tiers', icon: Crown, section: '4. Financial Center' },
+    { id: 'transactions', label: 'Transactions Log', icon: Activity, section: 'FINANCIAL CENTER' },
+    { id: 'payouts', label: 'Payouts Settlement', icon: DollarSign, section: 'FINANCIAL CENTER' },
+    { id: 'wallets', label: 'Platform Wallets & Vault', icon: Wallet, section: 'FINANCIAL CENTER' },
+    { id: 'commission_rules', label: 'Platform Fees (5%)', icon: Percent, section: 'FINANCIAL CENTER' },
+    { id: 'payment_gateways', label: 'Payment Gateways', icon: CreditCard, section: 'FINANCIAL CENTER' },
+    { id: 'plans', label: 'Subscription Plans', icon: Crown, section: 'FINANCIAL CENTER' },
 
-    // 5. CMS & Media
-    { id: 'branding', label: 'Platform Branding', icon: Palette, section: '5. CMS & Media' },
-    { id: 'news_center', label: 'News & Media Hub', icon: Rss, section: '5. CMS & Media' },
+    // 5. Website Builder & CMS
+    { id: 'website_builder', label: 'Website Builder OS', icon: Globe, section: 'WEBSITE BUILDER & CMS' },
+    { id: 'domains', label: 'Domains & DNS Router', icon: Globe2, section: 'WEBSITE BUILDER & CMS' },
+    { id: 'templates', label: 'Event Category Templates', icon: LayoutDashboard, section: 'WEBSITE BUILDER & CMS' },
+    { id: 'landing_cms', label: 'Landing Page CMS', icon: Palette, section: 'WEBSITE BUILDER & CMS' },
+    { id: 'blogs', label: 'GetVNT Pulse Blogs', icon: Rss, section: 'WEBSITE BUILDER & CMS' },
+    { id: 'media', label: 'Media Assets Library', icon: Image, section: 'WEBSITE BUILDER & CMS' },
 
-    // 6. Website Builder
-    { id: 'storage', label: 'Website Media Storage', icon: HardDrive, section: '6. Website Builder' },
+    // 6. AI & Communications
+    { id: 'ai_center', label: 'AI Engine Center', icon: Cpu, section: 'AI & COMMUNICATIONS' },
+    { id: 'communication', label: 'Communications & SMS', icon: Mail, section: 'AI & COMMUNICATIONS' },
+    { id: 'marketing', label: 'Promotions & Coupons', icon: Tag, section: 'AI & COMMUNICATIONS' },
 
-    // 7. AI Center
-    { id: 'ai_providers', label: 'AI LLM Providers Fleet', icon: Cpu, section: '7. AI Center' },
-    { id: 'ai_routing', label: 'AI Routing Engine', icon: GitMerge, section: '7. AI Center' },
-
-    // 8. Communications
-    { id: 'communication', label: 'Email, SMS & WhatsApp', icon: Mail, section: '8. Communications' },
-    { id: 'webhooks', label: 'Webhooks & Events', icon: Webhook, section: '8. Communications' },
-
-    // 9. Platform Settings
-    { id: 'feature_flags', label: 'Feature Flags & Modular OS', icon: Flag, section: '9. Platform Settings' },
-    { id: 'api_vault', label: 'Encrypted API Vault', icon: KeyRound, section: '9. Platform Settings' },
-    { id: 'platform_updates', label: 'Platform Updates', icon: UploadCloud, section: '9. Platform Settings' },
-    { id: 'system_settings', label: 'System Configurations', icon: Settings, section: '9. Platform Settings' },
+    // 7. Governance, Security & Settings
+    { id: 'feature_flags', label: 'Feature Flags & Modular OS', icon: Flag, section: 'GOVERNANCE & SECURITY' },
+    { id: 'countries', label: 'Countries & Regions', icon: Globe, section: 'GOVERNANCE & SECURITY' },
+    { id: 'currencies', label: 'Currencies & Rates', icon: DollarSign, section: 'GOVERNANCE & SECURITY' },
+    { id: 'roles', label: 'Roles & Staff', icon: Shield, section: 'GOVERNANCE & SECURITY' },
+    { id: 'permissions', label: 'RBAC Permissions Matrix', icon: KeyRound, section: 'GOVERNANCE & SECURITY' },
+    { id: 'audit_logs', label: 'System Audit Logs', icon: ShieldCheck, section: 'GOVERNANCE & SECURITY' },
+    { id: 'security', label: 'Security & Anti-Fraud', icon: Lock, section: 'GOVERNANCE & SECURITY' },
+    { id: 'system_settings', label: 'Platform System Settings', icon: Settings, section: 'GOVERNANCE & SECURITY' },
   ];
 
   let currentSection = '';
