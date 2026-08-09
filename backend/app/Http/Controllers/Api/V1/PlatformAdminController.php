@@ -257,23 +257,48 @@ class PlatformAdminController extends Controller
             return response()->json(['success' => false, 'message' => 'Organization not found.'], 404);
         }
 
-        $isVerified = $request->input('is_verified', true);
+        $isVerified = (bool) $request->input('is_verified', true);
         $status = $request->input('status', $isVerified ? 'approved' : 'rejected');
 
-        $tenant->is_verified = (bool) $isVerified;
+        $tenant->is_verified = $isVerified;
         $settings = $tenant->settings ?? [];
         $settings['verification_status'] = $status;
+        $settings['verified_at'] = $isVerified ? now()->toDateTimeString() : null;
         $tenant->settings = $settings;
         $tenant->save();
 
+        if ($isVerified) {
+            // 1. Automatically elevate primary associated users to organizer_owner
+            User::where('tenant_id', $tenant->id)
+                ->orWhere('email', $tenant->email)
+                ->update(['role' => 'organizer_owner']);
+
+            // 2. Initialize Organizer Wallet if missing
+            if (\Illuminate\Support\Facades\Schema::hasTable('finance_wallets')) {
+                \Illuminate\Support\Facades\DB::table('finance_wallets')->updateOrInsert(
+                    ['tenant_id' => $tenant->id],
+                    [
+                        'balance' => 0.00,
+                        'currency' => 'NGN',
+                        'is_active' => true,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
+        }
+
         $msg = $isVerified
-            ? "✅ Approved KYC & Verification for {$tenant->name}."
+            ? "✅ Approved KYC & Verification for {$tenant->name}. Account automatically converted to Organizer."
             : "⚠️ Rejected/Flagged KYC for {$tenant->name}.";
 
         return response()->json([
             'success' => true,
             'message' => $msg,
-            'data' => $tenant
+            'data' => [
+                'tenant' => $tenant,
+                'users_promoted' => User::where('tenant_id', $tenant->id)->count(),
+            ]
         ]);
     }
 
