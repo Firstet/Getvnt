@@ -27,6 +27,25 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   const [selectedCity, setSelectedCity] = useState('All');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [cmsSections, setCmsSections] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    fetch('/api/v1/cms/landing')
+      .then(res => res.json())
+      .then(json => { if (json.success && Array.isArray(json.data)) setCmsSections(json.data); })
+      .catch(() => {});
+  }, []);
+
+  // Helper to extract dynamic CMS section content
+  const getCmsContent = (key: string, defaultVal: any) => {
+    const sec = cmsSections.find((s: any) => s.section_key === key);
+    if (!sec) return defaultVal;
+    return {
+      title: sec.title || defaultVal.title,
+      subtitle: sec.subtitle || defaultVal.subtitle,
+      ...sec.content_json,
+    };
+  };
 
   const featuredEvent = events[0] || {
     id: 'feat-1',
