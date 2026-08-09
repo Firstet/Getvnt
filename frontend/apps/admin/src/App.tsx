@@ -18,7 +18,7 @@ import { UsageAnalyticsView } from './components/integrations/UsageAnalyticsView
 import { AuditLogsView } from './components/integrations/AuditLogsView';
 import { SystemSettingsView } from './components/integrations/SystemSettingsView';
 import { BrandingSettingsView } from './components/integrations/BrandingSettingsView';
-
+import { AiControlCenterView } from './components/integrations/AiControlCenterView';
 import { NewsEntertainmentCenterView } from './components/integrations/NewsEntertainmentCenterView';
 import { AuthProvidersView } from './components/integrations/AuthProvidersView';
 import { LandingPageCmsView } from './components/integrations/LandingPageCmsView';
@@ -554,7 +554,7 @@ export default function App() {
           )}
 
           {activeTab === 'ai_center' && (
-            <AiProvidersView providers={aiProviders} onRefresh={fetchAllData} onToast={triggerToast} />
+            <AiControlCenterView providers={aiProviders} onRefresh={fetchAllData} onToast={triggerToast} />
           )}
 
           {(activeTab === 'communication' || activeTab === 'marketing') && (
