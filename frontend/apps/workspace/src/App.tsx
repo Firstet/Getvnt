@@ -491,13 +491,19 @@ function WorkspaceContent() {
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#6B7280' }}>Organization:</span>
             <select
               className="search-field"
-              style={{ width: 'auto', minWidth: '140px', padding: '7px 36px 7px 12px', fontSize: '13px', fontWeight: 700 }}
-              value={user?.tenant_id || ''}
+              style={{ width: 'auto', minWidth: '160px', padding: '7px 36px 7px 12px', fontSize: '13px', fontWeight: 700, background: '#111827', color: '#FFF', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+              value={user?.tenant_id || user?.tenant?.id || ''}
               onChange={e => switchOrganization(e.target.value)}
             >
-              {user?.tenants?.map((t: any) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
+              {user?.tenants && user.tenants.length > 0 ? (
+                user.tenants.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))
+              ) : (
+                <option value={user?.tenant?.id || user?.tenant_id || 'org-1'}>
+                  {user?.tenant?.name || 'AfroNation Global Events'}
+                </option>
+              )}
             </select>
 
             <span className="sponsored-tag badge-green" style={{
