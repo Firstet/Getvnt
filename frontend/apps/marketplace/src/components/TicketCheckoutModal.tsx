@@ -494,7 +494,7 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
                         </div>
                       )}
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Booking &amp; Security Fee (2.5%)</span>
+                        <span>Processing Fee</span>
                         <span style={{ color: '#FFF' }}>₦{serviceFee.toLocaleString()}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '17px', fontWeight: 900, color: '#FFF', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '4px' }}>
