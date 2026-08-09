@@ -18,7 +18,7 @@ import { UsageAnalyticsView } from './components/integrations/UsageAnalyticsView
 import { AuditLogsView } from './components/integrations/AuditLogsView';
 import { SystemSettingsView } from './components/integrations/SystemSettingsView';
 import { BrandingSettingsView } from './components/integrations/BrandingSettingsView';
-import { OperationsCustomerSuccessCenterView } from './components/integrations/OperationsCustomerSuccessCenterView';
+
 import { NewsEntertainmentCenterView } from './components/integrations/NewsEntertainmentCenterView';
 import { AuthProvidersView } from './components/integrations/AuthProvidersView';
 import { LandingPageCmsView } from './components/integrations/LandingPageCmsView';
@@ -526,7 +526,7 @@ export default function App() {
           )}
 
           {(activeTab === 'transactions' || activeTab === 'payouts' || activeTab === 'wallets') && (
-            <OperationsCustomerSuccessCenterView onTriggerToast={triggerToast} />
+            <DashboardView data={dashboardData} platformStats={platformStats} onNavigate={(tab) => setActiveTab(tab as any)} onToast={triggerToast} />
           )}
 
           {activeTab === 'commission_rules' && (
