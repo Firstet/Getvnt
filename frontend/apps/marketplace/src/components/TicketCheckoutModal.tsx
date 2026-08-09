@@ -111,15 +111,13 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
   const discountAmount = Math.round(rawSubtotal * appliedDiscount);
   const subtotal = rawSubtotal - discountAmount;
   
-  // Dual-Fee Calculations
+  // Single Buyer-Facing Platform Processing Fee Calculation
   const platformFee = Math.round(subtotal * (platformFeePercent / 100));
-  const paymentFee = Math.round(subtotal * (paymentFeePercent / 100));
-  const grandTotal = subtotal + platformFee + paymentFee;
+  const grandTotal = subtotal + platformFee;
 
   // Financial Telemetry Breakdowns
   const organizerEarnings = subtotal;
   const platformRevenue = platformFee;
-  const gatewayFee = paymentFee;
 
   const handleApplyPromo = (e: React.FormEvent) => {
     e.preventDefault();
@@ -510,12 +508,8 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
                         <span style={{ color: '#FFF', fontWeight: 700 }}>₦{subtotal.toLocaleString()}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Platform Processing Fee ({platformFeePercent}%)</span>
+                        <span>Platform Processing Fee</span>
                         <span style={{ color: '#FFF' }}>₦{platformFee.toLocaleString()}</span>
-                      </div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>Payment Processing Fee ({paymentFeePercent}%)</span>
-                        <span style={{ color: '#FFF' }}>₦{paymentFee.toLocaleString()}</span>
                       </div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '17px', fontWeight: 900, color: '#FFF', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '12px', marginTop: '4px' }}>
                         <span>Total Amount</span>
@@ -531,10 +525,6 @@ export const TicketCheckoutModal: React.FC<TicketCheckoutModalProps> = ({
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                           <span style={{ color: '#9CA3AF' }}>Platform Revenue:</span>
                           <span style={{ color: '#60A5FA', fontWeight: 800 }}>₦{platformRevenue.toLocaleString()}</span>
-                        </div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span style={{ color: '#9CA3AF' }}>Gateway Fee:</span>
-                          <span style={{ color: '#FBBF24', fontWeight: 800 }}>₦{gatewayFee.toLocaleString()}</span>
                         </div>
                       </div>
                     </div>
