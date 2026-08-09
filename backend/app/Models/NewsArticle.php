@@ -34,18 +34,20 @@ class NewsArticle extends Model
         'shares_count',
         'likes_count',
         'is_featured',
+        'featured_until',
         'is_breaking',
         'status',
         'related_event_id',
     ];
 
     protected $casts = [
-        'ai_insights'  => 'array',
-        'key_takeaways' => 'array',
-        'tags'          => 'array',
-        'is_featured'   => 'boolean',
-        'is_breaking'   => 'boolean',
-        'pub_date'      => 'datetime',
+        'ai_insights'    => 'array',
+        'key_takeaways'  => 'array',
+        'tags'           => 'array',
+        'is_featured'    => 'boolean',
+        'featured_until' => 'datetime',
+        'is_breaking'    => 'boolean',
+        'pub_date'       => 'datetime',
     ];
 
     protected static function boot()

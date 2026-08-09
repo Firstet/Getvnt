@@ -1,14 +1,40 @@
-/* GETVNT Shared Responsive Design System Utilities */
+/* GETVNT Shared Responsive Design System Utilities & Design Tokens */
 
 :root {
-  --fluid-h1: clamp(22px, 3.5vw, 32px);
-  --fluid-h2: clamp(18px, 2.5vw, 24px);
-  --fluid-h3: clamp(15px, 2vw, 18px);
-  --fluid-body: clamp(13px, 1.2vw, 15px);
-  
+  /* ── 8-POINT SPACING SYSTEM ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ── FLUID TYPOGRAPHY (CLAMP ENGINE) ── */
+  --fluid-h1: clamp(24px, 4vw, 36px);
+  --fluid-h2: clamp(18px, 2.8vw, 26px);
+  --fluid-h3: clamp(15px, 2vw, 19px);
+  --fluid-body: clamp(13.5px, 1.2vw, 15px);
+  --fluid-caption: clamp(11px, 1vw, 12.5px);
+
+  /* ── ACCESSIBILITY & LAYOUT TOKENS ── */
   --sidebar-width-expanded: 280px;
   --sidebar-width-collapsed: 72px;
   --touch-target-min: 44px;
+  --focus-ring-color: #60A5FA;
+  --focus-ring-shadow: 0 0 0 3px rgba(96, 165, 250, 0.35);
+
+  /* ── ELEVATION SHADOWS ── */
+  --shadow-subtle: 0 4px 14px rgba(0, 0, 0, 0.25);
+  --shadow-card: 0 8px 28px rgba(0, 0, 0, 0.4);
+  --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.7);
+  --shadow-glow-blue: 0 0 25px rgba(37, 99, 235, 0.35);
+  --shadow-glow-purple: 0 0 25px rgba(124, 58, 237, 0.35);
 }
 
 /* Global Fluid Viewport Layout */
@@ -28,28 +54,36 @@
 }
 
 /* Fluid Typography Helpers */
-.fluid-h1 { font-size: var(--fluid-h1); font-weight: 800; }
-.fluid-h2 { font-size: var(--fluid-h2); font-weight: 800; }
-.fluid-h3 { font-size: var(--fluid-h3); font-weight: 700; }
-.fluid-body { font-size: var(--fluid-body); }
+.fluid-h1 { font-size: var(--fluid-h1); font-weight: 900; line-height: 1.15; letter-spacing: -0.02em; }
+.fluid-h2 { font-size: var(--fluid-h2); font-weight: 800; line-height: 1.25; letter-spacing: -0.01em; }
+.fluid-h3 { font-size: var(--fluid-h3); font-weight: 700; line-height: 1.35; }
+.fluid-body { font-size: var(--fluid-body); line-height: 1.6; }
+.fluid-caption { font-size: var(--fluid-caption); line-height: 1.4; color: #9CA3AF; }
 
 /* Auto-Fit / Auto-Fill Dynamic Fluid Grid Engine */
 .fluid-grid-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  gap: var(--space-6);
 }
 
 .fluid-grid-metrics {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+  gap: var(--space-4);
 }
 
-/* Viewport Breakpoint Adjustments */
+/* Viewport Breakpoint Adjustments (320px to 1920px+) */
 @media (min-width: 1600px) {
   .fluid-grid-cards {
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .fluid-grid-cards {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space-4);
   }
 }
 
@@ -58,11 +92,41 @@
   .fluid-grid-metrics {
     grid-template-columns: 1fr;
   }
-  
-  /* Touch target safety on mobile */
-  button, input, select, textarea, .admin-btn, .admin-menu-item {
+
+  /* Safe Area & Touch target safety on mobile */
+  button, input, select, textarea, .admin-btn, .admin-menu-item, .btn-cta {
     min-height: var(--touch-target-min);
   }
+  
+  .safe-area-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+}
+
+/* Accessibility Focus Ring Utility */
+:focus-visible {
+  outline: 2px solid var(--focus-ring-color) !important;
+  outline-offset: 2px !important;
+  box-shadow: var(--focus-ring-shadow) !important;
+}
+
+/* Screen Reader Only Utility */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Body Scroll Lock for Modals & Drawers */
+.body-scroll-lock {
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 /* Horizontal Scroll Container for Tables */
@@ -70,7 +134,7 @@
   width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 .responsive-table-wrapper::-webkit-scrollbar {
@@ -78,7 +142,7 @@
 }
 
 .responsive-table-wrapper::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.18);
   border-radius: 99px;
 }
 
@@ -86,20 +150,23 @@
 .responsive-drawer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   z-index: 1000;
   display: flex;
 }
 
 .responsive-drawer-content {
-  width: 290px;
+  width: 300px;
   max-width: 85vw;
   height: 100%;
-  background: #0E131F;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
-  animation: slideDrawer 0.25s ease-out;
+  background: #0D1120;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 10px 0 40px rgba(0, 0, 0, 0.6);
+  animation: slideDrawer 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideDrawer {
@@ -109,4 +176,17 @@
   to {
     transform: translateX(0);
   }
+}
+
+/* Skeleton Pulse Loading Animation */
+@keyframes skeletonPulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+  100% { opacity: 0.4; }
+}
+
+.skeleton-pulse {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  animation: skeletonPulse 1.4s ease-in-out infinite;
 }

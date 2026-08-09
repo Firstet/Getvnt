@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CreditCard, Plus, RefreshCw, CheckCircle, Trash2, Edit3, Shield, Globe, Lock } from 'lucide-react';
-import { PasswordField } from '../../../../../shared/src';
+import { PasswordField, ConfirmModal } from '../../../../../shared/src';
 
 interface Props {
   gateways: any[];
@@ -12,6 +12,20 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
   const [testingId, setTestingId] = useState<number | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedGateway, setSelectedGateway] = useState<any | null>(null);
+  
+  // Enterprise Custom Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmText?: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   const getAuthHeaders = () => ({
     'Content-Type': 'application/json',
@@ -37,8 +51,18 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
     }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Are you sure you want to disconnect ${name}?`)) return;
+  const promptDisconnectGateway = (id: number, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Disconnect Payment Gateway',
+      message: `Are you sure you want to disconnect ${name}? Active event checkouts using ${name} will be paused.`,
+      confirmText: 'Disconnect Gateway',
+      onConfirm: () => executeDeleteGateway(id, name),
+    });
+  };
+
+  const executeDeleteGateway = async (id: number, name: string) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       const res = await fetch(`/api/v1/admin/integrations/payment-gateways/${id}`, {
         method: 'DELETE',
@@ -82,9 +106,9 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Payment Gateway Integrations & Settlement</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Payment Gateway Integrations &amp; Settlement</h2>
           <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>
-            Manage payment drivers, public/secret credentials, webhook secrets, callback URLs, & processing fees.
+            Manage payment drivers, public/secret credentials, webhook secrets, callback URLs, &amp; processing fees.
           </p>
         </div>
         <button
@@ -200,7 +224,7 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
               <button
                 className="admin-btn admin-btn-secondary"
                 style={{ fontSize: '12px', padding: '6px 12px', color: '#EF4444' }}
-                onClick={() => handleDelete(g.id, g.name)}
+                onClick={() => promptDisconnectGateway(g.id, g.name)}
               >
                 <Trash2 size={14} /> Disconnect
               </button>
@@ -323,6 +347,18 @@ export const PaymentGatewaysView: React.FC<Props> = ({ gateways, onRefresh, onTo
           </div>
         </div>
       )}
+
+      {/* Enterprise Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || 'Disconnect'}
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

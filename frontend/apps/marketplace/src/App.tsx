@@ -15,6 +15,7 @@ import { HomeNewsCarousel } from './components/HomeNewsCarousel';
 import { AndroidAppPromotion } from './components/AndroidAppPromotion';
 import { TicketCheckoutModal } from './components/TicketCheckoutModal';
 import { TicketManagementPortal } from './components/TicketManagementPortal';
+import { SaaSStoryLandingPage } from './components/SaaSStoryLandingPage';
 import './styles.css';
 
 interface EventItem {
@@ -38,6 +39,17 @@ function MarketplaceContent() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showExploreDropdown, setShowExploreDropdown] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   const [activeHeroIndex, setActiveHeroIndex] = useState(0);
   const [isHeroPaused, setIsHeroPaused] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -49,6 +61,16 @@ function MarketplaceContent() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [showAiAssistant, setShowAiAssistant] = useState(false);
+
+  // Body scroll lock effect for accessibility and touch UX
+  useEffect(() => {
+    if (mobileMenuOpen || selectedEvent) {
+      document.body.classList.add('body-scroll-lock');
+    } else {
+      document.body.classList.remove('body-scroll-lock');
+    }
+    return () => document.body.classList.remove('body-scroll-lock');
+  }, [mobileMenuOpen, selectedEvent]);
 
   // News Stream & Standalone Blog Article State
   const [activeArticleSlug, setActiveArticleSlug] = useState<string | null>(null);
@@ -254,345 +276,217 @@ function MarketplaceContent() {
   return (
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#07090F', color: '#FFF' }}>
       
-      {/* ── 1. FULL-WIDTH TOP HEADER ── */}
-      <header className="top-header" style={{ position: 'sticky', top: 0, zIndex: 100, background: 'rgba(7, 9, 15, 0.92)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '14px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '24px' }}>
-        
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
-            <GetvntLogo height={45} theme="dark" />
-          </a>
-        </div>
+      {/* ── 1. REDESIGNED STICKY TOP NAVBAR (3-COLUMN RESPONSIVE LAYOUT) ── */}
+      <header className={`top-header ${isScrolled ? 'scrolled' : ''}`}>
+        <div className="header-container">
+          
+          {/* Column 1: Getvnt Brand Logo */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <a href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
+              <GetvntLogo height={46} theme="dark" />
+            </a>
+          </div>
 
-        {/* Center Header Navigation Links */}
-        <nav className="header-nav-links" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '24px', flex: 1 }}>
-          <a className={`nav-link ${activeTab === 'home' ? 'active' : ''}`} style={{ color: activeTab === 'home' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('home'); }}>
-            Explore Events
-          </a>
-          <a className={`nav-link ${activeTab === 'manage_ticket' ? 'active' : ''}`} style={{ color: activeTab === 'manage_ticket' ? '#34D399' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={(e) => { e.preventDefault(); navigateTo('manage_ticket'); }}>
-            <Ticket size={16} color="#34D399" /> Manage Ticket
-          </a>
-          <a className={`nav-link ${activeTab === 'pulse' ? 'active' : ''}`} style={{ color: activeTab === 'pulse' ? '#EC4899' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>
-            <Rss size={16} color="#EC4899" /> Pulse Blog
-          </a>
-          <a className={`nav-link ${activeTab === 'about' ? 'active' : ''}`} style={{ color: activeTab === 'about' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>
-            About Us
-          </a>
-          <a className={`nav-link ${activeTab === 'help' ? 'active' : ''}`} style={{ color: activeTab === 'help' ? '#60A5FA' : '#D1D5DB', fontWeight: 800, fontSize: '14px', textDecoration: 'none', cursor: 'pointer' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>
-            Help Center
-          </a>
-        </nav>
+          {/* Column 2: Center Header Navigation Menu (16px, 600 weight, 36px gap) */}
+          <nav className="header-nav-links">
+            <div
+              className="header-nav-item-wrap"
+              onMouseEnter={() => setShowExploreDropdown(true)}
+              onMouseLeave={() => setShowExploreDropdown(false)}
+              style={{ position: 'relative' }}
+            >
+              <a
+                className={`header-nav-item ${activeTab === 'home' ? 'active' : ''}`}
+                onClick={(e) => { e.preventDefault(); navigateTo('home'); }}
+              >
+                Explore Events <ChevronRight size={14} style={{ transform: showExploreDropdown ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease' }} />
+              </a>
 
-        {/* Organizer B2B Conversion Action CTAs */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div className="header-search" style={{ maxWidth: '220px' }}>
-            <div className="search-input-wrap">
-              <Search className="search-icon" size={15} />
+              {/* Mega Dropdown Menu */}
+              {showExploreDropdown && (
+                <div className="header-mega-menu">
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>CURATED SELECTIONS</div>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', background: 'rgba(255,255,255,0.04)', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        ⭐ Featured Events
+                      </a>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        🔥 Latest Events
+                      </a>
+                      <a style={{ display: 'block', padding: '8px 12px', color: '#FFF', fontSize: '13.5px', fontWeight: 600, textDecoration: 'none', borderRadius: '8px', marginBottom: '4px' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                        ⚡ Trending Across Africa
+                      </a>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '10px' }}>POPULAR CATEGORIES</div>
+                      {['Music & Concerts', 'Tech & AI', 'Business & Summits', 'Comedy Shows', 'Networking'].map((cat) => (
+                        <a key={cat} style={{ display: 'block', padding: '6px 12px', color: '#9CA3AF', fontSize: '13px', textDecoration: 'none' }} onClick={() => { navigateTo('home'); setShowExploreDropdown(false); }}>
+                          {cat}
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <a className={`header-nav-item ${activeTab === 'manage_ticket' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('manage_ticket'); }}>
+              Manage Ticket
+            </a>
+            <a className={`header-nav-item ${activeTab === 'pulse' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>
+              Pulse
+            </a>
+            <a className={`header-nav-item ${activeTab === 'about' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>
+              Pricing
+            </a>
+            <a className={`header-nav-item ${activeTab === 'help' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>
+              Help
+            </a>
+          </nav>
+
+          {/* Column 3: Right Action Area (Pill Search Capsule, Login, Become an Organizer CTA) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 1.5vw, 20px)', flexShrink: 0 }}>
+            <div className="header-pill-search">
+              <Search size={15} color="#60A5FA" style={{ flexShrink: 0 }} />
               <input
                 type="text"
-                className="search-field"
                 placeholder="Search events..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                style={{ width: '100%', background: 'transparent', border: 'none', color: '#FFF', fontSize: '13.5px', outline: 'none' }}
               />
             </div>
+
+            <a
+              href={getAppUrl('workspace')}
+              style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '14.5px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease', flexShrink: 0 }}
+              className="desktop-only-link"
+            >
+              Organizer Login
+            </a>
+
+            <a
+              href={getAppUrl('workspace')}
+              className="header-cta-primary"
+            >
+              Become an Organizer
+            </a>
+
+            {/* Mobile Touch Targets */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button
+                className="mobile-hamburger-btn"
+                aria-label="Search Events"
+                onClick={() => navigateTo('home')}
+                style={{ width: '48px', height: '48px' }}
+              >
+                <Search size={20} color="#FFF" />
+              </button>
+
+              <button
+                className="mobile-hamburger-btn"
+                aria-label="Toggle Mobile Menu"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                style={{ width: '48px', height: '48px' }}
+              >
+                {mobileMenuOpen ? <X size={22} color="#FFF" /> : <Menu size={22} color="#FFF" />}
+              </button>
+            </div>
+
           </div>
 
-          <a
-            href={getAppUrl('admin')}
-            style={{ color: '#EF4444', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          >
-            Super Admin
-          </a>
-
-          <a
-            href={getAppUrl('workspace')}
-            style={{ color: '#A5B4FC', fontWeight: 800, fontSize: '13px', textDecoration: 'none', whiteSpace: 'nowrap' }}
-          >
-            Organizer Login
-          </a>
-
-          <a
-            href={getAppUrl('workspace')}
-            className="btn-cta"
-            style={{
-              background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-              color: '#FFF', padding: '9px 18px', fontSize: '13px', fontWeight: 900,
-              borderRadius: '99px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
-              boxShadow: '0 4px 14px rgba(37,99,235,0.4)', whiteSpace: 'nowrap'
-            }}
-          >
-            <Sparkles size={14} /> Become an Organizer
-          </a>
         </div>
       </header>
+
+      {/* ── MOBILE FULL-SCREEN SLIDING DRAWER ── */}
+      {mobileMenuOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999,
+            background: 'rgba(8,10,20,0.98)',
+            backdropFilter: 'blur(24px)',
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '20px 24px 32px 24px',
+            gap: '14px',
+            overflowY: 'auto'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+            <GetvntLogo height={38} theme="dark" />
+            <button
+              style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '12px', width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', cursor: 'pointer' }}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <X size={22} />
+            </button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {[
+              { label: 'Explore Events', tab: 'home' },
+              { label: 'Categories', tab: 'home' },
+              { label: 'Upcoming Events', tab: 'home' },
+              { label: 'Featured Events', tab: 'home' },
+              { label: 'Latest Events', tab: 'home' },
+              { label: 'Events You Will Like', tab: 'home' },
+              { label: 'Top Organizers', tab: 'home' },
+              { label: 'Pulse Blog', tab: 'pulse' },
+              { label: 'Pricing', tab: 'about' },
+              { label: 'Help Center', tab: 'help' },
+              { label: 'Organizer Login', external: getAppUrl('workspace') },
+            ].map((item, idx) => (
+              item.external ? (
+                <a
+                  key={idx}
+                  href={item.external}
+                  style={{ fontSize: '16px', fontWeight: 600, color: '#A5B4FC', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                >
+                  {item.label}
+                </a>
+              ) : (
+                <a
+                  key={idx}
+                  style={{ fontSize: '16px', fontWeight: 600, color: '#FFF', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+                  onClick={() => { navigateTo(item.tab as TabType); setMobileMenuOpen(false); }}
+                >
+                  {item.label}
+                </a>
+              )
+            ))}
+          </div>
+
+          <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
+            <a
+              href={getAppUrl('workspace')}
+              className="header-cta-primary"
+              style={{ width: '100%', justifyContent: 'center' }}
+            >
+              Become an Organizer
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* ── 2. MAIN PAGE CONTENT ── */}
       <div className="main-wrapper" style={{ flex: 1, width: '100%', maxWidth: '1280px', margin: '0 auto', padding: '24px 28px' }}>
         
-        {/* VIEW 1: HOME LANDING PAGE */}
+        {/* VIEW 1: HOME STORYTELLING LANDING PAGE */}
         {activeTab === 'home' && (
-          <main className="content-area">
-            {/* FEATURED HERO CAROUSEL */}
-            <section
-              className="sponsored-hero"
-              style={{ background: `${currentHero.gradient}, url(${currentHero.image}) center/cover no-repeat` }}
-              onMouseEnter={() => setIsHeroPaused(true)}
-              onMouseLeave={() => setIsHeroPaused(false)}
-            >
-              <div className="hero-content-wrap">
-                <span className="sponsored-tag">{currentHero.tag}</span>
-                <h1 className="hero-title-main">{currentHero.title}</h1>
-                <p className="hero-desc-main">{currentHero.description}</p>
-                <button className="btn-cta" onClick={() => setSelectedEvent(events[0] || null)}>
-                  {currentHero.cta} <ChevronRight size={14} />
-                </button>
-              </div>
-
-              <button className="hero-nav-arrow hero-nav-prev" title="Previous Slide" onClick={handlePrevHero}>
-                <ChevronLeft size={20} color="#FFF" />
-              </button>
-              <button className="hero-nav-arrow hero-nav-next" title="Next Slide" onClick={handleNextHero}>
-                <ChevronRight size={20} color="#FFF" />
-              </button>
-
-              <div className="hero-switcher-dots">
-                {heroItems.map((_, idx) => (
-                  <div
-                    key={idx}
-                    className={`hero-dot ${activeHeroIndex === idx ? 'active' : ''}`}
-                    onClick={() => setActiveHeroIndex(idx)}
-                  />
-                ))}
-              </div>
-            </section>
-
-            {/* FLASH EARLY BIRD TICKET DROP */}
-            <section className="flash-drop-card">
-              <div style={{ flex: 1, maxWidth: '600px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                  <span className="flash-timer-badge">
-                    <Clock size={14} /> Live Flash Drop • 04h : 18m : 32s
-                  </span>
-                  <span style={{ fontSize: '12px', color: '#FBBF24', fontWeight: 700 }}>
-                    🔥 88% Sold Out
-                  </span>
-                </div>
-                <h3 style={{ fontSize: '20px', fontWeight: 900, marginBottom: '6px' }}>
-                  Early-Bird Pass Flash Discount Drop
-                </h3>
-                <p style={{ color: '#9CA3AF', fontSize: '13px' }}>
-                  Unlock exclusive 20% discount on VIP &amp; General Admission passes for top Afrobeats and Tech summits across Africa.
-                </p>
-                <div className="flash-progress-bg">
-                  <div className="flash-progress-fill" style={{ width: '88%' }}></div>
-                </div>
-              </div>
-              <button
-                className="btn-cta"
-                style={{ background: '#7C3AED', color: '#FFF' }}
-                onClick={() => setSelectedEvent(events[0] || null)}
-              >
-                <Zap size={16} /> Claim Flash Discount
-              </button>
-            </section>
-
-            {/* DESTINATION CITIES SELECTOR */}
-            <section style={{ marginBottom: '24px' }}>
-              <div className="section-title-row">
-                <h2 className="section-h2" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Compass size={20} color="#2563EB" /> Popular Event Destinations
-                </h2>
-              </div>
-              <div className="city-selector-bar">
-                {citiesList.map((c) => (
-                  <div
-                    key={c.name}
-                    className={`city-pill ${selectedCity === c.name || (c.name === 'All Africa' && selectedCity === 'All') ? 'active' : ''}`}
-                    onClick={() => setSelectedCity(c.name === 'All Africa' ? 'All' : c.name)}
-                  >
-                    {c.flag} {c.name}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* CATEGORY EXPLORER */}
-            <section>
-              <div className="section-title-row">
-                <h2 className="section-h2">Explore Categories</h2>
-              </div>
-              <div className="category-scroll">
-                {categoriesList.map((cat) => (
-                  <div
-                    key={cat}
-                    className={`category-pill ${category === cat || (cat === 'Music & Concerts' && category === 'Music') ? 'active' : ''}`}
-                    onClick={() => setCategory(cat === 'Music & Concerts' ? 'Music' : cat === 'Tech & AI' ? 'Technology' : cat)}
-                  >
-                    {cat}
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* UPCOMING EVENTS CAROUSEL */}
-            <section style={{ marginBottom: '48px' }}>
-              <div className="section-title-row">
-                <h2 className="section-h2">Upcoming Events</h2>
-                <a href="#" className="see-all-link">See all</a>
-              </div>
-
-              <div className="carousel-h-scroll">
-                {events.map((ev) => (
-                  <div key={ev.id} className="carousel-card">
-                    <div className="carousel-banner-wrap">
-                      <img src={ev.banner_url} alt={ev.title} loading="lazy" className="carousel-img" />
-                      <span className="badge-date">
-                        {new Date(ev.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                      </span>
-                    </div>
-                    <div className="carousel-body">
-                      <div>
-                        <h3 className="carousel-title">{ev.title}</h3>
-                        <div className="carousel-venue">
-                          <MapPin size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                          {ev.venue_name}, {ev.city}
-                        </div>
-                      </div>
-                      <div className="carousel-footer">
-                        <span className="price-text">
-                          {ev.ticket_types?.[0] ? `₦${ev.ticket_types[0].price.toLocaleString()}` : 'Free'}
-                        </span>
-                        <button className="btn-buy" onClick={() => setSelectedEvent(ev)}>
-                          Get Ticket
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* GETVNT PULSE — LANDING PAGE COMPACT NEWS STAND (EXACTLY 4 ITEMS IN 1 SINGLE ROW) */}
-            {/* 4-COLUMN AUTO-SCROLLING GOOGLE NEWS CAROUSEL (5-min auto update) */}
-            <HomeNewsCarousel
-              onOpenArticle={(slug) => {
-                setActiveTab('pulse');
-                setActiveArticleSlug(slug);
-                window.history.pushState(null, '', `/blog/${slug}`);
-              }}
-              onOpenBlogHub={() => {
-                setActiveTab('pulse');
-                setActiveArticleSlug(null);
-                window.history.pushState(null, '', '/blog');
-              }}
-            />
-
-            {/* VIP & BACKSTAGE PASSES BANNER */}
-            <section className="vip-card">
-              <div style={{ flex: 1, maxWidth: '640px' }}>
-                <span className="vip-pill">
-                  <Crown size={12} style={{ display: 'inline', marginRight: '4px' }} /> Premium Experience
-                </span>
-                <h3 style={{ fontSize: '24px', fontWeight: 900, margin: '10px 0 8px 0', fontFamily: 'var(--font-heading)' }}>
-                  Getvnt VIP Access &amp; Backstage Passes
-                </h3>
-                <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: '1.5' }}>
-                  Enjoy fast-track skip the line access, private luxury lounge seating, complimentary cocktails, and artist meet &amp; greets.
-                </p>
-              </div>
-              <button className="btn-cta" style={{ background: '#FFF', color: '#0B0F19', fontWeight: 800 }}>
-                Explore VIP Passes
-              </button>
-            </section>
-
-            {/* LATEST EVENTS MAIN GRID */}
-            <section style={{ marginBottom: '48px' }}>
-              <div className="section-title-row">
-                <h2 className="section-h2">Latest Events Across Africa</h2>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
-                  {events.length} events found
-                </span>
-              </div>
-
-              <div className="events-main-grid">
-                {events.map((ev) => (
-                  <div key={ev.id} className="carousel-card" style={{ width: '100%' }}>
-                    <div className="carousel-banner-wrap" style={{ height: '180px' }}>
-                      <img src={ev.banner_url} alt={ev.title} loading="lazy" className="carousel-img" />
-                      <span className="badge-date">{ev.category}</span>
-                    </div>
-                    <div className="carousel-body">
-                      <div>
-                        <h3 className="carousel-title" style={{ fontSize: '17px' }}>{ev.title}</h3>
-                        <div className="carousel-venue" style={{ fontSize: '13px' }}>
-                          <MapPin size={14} style={{ display: 'inline', marginRight: '4px' }} />
-                          {ev.venue_name}, {ev.city}, {ev.country}
-                        </div>
-                      </div>
-                      <div className="carousel-footer">
-                        <span className="price-text">
-                          {ev.ticket_types?.[0] ? `₦${ev.ticket_types[0].price.toLocaleString()}` : '₦25,000'}
-                        </span>
-                        <button className="btn-buy" onClick={() => setSelectedEvent(ev)}>
-                          Buy Ticket
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-
-            {/* TOP RATED ORGANIZERS LEADERBOARD */}
-            <section className="organizers-card">
-              <h2 className="organizers-title">Top Rated Event Organizers</h2>
-              {topOrganizers.map((org) => (
-                <div key={org.rank} className="organizer-row">
-                  <div className="organizer-left">
-                    <span className="org-rank">#{org.rank}</span>
-                    <div className="org-avatar">
-                      {org.name.charAt(0)}
-                    </div>
-                    <span className="org-name">{org.name}</span>
-                  </div>
-                  <div className="organizer-right">
-                    <span className="org-sales">{org.buyers} buyers</span>
-                    <span className="org-trend">{org.trend}</span>
-                  </div>
-                </div>
-              ))}
-            </section>
-
-            {/* FAQ ACCORDION */}
-            <section className="faq-section">
-              <div className="section-title-row">
-                <h2 className="section-h2">Common Questions</h2>
-                <a href="#" className="see-all-link" onClick={(e) => { e.preventDefault(); setActiveTab('help'); }}>View full FAQ</a>
-              </div>
-              {faqs.map((faq, idx) => (
-                <div
-                  key={idx}
-                  className="faq-item"
-                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                >
-                  <div className="faq-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <CircleHelp color="#2563EB" size={20} />
-                      <span>{faq.question}</span>
-                    </div>
-                    <ChevronRight size={18} style={{ transform: openFaq === idx ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s' }} />
-                  </div>
-                  {openFaq === idx && (
-                    <div className="faq-answer">{faq.answer}</div>
-                  )}
-                </div>
-              ))}
-            </section>
-
-            {/* FINAL CONVERSION SECTION BEFORE FOOTER: GETVNT MOBILE APP SHOWCASE */}
-            <AndroidAppPromotion />
-          </main>
+          <SaaSStoryLandingPage
+            events={events}
+            onSelectEvent={(ev) => setSelectedEvent(ev)}
+            onNavigateToWorkspace={() => { window.location.href = getAppUrl('workspace'); }}
+            onNavigateToBlog={(slug) => {
+              setActiveTab('pulse');
+              setActiveArticleSlug(slug || null);
+              window.history.pushState(null, '', slug ? `/blog/${slug}` : '/blog');
+            }}
+            onNavigateToTab={(tab) => navigateTo(tab as any)}
+          />
         )}
 
         {/* VIEW 2: DEDICATED GETVNT PULSE BLOG / NEWS HUB PAGE */}
@@ -627,87 +521,123 @@ function MarketplaceContent() {
 
       </div>
 
-      {/* ── 3. FULL ENTERPRISE FOOTER ── */}
-      <footer style={{ background: '#04060E', borderTop: '1px solid rgba(255,255,255,0.08)', padding: '56px 28px 32px', marginTop: '60px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '48px' }}>
+      {/* ── 3. SINGLE ENTERPRISE GLOBAL FOOTER ── */}
+      <footer style={{
+        position: 'relative',
+        background: '#05070D',
+        backgroundImage: 'linear-gradient(180deg, rgba(5,7,13,0.92) 0%, rgba(5,7,13,0.98) 100%), url(/concert_crowd_bg.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
+        paddingTop: '64px',
+        paddingBottom: '48px',
+        width: '100%'
+      }}>
+        <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', paddingInline: 'clamp(20px, 4vw, 72px)', boxSizing: 'border-box' }}>
           
-          {/* Col 1: Platform Brand */}
-          <div>
-            <GetvntLogo height={38} theme="dark" />
-            <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '16px', lineHeight: '1.6', maxWidth: '280px' }}>
-              Getvnt is the premier AI-powered Event Business Operating System &amp; Global Ticket Marketplace across Africa and worldwide.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
-              <span style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', fontSize: '12px', color: '#60A5FA', fontWeight: 700 }}>
-                ● 100% Uptime Operational
-              </span>
+          {/* Top Row: Newsletter Card */}
+          <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.15) 0%, rgba(13,17,32,0.9) 100%)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px', padding: 'clamp(24px, 4vw, 36px)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '24px', marginBottom: '56px' }}>
+            <div>
+              <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>Subscribe to Event Intelligence</h3>
+              <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>Get weekly curated drops, concert announcements, and promoter strategy reports.</p>
+            </div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const target = e.currentTarget;
+                const btn = target.querySelector('button');
+                if (btn) {
+                  btn.innerText = '✓ Subscribed!';
+                  btn.style.background = '#10B981';
+                  setTimeout(() => {
+                    btn.innerText = 'Subscribe';
+                    btn.style.background = '';
+                    target.reset();
+                  }, 2500);
+                }
+              }}
+              style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '460px' }}
+            >
+              <input
+                type="email"
+                placeholder="Enter your email address..."
+                required
+                style={{ flex: 1, background: 'rgba(7,9,15,0.85)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '999px', padding: '0 20px', color: '#FFF', outline: 'none', fontSize: '14px', height: '48px' }}
+              />
+              <button type="submit" className="tixup-btn-primary" style={{ height: '48px', padding: '0 24px' }}>
+                Subscribe
+              </button>
+            </form>
+          </div>
+
+          {/* 4 Clean Columns */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '40px', marginBottom: '48px' }}>
+            
+            {/* Col 1: Brand & Operational Status */}
+            <div>
+              <GetvntLogo height={40} theme="dark" />
+              <p style={{ color: '#9CA3AF', fontSize: '13.5px', marginTop: '16px', lineHeight: '1.6', maxWidth: '300px' }}>
+                The premier AI-powered Event Business Operating System &amp; Global Ticket Marketplace for Africa and beyond.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '20px' }}>
+                <span style={{ padding: '6px 12px', background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '8px', fontSize: '12px', color: '#34D399', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px', width: 'fit-content' }}>
+                  ● 100% Uptime Operational
+                </span>
+                <a href="/downloads/getvnt-organizer-v1.0.apk" download style={{ color: '#60A5FA', textDecoration: 'none', fontSize: '13px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                  📱 Download Android Gate Scanner APK v1.0
+                </a>
+              </div>
+            </div>
+
+            {/* Col 2: Discover Events */}
+            <div>
+              <h4 style={{ fontSize: '14.5px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Discover</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#9CA3AF' }}>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none', cursor: 'pointer' }} onClick={() => navigateTo('home')}>Explore All Events</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none', cursor: 'pointer' }} onClick={() => navigateTo('home')}>Featured Concerts</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none', cursor: 'pointer' }} onClick={() => navigateTo('home')}>Tech &amp; AI Summits</a></li>
+                <li><a style={{ color: '#9CA3AF', textDecoration: 'none', cursor: 'pointer' }} onClick={() => navigateTo('pulse')}>Pulse Entertainment Blog</a></li>
+              </ul>
+            </div>
+
+            {/* Col 3: Organizers */}
+            <div>
+              <h4 style={{ fontSize: '14.5px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Organizers</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#9CA3AF' }}>
+                <li><a href={getAppUrl('workspace')} style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
+                <li><a href="/guides" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>AI Event Marketing Guide</a></li>
+                <li><a href="/guides" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Ticket Designer Desk</a></li>
+                <li><a href="/guides" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Branded QR Code Studio</a></li>
+              </ul>
+            </div>
+
+            {/* Col 4: Support & Legal */}
+            <div>
+              <h4 style={{ fontSize: '14.5px', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>Support &amp; Legal</h4>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#9CA3AF' }}>
+                <li><a href="/help" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Help Center &amp; FAQs</a></li>
+                <li><a href="/manage_ticket" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('manage_ticket'); }}>Lookup Ticket Order</a></li>
+                <li><a href="/api-docs" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('api'); }}>Developer API &amp; Webhooks</a></li>
+                <li><a href="/privacy" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('privacy'); }}>Privacy Policy &amp; Security</a></li>
+                <li><a href="/terms" style={{ color: '#9CA3AF', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('terms'); }}>Terms of Service</a></li>
+              </ul>
+            </div>
+
+          </div>
+
+          {/* Bottom Copyright Bar */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '13px', color: '#6B7280', flexWrap: 'wrap', gap: '16px' }}>
+            <div>{brand.copyright_text || `© ${new Date().getFullYear()} Getvnt Technologies Ltd. All rights reserved.`}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              {brand.support_email && (
+                <a href={`mailto:${brand.support_email}`} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '13px' }}>{brand.support_email}</a>
+              )}
+              <a href="https://twitter.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none', fontWeight: 800 }}>𝕏</a>
+              <a href="https://instagram.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none', fontWeight: 800 }}>IG</a>
+              <a href="https://linkedin.com" target="_blank" rel="noreferrer" style={{ color: '#9CA3AF', fontSize: '14px', textDecoration: 'none', fontWeight: 800 }}>in</a>
             </div>
           </div>
 
-          {/* Col 2: Discover Events */}
-          <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Discover Events &amp; Blog</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href="/blog" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('pulse'); }}>Pulse Entertainment Blog</a></li>
-              <li><a href="/about" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>Music Concerts &amp; Afrobeats</a></li>
-              <li><a href="/about" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('about'); }}>Lagos &amp; Nairobi Event Guides</a></li>
-              <li><a href="/refunds" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('refunds'); }}>VIP Pass Flash Drops</a></li>
-            </ul>
-          </div>
-
-          {/* Col 3: Organizers */}
-          <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>For Event Organizers</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href={getAppUrl('workspace')} style={{ color: '#06B6D4', textDecoration: 'none', fontWeight: 700 }}>Getvnt Organizer OS</a></li>
-              <li><a href={getAppUrl('admin')} style={{ color: '#EF4444', textDecoration: 'none', fontWeight: 700 }}>Super Admin Console</a></li>
-              <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>AI Event Marketing Guide</a></li>
-              <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Ticket Designer Desk</a></li>
-              <li><a href="/guides" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('guides'); }}>Branded QR Code Studio</a></li>
-            </ul>
-          </div>
-
-          {/* Col 4: GETVNT Mobile App */}
-          <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>GETVNT Mobile</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href="/downloads/getvnt-organizer-v1.0.apk" download style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '6px' }}>📱 Download Android APK v1.0</a></li>
-              <li><span style={{ fontSize: '12px', color: '#64748B' }}>Min OS: Android 8.0+ (28 MB)</span></li>
-              <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Mobile App System Requirements</a></li>
-              <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Release Notes (v1.0 Build 104)</a></li>
-            </ul>
-          </div>
-
-          {/* Col 5: Support & Legal */}
-          <div>
-            <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#FFF', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px' }}>Support &amp; Legal</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#9CA3AF' }}>
-              <li><a href="/help" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('help'); }}>Help &amp; Knowledge Center</a></li>
-              <li><a href="/api-docs" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('api'); }}>Developer API &amp; Webhooks</a></li>
-              <li><a href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('privacy'); }}>Privacy Policy &amp; Security</a></li>
-              <li><a href="/terms" style={{ color: 'inherit', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); navigateTo('terms'); }}>Terms of Service</a></li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Bottom Copyright */}
-        <div style={{ maxWidth: '1280px', margin: '0 auto', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#6B7280', flexWrap: 'wrap', gap: '12px' }}>
-          <div>{brand.copyright_text || `© ${new Date().getFullYear()} Getvnt Enterprise Platform. All rights reserved.`}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {brand.support_email && (
-              <a href={`mailto:${brand.support_email}`} style={{ color: '#9CA3AF', textDecoration: 'none', fontSize: '12px' }}>{brand.support_email}</a>
-            )}
-            {brand.social_links?.twitter && (
-              <a href={brand.social_links.twitter} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>𝕏</a>
-            )}
-            {brand.social_links?.instagram && (
-              <a href={brand.social_links.instagram} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>IG</a>
-            )}
-            {brand.social_links?.linkedin && (
-              <a href={brand.social_links.linkedin} target="_blank" rel="noreferrer" style={{ color: '#6B7280', fontSize: '12px', textDecoration: 'none' }}>in</a>
-            )}
-          </div>
         </div>
       </footer>
 

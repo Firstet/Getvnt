@@ -188,22 +188,40 @@ export const AuthProvidersView: React.FC<Props> = ({ onToast }) => {
                     <input
                       className="admin-input"
                       name="redirect_uri"
-                      readOnly
                       defaultValue={provider.redirect_uri || ''}
                       style={{ fontFamily: 'monospace', fontSize: '11px', color: '#34D399', background: 'rgba(0,0,0,0.3)' }}
+                      placeholder={`https://api.getvnt.com/api/v1/auth/${provider.provider_slug}/callback`}
+                      id={`redirect_uri_${provider.id}`}
                     />
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-secondary"
+                      style={{ padding: '6px 10px', whiteSpace: 'nowrap', fontSize: '10px' }}
+                      title="Auto-fill production callback URL"
+                      onClick={() => {
+                        const el = document.getElementById(`redirect_uri_${provider.id}`) as HTMLInputElement;
+                        if (el) el.value = `https://api.getvnt.com/api/v1/auth/${provider.provider_slug}/callback`;
+                        onToast(`Production callback URL set for ${provider.name}`);
+                      }}
+                    >
+                      Use Prod URL
+                    </button>
                     <button
                       type="button"
                       className="admin-btn admin-btn-secondary"
                       style={{ padding: '6px 10px' }}
                       onClick={() => {
-                        navigator.clipboard.writeText(provider.redirect_uri);
+                        const el = document.getElementById(`redirect_uri_${provider.id}`) as HTMLInputElement;
+                        navigator.clipboard.writeText(el?.value || provider.redirect_uri || '');
                         onToast('Copied Callback URI to clipboard!');
                       }}
                     >
                       <Copy size={13} />
                     </button>
                   </div>
+                  <p style={{ fontSize: '10.5px', color: '#6B7280', marginTop: '5px' }}>
+                    Copy this URL into your OAuth app's authorized redirect list.
+                  </p>
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>

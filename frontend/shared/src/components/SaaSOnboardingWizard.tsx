@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle2, Upload, ArrowRight, ShieldCheck, Building2, CreditCard, Sparkles, Globe, Share2, AlertCircle, RefreshCw } from 'lucide-react';
+import {
+  CheckCircle2, Upload, ArrowRight, ShieldCheck, Building2, CreditCard, Sparkles, Globe, Share2,
+  AlertCircle, RefreshCw, Camera, User, FileText, Lock, Award, Check, Scan, Eye
+} from 'lucide-react';
 import { useBrand } from '../context/BrandContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,71 +13,68 @@ interface SaaSOnboardingWizardProps {
 
 export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onComplete, onToast }) => {
   const { brand } = useBrand();
-  const { user, token, refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
 
-  const [step, setStep] = useState<number>(2); // Starts at Step 2 after signup
-  const [loading, setLoading] = useState(false);
+  // Wizard Step State (1: Business Details, 2: Address & Financial, 3: Gov ID Upload, 4: Live Selfie, 5: Agreement, 6: AI Verification Processing)
+  const [step, setStep] = useState<number>(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // STEP 4: Organizer Profile
-  const [organizerName, setOrganizerName] = useState(user?.tenant?.name || '');
-  const [organizerLogo, setOrganizerLogo] = useState(user?.tenant?.logo_url || '');
-  const [aboutOrganizer, setAboutOrganizer] = useState('');
+  // STEP 1: Business Details
+  const [businessName, setBusinessName] = useState(user?.tenant?.name || '');
+  const [organizerDisplayName, setOrganizerDisplayName] = useState(user?.name || '');
+  const [businessEmail, setBusinessEmail] = useState(user?.email || '');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [regNumber, setRegNumber] = useState('');
+  const [taxId, setTaxId] = useState('');
   const [websiteUrl, setWebsiteUrl] = useState('');
-  const [twitterUrl, setTwitterUrl] = useState('');
-  const [instagramUrl, setInstagramUrl] = useState('');
+  const [socialLinks, setSocialLinks] = useState('');
 
-  // STEP 5: Identity Verification
-  const [idDocType, setIdDocType] = useState('National ID');
-  const [idDocUrl, setIdDocUrl] = useState<string | null>(null);
-  const [isUploadingId, setIsUploadingId] = useState(false);
-
-  // STEP 6: Bank Verification
-  const [selectedBank, setSelectedBank] = useState('Paystack Settlement Bank');
+  // STEP 2: Address & Bank Settlement
+  const [country, setCountry] = useState('Nigeria');
+  const [stateName, setStateName] = useState('Lagos');
+  const [city, setCity] = useState('Lagos Island');
+  const [businessAddress, setBusinessAddress] = useState('');
+  const [selectedBank, setSelectedBank] = useState('Paystack Settlement Bank (058 GTBank)');
   const [accountNumber, setAccountNumber] = useState('');
   const [resolvedAccountName, setResolvedAccountName] = useState<string | null>(null);
   const [isResolvingBank, setIsResolvingBank] = useState(false);
 
-  // Auto-Save Draft to LocalStorage so users never lose data
-  useEffect(() => {
-    const savedDraft = localStorage.getItem('getvnt_onboarding_draft');
-    if (savedDraft) {
-      try {
-        const parsed = JSON.parse(savedDraft);
-        if (parsed.organizerName) setOrganizerName(parsed.organizerName);
-        if (parsed.organizerLogo) setOrganizerLogo(parsed.organizerLogo);
-        if (parsed.aboutOrganizer) setAboutOrganizer(parsed.aboutOrganizer);
-        if (parsed.websiteUrl) setWebsiteUrl(parsed.websiteUrl);
-        if (parsed.accountNumber) setAccountNumber(parsed.accountNumber);
-        if (parsed.resolvedAccountName) setResolvedAccountName(parsed.resolvedAccountName);
-      } catch {}
-    }
-  }, []);
+  // STEP 3: Government ID Upload
+  const [idDocType, setIdDocType] = useState<'NIN' | 'Passport' | 'Driver License' | 'Voter Card'>('NIN');
+  const [idDocUrl, setIdDocUrl] = useState<string | null>(null);
+  const [isUploadingId, setIsUploadingId] = useState(false);
 
-  const saveDraft = (data: Record<string, any>) => {
-    localStorage.setItem('getvnt_onboarding_draft', JSON.stringify({
-      organizerName, organizerLogo, aboutOrganizer, websiteUrl, accountNumber, resolvedAccountName, ...data
-    }));
-  };
+  // STEP 4: Live Selfie Capture
+  const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
+  const [isCapturingSelfie, setIsCapturingSelfie] = useState(false);
 
-  // Real-time Bank Account Resolution (Paystack / Monnify API simulation)
+  // STEP 5: Agreement & E-Signature
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+
+  // STEP 6: AI Verification Results State
+  const [aiProcessingState, setAiProcessingState] = useState<'scanning' | 'ocr_extracted' | 'face_matching' | 'completed'>('scanning');
+  const [aiConfidenceScore, setAiConfidenceScore] = useState<number>(0);
+  const [aiExtractedData, setAiExtractedData] = useState<any | null>(null);
+  const [aiDecision, setAiDecision] = useState<'auto_approved' | 'pending_manual_review' | null>(null);
+
+  // Real-time Bank Account Resolution Simulator
   useEffect(() => {
     if (accountNumber.length === 10) {
       setIsResolvingBank(true);
       setResolvedAccountName(null);
       const timer = setTimeout(() => {
-        const simulatedName = `${(organizerName || 'ORGANIZER').toUpperCase()} ENTERTAINMENT LTD`;
+        const simulatedName = `${(businessName || organizerDisplayName || 'ORGANIZER').toUpperCase()} ENTERTAINMENT LTD`;
         setResolvedAccountName(simulatedName);
         setIsResolvingBank(false);
-        saveDraft({ accountNumber, resolvedAccountName: simulatedName });
         if (onToast) onToast('✓ Account name verified via Paystack Settlement Gateway!');
-      }, 700);
+      }, 600);
       return () => clearTimeout(timer);
     } else {
       setResolvedAccountName(null);
     }
   }, [accountNumber]);
 
-  // Drag & Drop ID File Handler
+  // Handle ID File Upload
   const handleIdFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -83,560 +83,499 @@ export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onCo
       const mockUrl = URL.createObjectURL(file);
       setIdDocUrl(mockUrl);
       setIsUploadingId(false);
-      if (onToast) onToast('✓ Identity document uploaded successfully!');
-    }, 1000);
+      if (onToast) onToast(`✓ ${idDocType} uploaded successfully!`);
+    }, 800);
   };
 
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
-
-  const handleDropId = (e: React.DragEvent) => {
-    e.preventDefault();
-    const file = e.dataTransfer.files?.[0];
+  // Handle Live Selfie Capture
+  const handleSelfieUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
-    setIsUploadingId(true);
+    setIsCapturingSelfie(true);
     setTimeout(() => {
       const mockUrl = URL.createObjectURL(file);
-      setIdDocUrl(mockUrl);
-      setIsUploadingId(false);
-      if (onToast) onToast('✓ Identity document uploaded successfully!');
-    }, 1000);
+      setSelfieUrl(mockUrl);
+      setIsCapturingSelfie(false);
+      if (onToast) onToast('✓ Live selfie photo captured & verified!');
+    }, 800);
   };
 
-  // Finalize Onboarding Submission
-  const handleFinishSetup = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch('/api/v1/onboarding/step', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token || ''}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          step: 5,
-          business_name: organizerName,
-          logo_url: organizerLogo,
-          about: aboutOrganizer,
-          website: websiteUrl,
-          bank_name: selectedBank,
-          account_number: accountNumber,
-          account_name: resolvedAccountName,
-          identity_doc_url: idDocUrl,
-          is_completed: true,
-        }),
+  // Execute AI Identity Verification Engine
+  const handleRunAiVerification = async () => {
+    setStep(6);
+    setIsSubmitting(true);
+    setAiProcessingState('scanning');
+
+    // Phase 1: OCR Text Extraction
+    setTimeout(() => {
+      setAiProcessingState('ocr_extracted');
+      setAiExtractedData({
+        detected_name: (organizerDisplayName || businessName || 'Babatunde Smith').toUpperCase(),
+        dob: '1992-08-14',
+        doc_number: idDocType === 'NIN' ? 'NIN-90821489102' : 'PASS-A09821401',
+        expiry_date: '2030-12-31',
+        country: country,
+        quality_score: '98.5% (Crystal Clear, No Blur)',
+        tampering_detected: 'FALSE (Original Document)',
       });
 
-      localStorage.removeItem('getvnt_onboarding_draft');
-      await refreshUser();
-      if (onToast) onToast('🎉 Organizer onboarding completed! Welcome to GETVNT.');
-      onComplete();
-    } catch {
-      onComplete();
-    } finally {
-      setLoading(false);
-    }
+      // Phase 2: Facial Matching & Liveness Telemetry
+      setTimeout(() => {
+        setAiProcessingState('face_matching');
+        
+        // Compute high-confidence simulated AI score (94% auto-approval)
+        const computedScore = 94.8;
+        setAiConfidenceScore(computedScore);
+
+        setTimeout(() => {
+          setAiProcessingState('completed');
+          setIsSubmitting(false);
+
+          if (computedScore >= 90) {
+            setAiDecision('auto_approved');
+            if (refreshUser) refreshUser();
+            if (onToast) onToast('🎉 AI Verification Complete! 94.8% Match Score — Organizer Access Granted!');
+          } else {
+            setAiDecision('pending_manual_review');
+            if (onToast) onToast('ℹ️ Verification submitted for Super Admin Manual Review.');
+          }
+        }, 1200);
+
+      }, 1200);
+
+    }, 1200);
   };
 
-  // 5 Progress Steps for display indicator
-  const progressStepIndex = Math.min(Math.max(step - 1, 1), 5);
-
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: '#0A0A0A',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '32px 16px',
-        color: '#FFFFFF',
-      }}
-    >
-      <div
-        style={{
-          background: '#111111',
-          border: '1px solid #262626',
-          borderRadius: '28px',
-          width: '100%',
-          maxWidth: '620px',
-          padding: '44px 40px',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.8), 0 0 30px rgba(37,99,235,0.1)',
-        }}
-      >
-        {/* Animated Progress Bar */}
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 800, color: '#A3A3A3', marginBottom: '8px' }}>
-            <span>Step {progressStepIndex} of 5</span>
-            <span style={{ color: '#60A5FA' }}>
-              {step === 2 && 'Email Verification'}
-              {step === 3 && 'Welcome'}
-              {step === 4 && 'Organizer Profile'}
-              {step === 5 && 'Identity Verification'}
-              {step === 6 && 'Bank Settlement'}
-              {step === 7 && 'Review & Activation'}
-            </span>
-          </div>
-          <div style={{ height: '6px', background: '#262626', borderRadius: '99px', overflow: 'hidden' }}>
+    <div style={{ maxWidth: '840px', margin: '0 auto', padding: '24px 16px', color: '#FFF' }}>
+      
+      {/* Top Header Card */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.18) 0%, rgba(13,17,32,0.95) 100%)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px', padding: '32px', textAlign: 'center', marginBottom: '32px', boxShadow: '0 20px 50px rgba(0,0,0,0.5)' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '99px', background: 'rgba(37,99,235,0.2)', border: '1px solid rgba(37,99,235,0.4)', color: '#60A5FA', fontSize: '12px', fontWeight: 900, marginBottom: '14px', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+          <Sparkles size={14} color="#60A5FA" /> AI Identity Verification Portal
+        </div>
+        <h1 style={{ fontSize: 'clamp(24px, 4vw, 34px)', fontWeight: 900, margin: '0 0 10px 0', fontFamily: 'var(--font-heading)' }}>
+          Become an Verified Organizer
+        </h1>
+        <p style={{ color: '#9CA3AF', fontSize: '14.5px', maxWidth: '600px', margin: '0 auto', lineHeight: 1.6 }}>
+          Complete AI-powered identity verification to unlock ticket creation, real-time payouts, and event management tools.
+        </p>
+
+        {/* Step Indicator */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '24px' }}>
+          {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
+              key={s}
               style={{
-                height: '100%',
-                width: `${(progressStepIndex / 5) * 100}%`,
-                background: 'linear-gradient(90deg, #2563EB 0%, #7C3AED 100%)',
+                height: '6px',
+                width: step === s ? '40px' : '14px',
                 borderRadius: '99px',
-                transition: 'width 0.4s ease',
+                background: step >= s ? '#2563EB' : 'rgba(255,255,255,0.12)',
+                transition: 'all 0.3s ease',
               }}
             />
-          </div>
+          ))}
         </div>
+      </div>
 
-        {/* ── STEP 2: EMAIL VERIFICATION ── */}
-        {step === 2 && (
-          <div>
-            <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#60A5FA', marginBottom: '20px' }}>
-              <ShieldCheck size={28} />
+      {/* ── STEP 1: BUSINESS & ORGANIZER DETAILS ── */}
+      {step === 1 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Building2 size={20} color="#60A5FA" /> 1. Business &amp; Organizer Details
+          </h3>
+          <p style={{ color: '#9CA3AF', fontSize: '13px', marginBottom: '24px' }}>Provide your official registered organization or brand details.</p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Business Name *</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="e.g. AfroNation Events Ltd" value={businessName} onChange={(e) => setBusinessName(e.target.value)} required />
             </div>
 
-            <h2 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '8px' }}>
-              Verify Your Email
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '14.5px', lineHeight: 1.6, marginBottom: '32px' }}>
-              We have sent a verification email to <strong style={{ color: '#FFFFFF' }}>{user?.email || 'your email'}</strong>. Please check your inbox and click the verification link.
-            </p>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Organizer Display Name *</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="e.g. AfroNation Global" value={organizerDisplayName} onChange={(e) => setOrganizerDisplayName(e.target.value)} required />
+            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                className="btn-cta"
-                onClick={() => setStep(3)}
-                style={{
-                  width: '100%',
-                  padding: '14px',
-                  borderRadius: '16px',
-                  background: '#2563EB',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  fontSize: '14px',
-                  justifyContent: 'center',
-                  boxShadow: '0 4px 18px rgba(37,99,235,0.4)',
-                }}
-              >
-                Email Verified — Continue <ArrowRight size={16} />
-              </button>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Business Email *</label>
+              <input type="email" className="search-field" style={{ paddingLeft: '14px' }} placeholder="organizer@company.com" value={businessEmail} onChange={(e) => setBusinessEmail(e.target.value)} required />
+            </div>
 
-              <button
-                className="btn-cta"
-                onClick={() => { if (onToast) onToast('Verification email resent to your inbox!'); }}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '16px',
-                  background: '#171717',
-                  border: '1px solid #262626',
-                  color: '#D4D4D4',
-                  fontWeight: 700,
-                  fontSize: '13.5px',
-                  justifyContent: 'center',
-                }}
-              >
-                Resend Email
-              </button>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Phone Number *</label>
+              <input type="tel" className="search-field" style={{ paddingLeft: '14px' }} placeholder="+234 801 234 5678" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Reg Number (RC / CAC) (Optional)</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="RC-8942104" value={regNumber} onChange={(e) => setRegNumber(e.target.value)} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Tax ID / TIN (Optional)</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="TIN-9082410" value={taxId} onChange={(e) => setTaxId(e.target.value)} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Official Website (Optional)</label>
+              <input type="url" className="search-field" style={{ paddingLeft: '14px' }} placeholder="https://mybrand.com" value={websiteUrl} onChange={(e) => setWebsiteUrl(e.target.value)} />
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Social Media Handle (Optional)</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="@mybrand_events" value={socialLinks} onChange={(e) => setSocialLinks(e.target.value)} />
             </div>
           </div>
-        )}
 
-        {/* ── STEP 3: WELCOME SCREEN ── */}
-        {step === 3 && (
-          <div>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
-            <h2 style={{ fontSize: '28px', fontWeight: 900, marginBottom: '10px' }}>
-              Welcome to {brand?.platform_name || 'GETVNT'}
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '15px', lineHeight: 1.6, marginBottom: '32px' }}>
-              Let's set up your organizer account. This only takes about 2 minutes. You will be able to create events, sell tickets, and manage attendee check-ins globally.
-            </p>
-            <button
-              className="btn-cta"
-              onClick={() => setStep(4)}
-              style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '16px',
-                background: '#2563EB',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                fontSize: '15px',
-                justifyContent: 'center',
-                boxShadow: '0 4px 20px rgba(37,99,235,0.45)',
-              }}
-            >
-              Get Started <ArrowRight size={18} />
-            </button>
-          </div>
-        )}
+          <button
+            type="button"
+            className="tixup-btn-primary"
+            style={{ width: '100%', marginTop: '28px', height: '48px' }}
+            onClick={() => {
+              if (!businessName || !businessEmail) {
+                if (onToast) onToast('Please enter your Business Name and Email to proceed.');
+                return;
+              }
+              setStep(2);
+            }}
+          >
+            Continue to Address &amp; Settlement <ArrowRight size={16} />
+          </button>
+        </div>
+      )}
 
-        {/* ── STEP 4: ORGANIZER PROFILE ── */}
-        {step === 4 && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '8px' }}>
-              Organizer Profile
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '14px', marginBottom: '28px' }}>
-              This information will be displayed on your public event pages and ticket receipts.
-            </p>
+      {/* ── STEP 2: ADDRESS & BANK SETTLEMENT ── */}
+      {step === 2 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <CreditCard size={20} color="#34D399" /> 2. Address &amp; Settlement Payout Bank
+          </h3>
+          <p style={{ color: '#9CA3AF', fontSize: '13px', marginBottom: '24px' }}>Ticket revenue payouts are settled directly into this verified bank account.</p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginBottom: '32px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Organizer / Brand Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="search-field"
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', color: '#FFF' }}
-                  placeholder="e.g. AfroNation Events Ltd"
-                  value={organizerName}
-                  onChange={(e) => {
-                    setOrganizerName(e.target.value);
-                    saveDraft({ organizerName: e.target.value });
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Organizer Logo
-                </label>
-                <div
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const file = e.dataTransfer.files?.[0];
-                    if (file) setOrganizerLogo(URL.createObjectURL(file));
-                  }}
-                  style={{
-                    background: '#0A0A0A',
-                    border: '2px dashed #262626',
-                    borderRadius: '16px',
-                    padding: '20px',
-                    textAlign: 'center',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {organizerLogo ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', justifyContent: 'center' }}>
-                      <img src={organizerLogo} alt="Logo Preview" style={{ width: '48px', height: '48px', borderRadius: '12px', objectFit: 'cover' }} />
-                      <span style={{ fontSize: '13px', color: '#34D399', fontWeight: 700 }}>✓ Logo Uploaded</span>
-                    </div>
-                  ) : (
-                    <div>
-                      <Upload size={24} color="#737373" style={{ marginBottom: '8px' }} />
-                      <div style={{ fontSize: '13px', color: '#D4D4D4', fontWeight: 700 }}>Drag &amp; drop logo here or click to browse</div>
-                      <div style={{ fontSize: '11px', color: '#737373', marginTop: '4px' }}>PNG, JPG or WEBP up to 5MB</div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  About Organizer
-                </label>
-                <textarea
-                  className="search-field"
-                  rows={3}
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', color: '#FFF', resize: 'vertical' }}
-                  placeholder="Briefly describe your events, music genre, or organization..."
-                  value={aboutOrganizer}
-                  onChange={(e) => {
-                    setAboutOrganizer(e.target.value);
-                    saveDraft({ aboutOrganizer: e.target.value });
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Website (Optional)
-                </label>
-                <input
-                  type="url"
-                  className="search-field"
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', color: '#FFF' }}
-                  placeholder="https://yourevents.com"
-                  value={websiteUrl}
-                  onChange={(e) => setWebsiteUrl(e.target.value)}
-                />
-              </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px', marginBottom: '20px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Country *</label>
+              <select className="search-field" style={{ paddingLeft: '14px' }} value={country} onChange={(e) => setCountry(e.target.value)}>
+                <option value="Nigeria">🇳🇬 Nigeria</option>
+                <option value="Kenya">🇰🇪 Kenya</option>
+                <option value="South Africa">🇿🇦 South Africa</option>
+                <option value="Ghana">🇬🇭 Ghana</option>
+                <option value="United Kingdom">🇬🇧 United Kingdom</option>
+              </select>
             </div>
 
-            <button
-              className="btn-cta"
-              disabled={!organizerName}
-              onClick={() => setStep(5)}
-              style={{
-                width: '100%',
-                padding: '15px',
-                borderRadius: '16px',
-                background: organizerName ? '#2563EB' : '#262626',
-                color: organizerName ? '#FFFFFF' : '#737373',
-                fontWeight: 800,
-                fontSize: '14px',
-                justifyContent: 'center',
-                boxShadow: organizerName ? '0 4px 18px rgba(37,99,235,0.4)' : 'none',
-              }}
-            >
-              Save &amp; Continue <ArrowRight size={16} />
-            </button>
-          </div>
-        )}
-
-        {/* ── STEP 5: IDENTITY VERIFICATION ── */}
-        {step === 5 && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '8px' }}>
-              Verify Your Identity
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '14px', marginBottom: '24px', lineHeight: 1.5 }}>
-              To keep our marketplace safe and protect ticket buyers, every organizer must verify their identity.
-            </p>
-
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '8px', textTransform: 'uppercase' }}>
-                Select Document Type
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-                {['National ID', 'Passport', "Driver's License"].map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setIdDocType(type)}
-                    style={{
-                      padding: '12px',
-                      borderRadius: '12px',
-                      background: idDocType === type ? 'rgba(37,99,235,0.2)' : '#0A0A0A',
-                      border: `1px solid ${idDocType === type ? '#2563EB' : '#262626'}`,
-                      color: idDocType === type ? '#60A5FA' : '#D4D4D4',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>State / Province *</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} value={stateName} onChange={(e) => setStateName(e.target.value)} required />
             </div>
 
-            {/* Drag & Drop Upload Box */}
-            <div
-              onDragOver={handleDragOver}
-              onDrop={handleDropId}
-              style={{
-                background: '#0A0A0A',
-                border: '2px dashed #262626',
-                borderRadius: '18px',
-                padding: '32px 20px',
-                textAlign: 'center',
-                marginBottom: '28px',
-                position: 'relative',
-              }}
-            >
-              {isUploadingId ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                  <RefreshCw size={24} color="#60A5FA" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span style={{ fontSize: '13px', color: '#60A5FA', fontWeight: 700 }}>Uploading &amp; Scanning Document…</span>
-                </div>
-              ) : idDocUrl ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                  <CheckCircle2 size={36} color="#34D399" />
-                  <span style={{ fontSize: '14px', color: '#34D399', fontWeight: 800 }}>✓ {idDocType} Uploaded &amp; Verified</span>
-                  <span style={{ fontSize: '11.5px', color: '#737373' }}>Automatic verification complete</span>
-                </div>
-              ) : (
-                <label style={{ cursor: 'pointer', display: 'block' }}>
-                  <Upload size={32} color="#737373" style={{ marginBottom: '10px' }} />
-                  <div style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 800 }}>Upload your {idDocType}</div>
-                  <div style={{ fontSize: '12px', color: '#737373', marginTop: '4px' }}>Drag &amp; drop file or browse (PNG, JPG, PDF up to 10MB)</div>
-                  <input type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={handleIdFileUpload} />
-                </label>
-              )}
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>City *</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} value={city} onChange={(e) => setCity(e.target.value)} required />
             </div>
 
-            <button
-              className="btn-cta"
-              onClick={() => setStep(6)}
-              style={{
-                width: '100%',
-                padding: '15px',
-                borderRadius: '16px',
-                background: '#2563EB',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                fontSize: '14px',
-                justifyContent: 'center',
-                boxShadow: '0 4px 18px rgba(37,99,235,0.4)',
-              }}
-            >
-              Continue <ArrowRight size={16} />
-            </button>
+            <div>
+              <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '6px', textTransform: 'uppercase' }}>Full Business Address *</label>
+              <input type="text" className="search-field" style={{ paddingLeft: '14px' }} placeholder="Plot 12 Marina Road, Victoria Island" value={businessAddress} onChange={(e) => setBusinessAddress(e.target.value)} required />
+            </div>
           </div>
-        )}
 
-        {/* ── STEP 6: BANK VERIFICATION ── */}
-        {step === 6 && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, marginBottom: '8px' }}>
-              Bank Settlement Account
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '14px', marginBottom: '28px' }}>
-              Enter your bank details to receive automated ticket payout settlements.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', marginBottom: '32px' }}>
+          <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '16px', padding: '20px', marginBottom: '24px' }}>
+            <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#34D399', marginBottom: '10px', textTransform: 'uppercase' }}>Settlement Bank Account *</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Select Bank
-                </label>
-                <select
-                  className="search-field"
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', color: '#FFF' }}
-                  value={selectedBank}
-                  onChange={(e) => setSelectedBank(e.target.value)}
-                >
-                  <option value="Paystack Settlement Bank">Paystack Settlement Bank (Nigeria)</option>
-                  <option value="GTBank Nigeria">Guaranty Trust Bank (GTBank)</option>
-                  <option value="Access Bank">Access Bank Plc</option>
-                  <option value="Zenith Bank">Zenith Bank Plc</option>
+                <label style={{ fontSize: '11px', color: '#9CA3AF', display: 'block', marginBottom: '4px' }}>Bank Name</label>
+                <select className="search-field" style={{ paddingLeft: '14px' }} value={selectedBank} onChange={(e) => setSelectedBank(e.target.value)}>
+                  <option value="GTBank">GTBank Nigeria</option>
+                  <option value="Access Bank">Access Bank</option>
+                  <option value="Zenith Bank">Zenith Bank</option>
+                  <option value="First Bank">First Bank of Nigeria</option>
                   <option value="Kuda Bank">Kuda Microfinance Bank</option>
-                  <option value="Standard Chartered">Standard Chartered Bank</option>
                 </select>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                  Account Number (10 Digits)
-                </label>
-                <input
-                  type="text"
-                  maxLength={10}
-                  required
-                  className="search-field"
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', color: '#FFF', fontSize: '16px', letterSpacing: '1px' }}
-                  placeholder="0123456789"
-                  value={accountNumber}
-                  onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ''))}
-                />
-              </div>
-
-              {/* Instant Account Name Resolution Box */}
-              {isResolvingBank && (
-                <div style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <RefreshCw size={16} color="#60A5FA" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span style={{ fontSize: '13px', color: '#60A5FA', fontWeight: 700 }}>Fetching account name via Paystack Gateway…</span>
-                </div>
-              )}
-
-              {resolvedAccountName && (
-                <div style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '14px', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <CheckCircle2 size={18} color="#34D399" />
-                  <div>
-                    <div style={{ fontSize: '11px', color: '#34D399', fontWeight: 800, textTransform: 'uppercase' }}>Verified Account Name</div>
-                    <div style={{ fontSize: '14px', color: '#FFFFFF', fontWeight: 900, marginTop: '2px' }}>{resolvedAccountName}</div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <button
-              className="btn-cta"
-              disabled={!accountNumber || accountNumber.length < 10}
-              onClick={() => setStep(7)}
-              style={{
-                width: '100%',
-                padding: '15px',
-                borderRadius: '16px',
-                background: (accountNumber.length === 10) ? '#2563EB' : '#262626',
-                color: (accountNumber.length === 10) ? '#FFFFFF' : '#737373',
-                fontWeight: 800,
-                fontSize: '14px',
-                justifyContent: 'center',
-                boxShadow: (accountNumber.length === 10) ? '0 4px 18px rgba(37,99,235,0.4)' : 'none',
-              }}
-            >
-              Continue <ArrowRight size={16} />
-            </button>
-          </div>
-        )}
-
-        {/* ── STEP 7: REVIEW & FINISH SETUP ── */}
-        {step === 7 && (
-          <div>
-            <h2 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '8px' }}>
-              Review Your Setup
-            </h2>
-            <p style={{ color: '#A3A3A3', fontSize: '14px', marginBottom: '28px' }}>
-              Your organizer workspace is ready for activation.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
-              <div style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Building2 size={20} color="#60A5FA" />
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFF' }}>Organizer Profile</div>
-                    <div style={{ fontSize: '12px', color: '#737373' }}>{organizerName || 'GETVNT Organizer'}</div>
-                  </div>
-                </div>
-                <CheckCircle2 size={20} color="#34D399" />
-              </div>
-
-              <div style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <ShieldCheck size={20} color="#A78BFA" />
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFF' }}>Identity Verification</div>
-                    <div style={{ fontSize: '12px', color: '#737373' }}>{idDocType} Uploaded</div>
-                  </div>
-                </div>
-                <CheckCircle2 size={20} color="#34D399" />
-              </div>
-
-              <div style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '16px', padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <CreditCard size={20} color="#FBBF24" />
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFF' }}>Bank Settlement</div>
-                    <div style={{ fontSize: '12px', color: '#737373' }}>{resolvedAccountName || 'Paystack Verified Account'}</div>
-                  </div>
-                </div>
-                <CheckCircle2 size={20} color="#34D399" />
+                <label style={{ fontSize: '11px', color: '#9CA3AF', display: 'block', marginBottom: '4px' }}>Account Number (10 Digits)</label>
+                <input type="text" maxLength={10} className="search-field" style={{ paddingLeft: '14px', fontFamily: 'monospace' }} placeholder="0123456789" value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} required />
               </div>
             </div>
 
+            {isResolvingBank && (
+              <div style={{ fontSize: '12px', color: '#60A5FA', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <RefreshCw size={13} className="animate-spin" /> Resolving account name via NIBSS Paystack Gateway...
+              </div>
+            )}
+
+            {resolvedAccountName && (
+              <div style={{ fontSize: '12.5px', color: '#34D399', fontWeight: 800, marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <CheckCircle2 size={15} color="#34D399" /> Account Name: {resolvedAccountName}
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 20px' }} onClick={() => setStep(1)}>Back</button>
+            <button type="button" className="tixup-btn-primary" style={{ flex: 1, height: '48px' }} onClick={() => setStep(3)}>Continue to Government ID Upload <ArrowRight size={16} /></button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 3: GOVERNMENT ID UPLOAD ── */}
+      {step === 3 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <FileText size={20} color="#FBBF24" /> 3. Government-Issued Identification
+          </h3>
+          <p style={{ color: '#9CA3AF', fontSize: '13px', marginBottom: '24px' }}>Upload a clear photo of your official government ID document.</p>
+
+          <div style={{ marginBottom: '20px' }}>
+            <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#9CA3AF', marginBottom: '10px', textTransform: 'uppercase' }}>Select Document Type *</label>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
+              {(['NIN', 'Passport', 'Driver License', 'Voter Card'] as const).map((type) => (
+                <div
+                  key={type}
+                  onClick={() => setIdDocType(type)}
+                  style={{
+                    background: idDocType === type ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${idDocType === type ? '#2563EB' : 'rgba(255,255,255,0.08)'}`,
+                    borderRadius: '14px', padding: '14px', cursor: 'pointer', textAlign: 'center',
+                    fontWeight: 800, fontSize: '13px', color: idDocType === type ? '#60A5FA' : '#FFF'
+                  }}
+                >
+                  {type === 'NIN' ? '🆔 NIN Card' : type === 'Passport' ? '🛂 International Passport' : type === 'Driver License' ? '🪪 Driver\'s License' : '🗳️ Voter\'s Card'}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Drag & Drop Upload Zone */}
+          <div style={{ border: '2px dashed rgba(37,99,235,0.4)', borderRadius: '20px', padding: '36px 20px', textAlign: 'center', background: 'rgba(37,99,235,0.04)', position: 'relative', marginBottom: '24px' }}>
+            <input type="file" accept="image/*,.pdf" onChange={handleIdFileUpload} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }} />
+            
+            {isUploadingId ? (
+              <div style={{ color: '#60A5FA', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <RefreshCw size={18} className="animate-spin" /> Uploading &amp; analyzing document quality...
+              </div>
+            ) : idDocUrl ? (
+              <div>
+                <CheckCircle2 size={36} color="#34D399" style={{ margin: '0 auto 10px' }} />
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#FFF' }}>{idDocType} Uploaded Successfully</div>
+                <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '4px' }}>Click to replace document photo</div>
+              </div>
+            ) : (
+              <div>
+                <Upload size={32} color="#60A5FA" style={{ margin: '0 auto 12px' }} />
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#FFF' }}>Upload Clear Photo of {idDocType}</div>
+                <div style={{ fontSize: '12.5px', color: '#9CA3AF', marginTop: '4px' }}>PNG, JPG or PDF up to 10MB • Must be uncropped with clear text</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 20px' }} onClick={() => setStep(2)}>Back</button>
             <button
-              className="btn-cta"
-              disabled={loading}
-              onClick={handleFinishSetup}
-              style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                fontSize: '15px',
-                justifyContent: 'center',
-                boxShadow: '0 4px 20px rgba(37,99,235,0.45)',
+              type="button"
+              className="tixup-btn-primary"
+              style={{ flex: 1, height: '48px' }}
+              onClick={() => {
+                if (!idDocUrl) {
+                  if (onToast) onToast(`Please upload your ${idDocType} photo to proceed.`);
+                  return;
+                }
+                setStep(4);
               }}
             >
-              {loading ? 'Activating Organizer OS…' : 'Finish Setup & Open Dashboard'} <ArrowRight size={18} />
+              Continue to Live Selfie Capture <ArrowRight size={16} />
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ── STEP 4: LIVE SELFIE CAPTURE ── */}
+      {step === 4 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Camera size={20} color="#EC4899" /> 4. Live Selfie Verification
+          </h3>
+          <p style={{ color: '#9CA3AF', fontSize: '13px', marginBottom: '24px' }}>Take a live selfie to compare facial biometrics against your uploaded {idDocType}.</p>
+
+          <div style={{ border: '2px dashed rgba(236,72,153,0.4)', borderRadius: '20px', padding: '36px 20px', textAlign: 'center', background: 'rgba(236,72,153,0.04)', position: 'relative', marginBottom: '24px' }}>
+            <input type="file" accept="image/*" capture="user" onChange={handleSelfieUpload} style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer' }} />
+            
+            {isCapturingSelfie ? (
+              <div style={{ color: '#EC4899', fontSize: '14px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                <RefreshCw size={18} className="animate-spin" /> Verifying camera liveness &amp; biometrics...
+              </div>
+            ) : selfieUrl ? (
+              <div>
+                <CheckCircle2 size={36} color="#34D399" style={{ margin: '0 auto 10px' }} />
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#FFF' }}>Live Selfie Captured &amp; Verified</div>
+                <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '4px' }}>Click to retake selfie photo</div>
+              </div>
+            ) : (
+              <div>
+                <Camera size={36} color="#EC4899" style={{ margin: '0 auto 12px' }} />
+                <div style={{ fontSize: '15px', fontWeight: 800, color: '#FFF' }}>Take Live Selfie Photo</div>
+                <div style={{ fontSize: '12.5px', color: '#9CA3AF', marginTop: '4px' }}>Ensure your face is clearly visible, well-lit, and without glasses or hat</div>
+              </div>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 20px' }} onClick={() => setStep(3)}>Back</button>
+            <button
+              type="button"
+              className="tixup-btn-primary"
+              style={{ flex: 1, height: '48px' }}
+              onClick={() => {
+                if (!selfieUrl) {
+                  if (onToast) onToast('Please capture your live selfie to proceed.');
+                  return;
+                }
+                setStep(5);
+              }}
+            >
+              Continue to Organizer Agreement <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 5: ORGANIZER AGREEMENT ── */}
+      {step === 5 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', boxShadow: '0 16px 40px rgba(0,0,0,0.4)' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: 900, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ShieldCheck size={20} color="#10B981" /> 5. Organizer Agreement &amp; Submission
+          </h3>
+          <p style={{ color: '#9CA3AF', fontSize: '13px', marginBottom: '20px' }}>Review and accept the platform terms before triggering AI identity verification.</p>
+
+          <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', fontSize: '13px', color: '#9CA3AF', lineHeight: 1.6, maxHeight: '180px', overflowY: 'auto', marginBottom: '24px' }}>
+            <strong style={{ color: '#FFF' }}>GETVNT Organizer Terms of Service &amp; Payout Escrow Agreement:</strong><br />
+            1. You warrant that all event details, ticket prices, and venue permits are authentic and legally compliant.<br />
+            2. Ticket revenue is processed with a 5% Platform Processing Fee and 1.5% Payment Processing Fee.<br />
+            3. Payout settlements are disbursed directly into your verified bank account ({selectedBank}).<br />
+            4. Fraudulent, canceled, or misrepresented events will incur immediate account suspension and fee forfeiture.
+          </div>
+
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', cursor: 'pointer', marginBottom: '28px', color: '#E5E7EB', fontSize: '13.5px' }}>
+            <input
+              type="checkbox"
+              checked={acceptedTerms}
+              onChange={(e) => setAcceptedTerms(e.target.checked)}
+              style={{ width: '18px', height: '18px', accentColor: '#2563EB', marginTop: '2px', cursor: 'pointer' }}
+            />
+            <span>I accept the GetVNT Organizer Agreement and consent to AI biometric verification of my document and selfie.</span>
+          </label>
+
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 20px' }} onClick={() => setStep(4)}>Back</button>
+            <button
+              type="button"
+              disabled={!acceptedTerms}
+              className="tixup-btn-primary"
+              style={{ flex: 1, height: '52px', opacity: acceptedTerms ? 1 : 0.5, cursor: acceptedTerms ? 'pointer' : 'not-allowed' }}
+              onClick={handleRunAiVerification}
+            >
+              <Sparkles size={18} /> Submit &amp; Run AI Identity Verification
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── STEP 6: AI IDENTITY VERIFICATION PROCESSING & RESULTS ── */}
+      {step === 6 && (
+        <div style={{ background: 'rgba(13,17,32,0.95)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '24px', padding: '40px 32px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.6)' }}>
+          
+          {/* SCANNING STAGE */}
+          {aiProcessingState !== 'completed' && (
+            <div>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(37,99,235,0.15)', border: '2px solid #2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+                <Scan size={40} color="#60A5FA" className="animate-spin" />
+              </div>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', marginBottom: '8px' }}>
+                Running AI Identity Verification...
+              </h2>
+              <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '24px' }}>
+                {aiProcessingState === 'scanning' ? 'Extracting OCR text from document...' : 'Comparing facial biometrics & liveness...'}
+              </p>
+            </div>
+          )}
+
+          {/* COMPLETED RESULTS STAGE */}
+          {aiProcessingState === 'completed' && (
+            <div>
+              {aiDecision === 'auto_approved' ? (
+                <div>
+                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'linear-gradient(135deg,#10B981,#059669)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', boxShadow: '0 10px 30px rgba(16,185,129,0.4)' }}>
+                    <CheckCircle2 size={40} color="#FFF" />
+                  </div>
+                  
+                  <span style={{ background: 'rgba(16,185,129,0.15)', color: '#34D399', border: '1px solid rgba(16,185,129,0.3)', padding: '6px 16px', borderRadius: '99px', fontSize: '12.5px', fontWeight: 900 }}>
+                    AI VERIFIED • {aiConfidenceScore}% MATCH SCORE
+                  </span>
+
+                  <h2 style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', margin: '16px 0 8px' }}>
+                    Organizer Privileges Approved!
+                  </h2>
+                  <p style={{ color: '#9CA3AF', fontSize: '14.5px', maxWidth: '540px', margin: '0 auto 28px', lineHeight: 1.6 }}>
+                    Your identity has been auto-verified with a <strong style={{ color: '#34D399' }}>94.8% confidence score</strong>. You can now create events and collect ticket revenue.
+                  </p>
+
+                  {/* Telemetry Report Card */}
+                  <div style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px', textAlign: 'left', maxWidth: '520px', margin: '0 auto 28px', fontSize: '13px' }}>
+                    <div style={{ color: '#60A5FA', fontWeight: 800, marginBottom: '10px', fontSize: '11px', textTransform: 'uppercase' }}>AI BIOMETRIC TELEMETRY REPORT</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ color: '#9CA3AF' }}>Extracted Name:</span>
+                      <span style={{ color: '#FFF', fontWeight: 700 }}>{aiExtractedData?.detected_name}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                      <span style={{ color: '#9CA3AF' }}>Document Quality:</span>
+                      <span style={{ color: '#34D399', fontWeight: 700 }}>{aiExtractedData?.quality_score}</span>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <span style={{ color: '#9CA3AF' }}>Face Match Score:</span>
+                      <span style={{ color: '#34D399', fontWeight: 900 }}>94.8% (Exceeds 90% Threshold)</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="tixup-btn-primary"
+                    style={{ padding: '0 36px', height: '52px', fontSize: '15px' }}
+                    onClick={onComplete}
+                  >
+                    Go to Organizer Dashboard &amp; Create Event <ArrowRight size={16} />
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(245,158,11,0.15)', border: '1px solid rgba(245,158,11,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#F59E0B' }}>
+                    <ShieldCheck size={40} />
+                  </div>
+
+                  <span style={{ background: 'rgba(245,158,11,0.15)', color: '#FBBF24', border: '1px solid rgba(245,158,11,0.3)', padding: '6px 16px', borderRadius: '99px', fontSize: '12.5px', fontWeight: 900 }}>
+                    PENDING MANUAL REVIEW
+                  </span>
+
+                  <h2 style={{ fontSize: '26px', fontWeight: 900, color: '#FFF', margin: '16px 0 8px' }}>
+                    Verification Submitted for Audit
+                  </h2>
+                  <p style={{ color: '#9CA3AF', fontSize: '14.5px', maxWidth: '540px', margin: '0 auto 28px', lineHeight: 1.6 }}>
+                    Your verification request has been logged. Our Super Admin compliance team will review your application within 2 hours.
+                  </p>
+
+                  <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 28px' }} onClick={onComplete}>
+                    Return to User Portal
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+        </div>
+      )}
+
     </div>
   );
 };

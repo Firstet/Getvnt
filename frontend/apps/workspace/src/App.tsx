@@ -139,6 +139,7 @@ function WorkspaceContent() {
     return !localStorage.getItem('getvnt_organizer_onboarding_completed');
   });
   const [showAndroidModal, setShowAndroidModal] = useState<boolean>(false);
+  const [matrixTab, setMatrixTab] = useState<'Upcoming' | 'Live' | 'Past' | 'Draft' | 'Archived'>('Upcoming');
   const [hasDownloadedApp, setHasDownloadedApp] = useState<boolean>(() => {
     return localStorage.getItem('getvnt_app_downloaded') === 'true';
   });
@@ -160,6 +161,16 @@ function WorkspaceContent() {
   // Fetch public plans
   useEffect(() => { fetchPlans(); }, []);
   useEffect(() => { if (token) fetchInvoices(); }, [token]);
+
+  // Body scroll lock effect for mobile sidebar and dialogs
+  useEffect(() => {
+    if (sidebarOpen || showAndroidModal || showCreateEventWizard) {
+      document.body.classList.add('body-scroll-lock');
+    } else {
+      document.body.classList.remove('body-scroll-lock');
+    }
+    return () => document.body.classList.remove('body-scroll-lock');
+  }, [sidebarOpen, showAndroidModal, showCreateEventWizard]);
 
   const fetchPlans = async () => {
     try {
@@ -292,52 +303,56 @@ function WorkspaceContent() {
   // ─────────────────────────────────────────────────────────────
   // NAVIGATION ITEMS
   // ─────────────────────────────────────────────────────────────
+  // NAVIGATION MODULES (APPROVED INFORMATION ARCHITECTURE)
   const navModules = [
     {
-      category: 'OVERVIEW',
+      category: '1. OVERVIEW',
       items: [
-        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Executive Dashboard' },
-        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Assistant Suite' },
+        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Dashboard' },
       ],
     },
     {
-      category: 'EVENTS & OPERATIONS',
+      category: '2. EVENTS & TICKETS',
       items: [
-        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'QR Gate & Check-in Studio' },
-        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Ticket Designer Desk' },
+        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Tickets' },
       ],
     },
     {
-      category: 'COMMERCE & FINANCE',
+      category: '3. ORDERS & ROSTER',
       items: [
-        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Billing & Subscriptions' },
+        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
       ],
     },
     {
-      category: 'CUSTOMERS & CRM',
+      category: '4. MARKETING & CRM',
       items: [
-        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Attendee CRM & Loyalty' },
+        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
+        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM & Reviews' },
+        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship Decks' },
       ],
     },
     {
-      category: 'MARKETING ENGINE',
+      category: '5. REVENUE & WALLET',
       items: [
-        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & AI Insights' },
-        { id: 'automation', icon: <IconContainer icon={Zap} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'AI Automation Engine' },
-        { id: 'ad_studio', icon: <IconContainer icon={Share2} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Promotion & Ad Studio' },
-        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'AI Sponsorship Decks' },
+        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Wallet & Payout Disbursals' },
       ],
     },
     {
-      category: 'WEBSITE & CMS',
+      category: '6. WEBSITE BUILDER (PREMIUM)',
       items: [
-        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Event Website Builder' },
+        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Website Builder & Domains' },
       ],
     },
     {
-      category: 'WORKSPACE SETTINGS',
+      category: '7. AI STUDIO',
       items: [
-        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Organization Settings' },
+        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Copilot' },
+      ],
+    },
+    {
+      category: '8. SETTINGS & KYC',
+      items: [
+        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings & Verification' },
       ],
     },
   ];
@@ -476,13 +491,19 @@ function WorkspaceContent() {
             <span style={{ fontSize: '13px', fontWeight: 700, color: '#6B7280' }}>Organization:</span>
             <select
               className="search-field"
-              style={{ width: 'auto', minWidth: '140px', padding: '7px 36px 7px 12px', fontSize: '13px', fontWeight: 700 }}
-              value={user?.tenant_id || ''}
+              style={{ width: 'auto', minWidth: '160px', padding: '7px 36px 7px 12px', fontSize: '13px', fontWeight: 700, background: '#111827', color: '#FFF', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '10px' }}
+              value={user?.tenant_id || user?.tenant?.id || ''}
               onChange={e => switchOrganization(e.target.value)}
             >
-              {user?.tenants?.map((t: any) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
+              {user?.tenants && user.tenants.length > 0 ? (
+                user.tenants.map((t: any) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))
+              ) : (
+                <option value={user?.tenant?.id || user?.tenant_id || 'org-1'}>
+                  {user?.tenant?.name || 'AfroNation Global Events'}
+                </option>
+              )}
             </select>
 
             <span className="sponsored-tag badge-green" style={{
@@ -564,10 +585,10 @@ function WorkspaceContent() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px', marginBottom: '20px' }}>
                   <div>
                     <h1 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', margin: 0 }}>
-                      Good Morning, {user?.first_name || user?.name || 'Kelvin'} 👋
+                      Good Morning, {user?.first_name || user?.name || 'Organizer'} 👋
                     </h1>
                     <p style={{ color: '#A5B4FC', fontSize: '14px', marginTop: '4px', fontWeight: 600 }}>
-                      Welcome back to your Getvnt Event Business Operating System.
+                      Welcome to <strong style={{ color: '#FFF' }}>GetVNT Organizer OS</strong> — Africa's AI-Powered Event Operating System.
                     </p>
                   </div>
 
@@ -720,9 +741,22 @@ function WorkspaceContent() {
                   <h3 style={{ fontSize: '18px', fontWeight: 900, color: '#FFF', margin: 0 }}>Event Operations Matrix</h3>
                   
                   {/* Event Status Tabs */}
-                  <div style={{ display: 'flex', gap: '8px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '12px' }}>
-                    {['Upcoming', 'Live', 'Past', 'Draft', 'Archived'].map((tab, i) => (
-                      <button key={i} className="btn-cta" style={{ padding: '6px 12px', fontSize: '12px', background: i === 0 ? '#4F46E5' : 'transparent', color: '#FFF' }}>
+                  <div style={{ display: 'flex', gap: '6px', background: 'rgba(255,255,255,0.04)', padding: '4px', borderRadius: '12px', flexWrap: 'wrap' }}>
+                    {(['Upcoming', 'Live', 'Past', 'Draft', 'Archived'] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        className="btn-cta"
+                        onClick={() => setMatrixTab(tab)}
+                        style={{
+                          padding: '6px 14px',
+                          fontSize: '12px',
+                          fontWeight: 800,
+                          background: matrixTab === tab ? '#4F46E5' : 'transparent',
+                          color: matrixTab === tab ? '#FFF' : '#9CA3AF',
+                          borderRadius: '8px',
+                          transition: 'all 0.2s ease',
+                        }}
+                      >
                         {tab}
                       </button>
                     ))}
@@ -730,37 +764,77 @@ function WorkspaceContent() {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-                  {[
-                    { name: 'Afrobeat Festival 2026', date: 'Aug 15, 2026', location: 'Eko Hotel, Lagos', sold: 1240, cap: 1500, rev: '₦24.8M', score: 92 },
-                    { name: 'Tech Summit Nigeria', date: 'Sep 3, 2026', location: 'NESS, Abuja', sold: 420, cap: 600, rev: '₦8.4M', score: 85 },
-                  ].map((evt, idx) => (
-                    <div key={idx} style={{ background: 'rgba(7, 9, 15, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                        <div>
-                          <div style={{ fontSize: '16px', fontWeight: 900, color: '#FFF' }}>{evt.name}</div>
-                          <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📅 {evt.date} • 📍 {evt.location}</div>
+                  {(() => {
+                    const matrixData: Record<string, any[]> = {
+                      Upcoming: [
+                        { name: 'Afrobeat Festival 2026', date: 'Aug 15, 2026', location: 'Eko Hotel, Lagos', sold: 1240, cap: 1500, rev: '₦24.8M', score: 92, badge: 'High Demand' },
+                        { name: 'Tech Summit Nigeria', date: 'Sep 3, 2026', location: 'NESS, Abuja', sold: 420, cap: 600, rev: '₦8.4M', score: 85, badge: 'Selling Fast' },
+                        { name: 'Lagos Fashion & Style Expo', date: 'Oct 12, 2026', location: 'Landmark Centre, Victoria Island', sold: 610, cap: 1000, rev: '₦12.2M', score: 89, badge: 'Early Bird' },
+                      ],
+                      Live: [
+                        { name: 'Afro-Fusion Rave Live ⚡', date: 'TONIGHT (Active Now)', location: 'Hard Rock Beach, Lagos', sold: 1450, cap: 1500, rev: '₦29.0M', score: 98, badge: 'LIVE NOW 🔴' },
+                        { name: 'Burna Boy VIP Lounge', date: 'Today, 20:00 WAT', location: 'Eko Atlantic, Lagos', sold: 800, cap: 800, rev: '₦40.0M', score: 99, badge: 'SOLD OUT 🔴' },
+                      ],
+                      Past: [
+                        { name: 'Detty December Festival 2025', date: 'Dec 28, 2025', location: 'Tafawa Balewa Square, Lagos', sold: 8500, cap: 8500, rev: '₦170.0M', score: 97, badge: 'Concluded' },
+                        { name: 'Homecoming Festival 2025', date: 'Apr 20, 2025', location: 'Harbour Point, VI Lagos', sold: 3200, cap: 3200, rev: '₦64.0M', score: 94, badge: 'Concluded' },
+                      ],
+                      Draft: [
+                        { name: 'Lagos Jazz & Wine Night (Draft)', date: 'Unpublished (Draft)', location: 'Civic Centre, Victoria Island', sold: 0, cap: 400, rev: '₦0.00', score: 65, badge: 'In Progress' },
+                      ],
+                      Archived: [
+                        { name: 'Summer Beach Rave 2024 (Archived)', date: 'Aug 10, 2024', location: 'Elegushi Beach, Lagos', sold: 2100, cap: 2500, rev: '₦31.5M', score: 82, badge: 'Archived' },
+                      ],
+                    };
+
+                    const list = matrixData[matrixTab] || [];
+                    if (list.length === 0) {
+                      return (
+                        <div style={{ padding: '32px', textAlign: 'center', color: '#9CA3AF', gridColumn: '1 / -1' }}>
+                          No {matrixTab.toLowerCase()} events recorded for this organization workspace.
                         </div>
-                        <span style={{ fontSize: '12px', fontWeight: 900, background: 'rgba(16,185,129,0.15)', color: '#34D399', padding: '4px 10px', borderRadius: '8px' }}>
-                          Score: {evt.score}/100
-                        </span>
-                      </div>
+                      );
+                    }
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#FFF', fontWeight: 800, marginBottom: '6px', marginTop: '16px' }}>
-                        <span>Sales Progress</span>
-                        <span>{evt.sold} / {evt.cap} Tickets</span>
-                      </div>
-                      <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
-                        <div style={{ height: '100%', width: `${(evt.sold / evt.cap) * 100}%`, background: 'linear-gradient(90deg, #4F46E5, #06B6D4)' }} />
-                      </div>
+                    return list.map((evt, idx) => (
+                      <div key={idx} style={{ background: 'rgba(7, 9, 15, 0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', padding: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                          <div>
+                            <div style={{ fontSize: '16px', fontWeight: 900, color: '#FFF' }}>{evt.name}</div>
+                            <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>📅 {evt.date} • 📍 {evt.location}</div>
+                          </div>
+                          <span style={{ fontSize: '11px', fontWeight: 900, background: matrixTab === 'Live' ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.15)', color: matrixTab === 'Live' ? '#F87171' : '#34D399', padding: '4px 10px', borderRadius: '8px' }}>
+                            Score: {evt.score}/100
+                          </span>
+                        </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div style={{ fontSize: '16px', fontWeight: 900, color: '#FCD34D' }}>{evt.rev} Revenue</div>
-                        <button className="btn-cta" style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(79,70,229,0.2)', color: '#A5B4FC' }} onClick={() => setView('ticket_designer')}>
-                          Manage Event
-                        </button>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#FFF', fontWeight: 800, marginBottom: '6px', marginTop: '16px' }}>
+                          <span>Sales Progress</span>
+                          <span>{evt.sold} / {evt.cap} Tickets</span>
+                        </div>
+                        <div style={{ height: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', overflow: 'hidden', marginBottom: '16px' }}>
+                          <div style={{ height: '100%', width: `${Math.min(100, (evt.sold / evt.cap) * 100)}%`, background: 'linear-gradient(90deg, #4F46E5, #06B6D4)' }} />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <div style={{ fontSize: '16px', fontWeight: 900, color: '#FCD34D' }}>{evt.rev} Revenue</div>
+                          <button
+                            className="btn-cta"
+                            style={{ padding: '6px 14px', fontSize: '12px', background: 'rgba(79,70,229,0.2)', color: '#A5B4FC' }}
+                            onClick={() => {
+                              if (matrixTab === 'Draft') {
+                                setShowCreateEventWizard(true);
+                              } else {
+                                setView('ticket_designer');
+                              }
+                            }}
+                          >
+                            Manage Event
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
 
@@ -775,13 +849,82 @@ function WorkspaceContent() {
 
 
           {/* ══════════════════════════════════════════
-              BILLING VIEW
+              FINANCIAL WALLET & PAYOUTS ENGINE VIEW
           ══════════════════════════════════════════ */}
           {view === 'billing' && (
             <div>
-              <div style={{ marginBottom: '32px' }}>
-                <h1 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '6px' }}>Billing & Subscriptions</h1>
-                <p style={{ color: '#6B7280', fontSize: '14px' }}>Manage subscription plans, billing cycles, and invoice receipts.</p>
+              <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                <div>
+                  <h1 style={{ fontSize: '26px', fontWeight: 900, marginBottom: '6px' }}>Revenue, Payouts & Wallet OS</h1>
+                  <p style={{ color: '#6B7280', fontSize: '14px' }}>Real-time balance settlement, fee breakdowns, automated bank disbursals, and subscription invoices.</p>
+                </div>
+                <button
+                  className="btn-cta"
+                  style={{ background: 'linear-gradient(135deg, #10B981, #059669)', color: '#FFF' }}
+                  onClick={() => alert('Payout Request Triggered: Settlements process within 24 hours to your verified bank account.')}
+                >
+                  <DollarSign size={16} /> Request Manual Payout
+                </button>
+              </div>
+
+              {/* Wallet Financial Balances Hero Cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '36px' }}>
+                <div style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#34D399', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Available Balance</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦1,420,500.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Ready for automated bank withdrawal</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(245,158,11,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#FBBF24', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Pending Escrow</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦380,000.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Settles within 24h of event completion</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#60A5FA', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Lifetime Gross Sales</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    ₦8,450,000.00
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Total ticket sales processed</div>
+                </div>
+
+                <div style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(13,17,32,0.9))', border: '1px solid rgba(168,85,247,0.3)', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ color: '#C084FC', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Platform & Gateway Fees</div>
+                  <div style={{ fontSize: '28px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+                    6.5% <span style={{ fontSize: '13px', color: '#9CA3AF', fontWeight: 700 }}>(5% Platform + 1.5% Gateway)</span>
+                  </div>
+                  <div style={{ color: '#6B7280', fontSize: '12px' }}>Zero hidden fees or booking charges</div>
+                </div>
+              </div>
+
+              {/* Settlement Account & Tax Verification Card */}
+              <div style={{ background: 'rgba(22,29,46,0.8)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '28px', marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFF', marginBottom: '16px' }}>Verified Settlement Bank Account & Tax Status</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Bank Name</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>Zenith Bank Plc</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Account Number</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>2184****92</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>Account Name</span>
+                    <div style={{ color: '#FFF', fontWeight: 800, fontSize: '15px', marginTop: '4px' }}>{user?.tenant?.name || 'Verified Event Organization'}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#6B7280', fontSize: '12px' }}>KYC Verification</span>
+                    <div style={{ color: '#34D399', fontWeight: 800, fontSize: '15px', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <CheckCircle2 size={16} /> Trusted Organizer Verified
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Current plan hero */}
@@ -1069,8 +1212,8 @@ function WorkspaceContent() {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   {[
-                    { label: 'FULL NAME', value: user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Super Admin' },
-                    { label: 'EMAIL ADDRESS', value: user?.email || 'admin@getvnt.com' },
+                    { label: 'FULL NAME', value: user?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Organizer' },
+                    { label: 'EMAIL ADDRESS', value: user?.email || '—' },
                     { label: 'ACCOUNT ROLE', value: getRoleBadgeLabel(user?.role) },
                     { label: 'MEMBER SINCE', value: user?.created_at ? new Date(user.created_at).toLocaleDateString() : '01/08/2026' },
                   ].map((row, i) => (

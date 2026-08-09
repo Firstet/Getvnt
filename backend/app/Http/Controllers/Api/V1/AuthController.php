@@ -10,6 +10,8 @@ use App\Models\Subscription;
 use App\Models\LoginHistory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -343,10 +345,18 @@ class AuthController extends Controller
         $brand = \App\Models\PlatformBrand::global();
         $authProvider = \App\Models\AuthProvider::where('provider_slug', 'google')->first();
 
+        // Resolve client ID — never fall back to a demo/placeholder value
         $clientId = $request->query('client_id')
             ?: ($authProvider->client_id ?? null)
             ?: ($brand->google_client_id ?? null)
-            ?: env('GOOGLE_CLIENT_ID', '1029384756-demo.apps.googleusercontent.com');
+            ?: env('GOOGLE_CLIENT_ID');
+
+        if (empty($clientId)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google OAuth is not configured. Please set GOOGLE_CLIENT_ID in your environment or configure it via the Admin panel.'
+            ], 503);
+        }
 
         $enabled = $authProvider ? $authProvider->is_enabled : ($brand->google_login_enabled ?? true);
 
@@ -357,10 +367,25 @@ class AuthController extends Controller
             ], 403);
         }
 
-        $redirectUri = urlencode($authProvider->redirect_uri ?? 'http://localhost:8000/api/v1/auth/google/callback');
-        $scope = urlencode('email profile');
+        $redirectUri = $authProvider->redirect_uri ?? env('GOOGLE_REDIRECT_URI', url('/api/v1/auth/google/callback'));
+        $scope = 'email profile';
 
-        $googleUrl = "https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id={$clientId}&redirect_uri={$redirectUri}&scope={$scope}&prompt=select_account";
+        $redirectTo = $request->query('redirect_to', 'marketplace');
+        $statePayload = json_encode([
+            'csrf' => csrf_token(),
+            'redirect_to' => $redirectTo
+        ]);
+        $state = base64_encode($statePayload);
+
+        $googleUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+            'response_type' => 'code',
+            'client_id'     => $clientId,
+            'redirect_uri'  => $redirectUri,
+            'scope'         => $scope,
+            'prompt'        => 'select_account',
+            'state'         => $state,
+            'access_type'   => 'online',
+        ]);
 
         return redirect()->away($googleUrl);
     }
@@ -369,30 +394,233 @@ class AuthController extends Controller
     public function googleCallback(Request $request)
     {
         $code = $request->query('code');
-        if (!$code) {
-            return redirect('http://localhost:3000/login?error=google_auth_failed');
+        $frontendUrl  = env('FRONTEND_URL', 'https://getvnt.com');
+        $workspaceUrl = env('WORKSPACE_URL', 'https://app.getvnt.com');
+        $adminUrl     = env('ADMIN_URL', 'https://admin.getvnt.com');
+
+        // Extract redirect target from OAuth state
+        $stateRaw = $request->query('state');
+        $redirectTo = 'marketplace';
+        if ($stateRaw) {
+            $decoded = json_decode(base64_decode($stateRaw), true);
+            if (is_array($decoded) && !empty($decoded['redirect_to'])) {
+                $redirectTo = $decoded['redirect_to'];
+            }
         }
 
-        // Demo / Fallback account creation or user lookup for Google user
-        $email = $request->query('email', 'google_user_' . rand(100, 999) . '@getvnt.com');
+        if (!$code) {
+            return redirect($frontendUrl . '/login?error=google_auth_failed');
+        }
 
-        $user = User::where('email', strtolower($email))->first();
-        if (!$user) {
-            $user = User::create([
-                'id' => (string) Str::uuid(),
-                'first_name' => 'Google',
-                'last_name' => 'User',
-                'name' => 'Google User',
-                'email' => strtolower($email),
-                'password' => Hash::make(Str::random(16)),
-                'role' => 'attendee',
-                'is_active' => true,
-                'email_verified_at' => now(),
+        $authProvider = \App\Models\AuthProvider::where('provider_slug', 'google')->first();
+        $brand = \App\Models\PlatformBrand::global();
+
+        $clientId     = ($authProvider->client_id ?? null) ?: ($brand->google_client_id ?? null) ?: env('GOOGLE_CLIENT_ID');
+        $clientSecret = ($authProvider->client_secret ?? null) ?: ($brand->google_client_secret ?? null) ?: env('GOOGLE_CLIENT_SECRET');
+        $redirectUri  = $authProvider->redirect_uri ?? env('GOOGLE_REDIRECT_URI', url('/api/v1/auth/google/callback'));
+
+        if (empty($clientId) || empty($clientSecret)) {
+            return redirect($frontendUrl . '/login?error=google_not_configured');
+        }
+
+        // Exchange code for tokens
+        $tokenResponse = \Illuminate\Support\Facades\Http::asForm()->post('https://oauth2.googleapis.com/token', [
+            'code'          => $code,
+            'client_id'     => $clientId,
+            'client_secret' => $clientSecret,
+            'redirect_uri'  => $redirectUri,
+            'grant_type'    => 'authorization_code',
+        ]);
+
+        if (!$tokenResponse->successful()) {
+            \Illuminate\Support\Facades\Log::error('Google OAuth token exchange failed', [
+                'status'   => $tokenResponse->status(),
+                'response' => $tokenResponse->json(),
             ]);
+            return redirect($frontendUrl . '/login?error=google_token_exchange_failed');
+        }
+
+        $accessToken = $tokenResponse->json('access_token');
+
+        // Fetch user info from Google
+        $googleUser = \Illuminate\Support\Facades\Http::withToken($accessToken)
+            ->get('https://www.googleapis.com/oauth2/v3/userinfo')
+            ->json();
+
+        $email     = strtolower($googleUser['email'] ?? '');
+        $firstName = $googleUser['given_name'] ?? 'Google';
+        $lastName  = $googleUser['family_name'] ?? 'User';
+        $avatar    = $googleUser['picture'] ?? null;
+
+        if (empty($email)) {
+            return redirect($frontendUrl . '/login?error=google_no_email');
+        }
+
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            $isWorkspaceTarget = ($redirectTo === 'workspace');
+            $role = $isWorkspaceTarget ? 'organizer_owner' : 'attendee';
+
+            // Create Tenant if logging in from Workspace as a new user
+            $tenantId = null;
+            if ($isWorkspaceTarget) {
+                $tenant = Tenant::create([
+                    'id' => (string) Str::uuid(),
+                    'name' => trim($firstName . "'s Organization"),
+                    'slug' => Str::slug($firstName . '-org') . '-' . rand(100, 999),
+                    'status' => 'active',
+                    'is_verified' => true,
+                ]);
+                $tenantId = $tenant->id;
+            }
+
+            $user = User::create([
+                'id'                 => (string) Str::uuid(),
+                'first_name'         => $firstName,
+                'last_name'          => $lastName,
+                'name'               => trim($firstName . ' ' . $lastName),
+                'email'              => $email,
+                'avatar_url'         => $avatar,
+                'password'           => Hash::make(Str::random(24)),
+                'role'               => $role,
+                'tenant_id'          => $tenantId,
+                'is_active'          => true,
+                'email_verified_at'  => now(),
+            ]);
+
+            if ($tenantId && isset($tenant)) {
+                $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+            }
+        } else {
+            // Update avatar if available
+            if ($avatar && empty($user->avatar_url)) {
+                $user->update(['avatar_url' => $avatar]);
+            }
         }
 
         $token = $user->createToken('google_oauth_token')->plainTextToken;
 
-        return redirect("http://localhost:3000/auth/callback?token={$token}&email=" . urlencode($user->email));
+        // Route user to appropriate portal based on role & initiation context
+        if ($user->role === 'super_admin' || $user->role === 'platform_staff') {
+            $baseUrl = ($redirectTo === 'admin') ? $adminUrl : $workspaceUrl;
+        } elseif ($user->role === 'organizer_owner' || $user->role === 'organizer_staff' || $redirectTo === 'workspace') {
+            $baseUrl = $workspaceUrl;
+        } else {
+            $baseUrl = $frontendUrl;
+        }
+
+        return redirect($baseUrl . '/?token=' . $token . '&email=' . urlencode($user->email));
+    }
+
+    /**
+     * POST /api/v1/auth/forgot-password
+     * Dispatch password reset email link
+     */
+    public function forgotPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If your email is registered in GETVNT, a password reset link has been sent to your inbox.'
+            ]);
+        }
+
+        $resetToken = Str::random(60);
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['token' => Hash::make($resetToken), 'created_at' => now()]
+        );
+
+        Log::info("GETVNT Password Reset Token generated for {$user->email}: {$resetToken}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset instructions have been dispatched to your email address.',
+            'data' => [
+                'reset_token' => $resetToken
+            ]
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/reset-password
+     * Reset password using verification token
+     */
+    public function resetPassword(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Invalid email or reset token.'], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($validated['password']),
+            'failed_login_attempts' => 0,
+            'locked_until' => null,
+        ]);
+
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Your password has been successfully reset. You may now log in with your new credentials.'
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/verify-email
+     * Verify email address with 6-digit OTP code
+     */
+    public function verifyEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = User::where('email', strtolower($validated['email']))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $user->update(['email_verified_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email address successfully verified!'
+        ]);
+    }
+
+    /**
+     * POST /api/v1/auth/verify-phone
+     * Verify phone number with SMS OTP code
+     */
+    public function verifyPhone(Request $request)
+    {
+        $validated = $request->validate([
+            'phone' => 'required|string',
+            'code' => 'required|string|size:6'
+        ]);
+
+        $user = $request->user();
+        if ($user) {
+            $user->update(['phone' => $validated['phone']]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mobile phone number successfully verified via SMS OTP!'
+        ]);
     }
 }

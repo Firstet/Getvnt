@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\MediaUploadController;
 use App\Http\Controllers\Api\V1\EnterpriseAiController;
 use App\Http\Controllers\Api\V1\QrStudioController;
 use App\Http\Controllers\Api\V1\CrmLoyaltyController;
+use App\Http\Controllers\Api\V1\WalletController;
 use App\Http\Controllers\Api\V1\SuperAdmin\IntegrationsController;
 use App\Http\Controllers\Api\V1\NewsController;
 use App\Http\Controllers\Api\V1\BrandController;
@@ -63,6 +64,12 @@ Route::prefix('v1')->group(function () {
         Route::post('/register', [AuthController::class, 'registerMarketplace']); // Fallback
         Route::post('/login', [AuthController::class, 'login']);
 
+        // Password Reset & Email/Phone Verification
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+        Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
+        Route::post('/verify-phone', [AuthController::class, 'verifyPhone']);
+
         // Social OAuth Routes
         Route::get('/google', [AuthController::class, 'googleRedirect']);
         Route::get('/google/callback', [AuthController::class, 'googleCallback']);
@@ -90,6 +97,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('onboarding')->middleware('auth:sanctum')->group(function () {
         Route::get('/status', [OnboardingController::class, 'status']);
         Route::post('/step', [OnboardingController::class, 'saveStep']);
+        Route::post('/resend-email', [OnboardingController::class, 'resendVerificationEmail']);
     });
 
     // 1. PUBLIC MARKETPLACE (getvnt.com)
@@ -111,6 +119,11 @@ Route::prefix('v1')->group(function () {
         Route::post('/events', [OrganizerWorkspaceController::class, 'createEvent']);
         Route::put('/organization', [OrganizerWorkspaceController::class, 'updateOrganization']);
 
+        // Financial Wallet OS & Payout Disbursals
+        Route::get('/wallet', [WalletController::class, 'getWallet']);
+        Route::post('/payouts/request', [WalletController::class, 'requestPayout']);
+        Route::get('/wallet/transactions', [WalletController::class, 'getTransactions']);
+
         // AI Assistant Engine
         Route::post('/ai/generate', [EnterpriseAiController::class, 'generate']);
         Route::post('/ai/top-up', [EnterpriseAiController::class, 'topUp']);
@@ -130,8 +143,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/brand/upload-logo', [BrandController::class, 'uploadLogo']);
 
         Route::get('/stats', [PlatformAdminController::class, 'stats']);
+        Route::get('/platform/health', [PlatformAdminController::class, 'platformHealth']);
         Route::get('/tenants', [PlatformAdminController::class, 'tenants']);
         Route::post('/tenants/{id}/impersonate', [PlatformAdminController::class, 'impersonateTenant']);
+        Route::post('/tenants/{id}/verify', [PlatformAdminController::class, 'verifyTenant']);
         Route::get('/users', [PlatformAdminController::class, 'users']);
         Route::post('/users/{id}/impersonate', [PlatformAdminController::class, 'impersonateUser']);
         Route::post('/users/{id}/toggle-lock', [PlatformAdminController::class, 'toggleUserLock']);

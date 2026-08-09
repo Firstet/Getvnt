@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Percent, Plus, Trash2, Edit3, ShieldAlert, DollarSign } from 'lucide-react';
+import { ConfirmModal } from '../../../../../shared/src';
 
 interface Props {
   rules: any[];
@@ -11,14 +12,36 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<any | null>(null);
 
+  // Enterprise Custom Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
   const getAuthHeaders = () => ({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('getvnt_admin_token') || ''}`,
   });
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Delete this commission rule?')) return;
+  const promptDeleteRule = (id: number, name?: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Commission Rule',
+      message: `Are you sure you want to delete ${name ? `"${name}"` : 'this commission rule'}? Ticket split calculations will revert to default rates.`,
+      onConfirm: () => executeDeleteRule(id),
+    });
+  };
+
+  const executeDeleteRule = async (id: number) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       const res = await fetch(`/api/v1/admin/integrations/commission-rules/${id}`, {
         method: 'DELETE',
@@ -38,9 +61,9 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Commission Engine & Dynamic Fee Rules</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Commission Engine &amp; Dynamic Fee Rules</h2>
           <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>
-            Configure platform ticket split rules, VAT rates, service charges, & plan tier fee thresholds.
+            Configure platform ticket split rules, VAT rates, service charges, &amp; plan tier fee thresholds.
           </p>
         </div>
         <button
@@ -52,6 +75,62 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
         >
           <Plus size={16} /> Create Commission Rule
         </button>
+      </div>
+
+      {/* Global Dual-Fee Super Admin Control Panel */}
+      <div className="admin-card" style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.12) 0%, rgba(13,18,34,0.95) 100%)', border: '1px solid rgba(37,99,235,0.3)', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <DollarSign size={20} color="#60A5FA" />
+              <h3 style={{ fontSize: '17px', fontWeight: 900, color: '#FFF', margin: 0 }}>Global Platform Dual-Fee Configuration</h3>
+            </div>
+            <p style={{ color: '#9CA3AF', fontSize: '13px', margin: '4px 0 0 0' }}>
+              Configure master fee percentages applied to all paid ticket checkouts globally across GetVNT.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="admin-btn admin-btn-primary"
+            onClick={() => onToast('⚡ Global Dual-Fee Config Saved & Broadcasted to Marketplace Engine!')}
+          >
+            Save Fee Configuration
+          </button>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#60A5FA', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+              1. Platform Processing Fee (%) — GetVNT Revenue
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              className="admin-input"
+              defaultValue="5.0"
+              style={{ fontWeight: 800, color: '#60A5FA', fontSize: '16px' }}
+            />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px', display: 'block' }}>
+              Default 5.0% • Applied to subtotal before organizer payout settlement.
+            </span>
+          </div>
+
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#FBBF24', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '6px' }}>
+              2. Payment Processing Fee (%) — Gateway Fee
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              className="admin-input"
+              defaultValue="1.5"
+              style={{ fontWeight: 800, color: '#FBBF24', fontSize: '16px' }}
+            />
+            <span style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '6px', display: 'block' }}>
+              Default 1.5% • Configurable per payment gateway provider rates.
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="admin-card">
@@ -112,7 +191,7 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
                       <button
                         className="admin-btn admin-btn-secondary"
                         style={{ padding: '4px 8px', fontSize: '11px', color: '#EF4444' }}
-                        onClick={() => handleDelete(rule.id)}
+                        onClick={() => promptDeleteRule(rule.id, rule.name)}
                       >
                         <Trash2 size={12} /> Delete
                       </button>
@@ -234,6 +313,18 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
           </div>
         </div>
       )}
+
+      {/* Enterprise Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Delete Rule"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { VerificationDeskView } from '../users/VerificationDeskView';
 import {
   Users, Lock, Unlock, LogOut, ShieldAlert, CheckCircle2,
   Search, Filter, Download, RefreshCw, ChevronRight, X,
@@ -53,7 +54,7 @@ interface UserApiResponse {
 }
 
 export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void }> = ({ onTriggerToast }) => {
-  const [activeTab, setActiveTab] = useState<'platform' | 'organization' | 'attendees'>('platform');
+  const [activeTab, setActiveTab] = useState<'platform' | 'organization' | 'attendees' | 'verification'>('platform');
 
   const [userData, setUserData] = useState<UserApiResponse>({
     platform_users: [],
@@ -167,6 +168,25 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
       }
     } catch {
       onTriggerToast('Error initiating impersonation.');
+    }
+  };
+
+  const handleVerifyTenant = async (tenantId: string, isVerified: boolean) => {
+    try {
+      const res = await fetch(`/api/v1/admin/tenants/${tenantId}/verify`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ is_verified: isVerified, status: isVerified ? 'approved' : 'rejected' })
+      });
+      const json = await res.json();
+      if (json.success) {
+        onTriggerToast(json.message);
+        fetchUsers();
+      } else {
+        onTriggerToast(json.message || 'Verification update failed.');
+      }
+    } catch {
+      onTriggerToast('Failed to update tenant verification status.');
     }
   };
 
@@ -482,7 +502,37 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
             {userData.totals.attendees}
           </span>
         </button>
+
+        <button
+          onClick={() => { setActiveTab('verification'); setSelectedUserIds([]); }}
+          style={{
+            padding: '12px 20px',
+            fontSize: '14px',
+            fontWeight: 800,
+            color: activeTab === 'verification' ? '#FBBF24' : '#9CA3AF',
+            background: activeTab === 'verification' ? 'rgba(245, 158, 11, 0.15)' : 'transparent',
+            border: 'none',
+            borderBottom: activeTab === 'verification' ? '3px solid #F59E0B' : '3px solid transparent',
+            borderRadius: '10px 10px 0 0',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          <ShieldAlert size={16} />
+          AI Verification Desk
+          <span style={{ fontSize: '11px', background: activeTab === 'verification' ? '#F59E0B' : 'rgba(255,255,255,0.1)', color: '#FFF', padding: '2px 8px', borderRadius: '12px' }}>
+            AI Engine
+          </span>
+        </button>
       </div>
+
+      {activeTab === 'verification' ? (
+        <VerificationDeskView onToast={onTriggerToast} />
+      ) : (
+        <>
 
       {/* ── 4. SEARCH & FILTERS TOOLBAR ── */}
       <div style={{ background: 'rgba(13, 17, 32, 0.85)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '14px 18px', marginBottom: '20px', display: 'flex', gap: '14px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -832,7 +882,7 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
             {/* Tenant Identity & Document Verification Card */}
             <div style={{ background: 'rgba(13, 17, 32, 0.9)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '18px', padding: '18px' }}>
               <div style={{ fontSize: '12px', fontWeight: 800, color: '#34D399', textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <ShieldCheck size={14} /> Identity & Document Verification Audit
+                <ShieldCheck size={14} /> Identity &amp; Document Verification Audit
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '12.5px', color: '#D1D5DB', marginBottom: '14px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -841,20 +891,36 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#9CA3AF' }}>Bank Settlement Account:</span>
-                  <span style={{ fontWeight: 800, color: '#34D399' }}>Paystack Verified (0123456789)</span>
+                  <span style={{ fontWeight: 800, color: '#34D399' }}>Paystack Verified Account</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#9CA3AF' }}>Verification Status:</span>
-                  <span style={{ fontWeight: 900, color: '#34D399', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: '6px' }}>
-                    🟢 VERIFIED
+                  <span style={{ fontWeight: 900, color: (selectedUser.tenant || selectedUser.organization)?.status === 'active' ? '#34D399' : '#FBBF24', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: '6px' }}>
+                    {(selectedUser.tenant || selectedUser.organization)?.status === 'active' ? '🟢 APPROVED & VERIFIED' : '🟡 PENDING APPROVAL'}
                   </span>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '8px' }}>
-                <button className="admin-btn admin-btn-success" style={{ flex: 1, fontSize: '11px', padding: '6px' }} onClick={() => onTriggerToast(`Verified identity for ${selectedUser.name}`)}>
-                  Approve Document
+                <button
+                  className="admin-btn admin-btn-success"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px' }}
+                  onClick={() => {
+                    const tenantId = (selectedUser.tenant || selectedUser.organization)?.id;
+                    if (tenantId) handleVerifyTenant(tenantId, true);
+                    else onTriggerToast('No organization ID attached to this user account.');
+                  }}
+                >
+                  Approve Document &amp; Activate
                 </button>
-                <button className="admin-btn admin-btn-secondary" style={{ flex: 1, fontSize: '11px', padding: '6px', color: '#EF4444' }} onClick={() => onTriggerToast(`Flagged document for re-upload`)}>
+                <button
+                  className="admin-btn admin-btn-secondary"
+                  style={{ flex: 1, fontSize: '11px', padding: '6px', color: '#EF4444' }}
+                  onClick={() => {
+                    const tenantId = (selectedUser.tenant || selectedUser.organization)?.id;
+                    if (tenantId) handleVerifyTenant(tenantId, false);
+                    else onTriggerToast('No organization ID attached to this user account.');
+                  }}
+                >
                   Flag / Reject
                 </button>
               </div>
@@ -899,6 +965,9 @@ export const UsersManagerView: React.FC<{ onTriggerToast: (msg: string) => void 
 
           </div>
         </div>
+      )}
+
+      </>
       )}
 
     </div>
