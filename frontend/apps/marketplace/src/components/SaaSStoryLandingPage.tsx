@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {
   Sparkles, ArrowRight, CheckCircle2, Zap, Shield, Smartphone, Download, QrCode,
   TrendingUp, Users, DollarSign, Calendar, MapPin, Star, Play, ChevronRight,
-  Crown, Clock, HelpCircle, Rss, Search, Heart, Share2, Music, Briefcase, Mic, GraduationCap, Laptop, Trophy, Utensils, Shirt, Award, Globe, Cpu, Lock, Check, Layers, BarChart3
+  Crown, Clock, HelpCircle, Rss, Search, Heart, Share2, Music, Briefcase, Mic, GraduationCap, Laptop, Trophy, Utensils, Shirt, Award, Globe, Cpu, Lock, Check, Layers, BarChart3, SlidersHorizontal
 } from 'lucide-react';
 import { LazyImage } from '../../../../shared/src';
 import { AndroidAppPromotion } from './AndroidAppPromotion';
@@ -94,86 +94,124 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
   const topOrganizers = [
     { name: 'AfroNation Global Events', followers: '142k Followers • ₦480M GMV', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', rating: '4.9 ★', isFeatured: false },
-    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '', rating: '4.8 ★', isFeatured: false },
-    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '/tech_summit_banner.png', rating: '5.0 ★', isFeatured: true },
-    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '', rating: '4.7 ★', isFeatured: false },
+    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '/tech_summit_banner.png', rating: '4.8 ★', isFeatured: false },
+    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '/luxury_vip_lounge.png', rating: '5.0 ★', isFeatured: true },
+    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '/afrobeat_festival_banner.png', rating: '4.7 ★', isFeatured: false },
   ];
 
   return (
     <div className="tixup-inspired-marketplace" style={{ color: '#F9FAFB', overflowX: 'hidden', width: '100%', boxSizing: 'border-box', fontFamily: 'var(--font-body)' }}>
       
-      {/* ── 1. HERO SECTION (AFRICA'S AI EVENT OPERATING SYSTEM) ── */}
+      {/* ── 1. HERO EXPERIENCE (APPLE & AIRBNB INSPIRED) ── */}
       <section
         className="tixup-hero-section"
         style={{
           position: 'relative',
-          backgroundImage: 'linear-gradient(180deg, rgba(6,9,19,0.78) 0%, rgba(6,9,19,0.92) 85%, #060913 100%), url(/concert_crowd_bg.png)',
+          backgroundImage: 'linear-gradient(180deg, rgba(6,9,19,0.85) 0%, rgba(6,9,19,0.96) 85%, #060913 100%), url(/concert_crowd_bg.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
+          paddingTop: 'clamp(40px, 6vw, 80px)',
+          paddingBottom: 'clamp(60px, 8vw, 100px)',
         }}
       >
-        <div style={{ position: 'absolute', top: '-140px', left: '50%', transform: 'translateX(-50%)', width: 'min(100%, 1400px)', height: '540px', background: 'radial-gradient(circle, rgba(37,99,235,0.25) 0%, rgba(124,58,237,0.12) 45%, transparent 75%)', filter: 'blur(110px)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '-140px', left: '50%', transform: 'translateX(-50%)', width: 'min(100%, 1500px)', height: '600px', background: 'radial-gradient(circle, rgba(37,99,235,0.28) 0%, rgba(124,58,237,0.16) 45%, transparent 75%)', filter: 'blur(120px)', pointerEvents: 'none' }} />
 
         <div className="landing-section-wrap" style={{ position: 'relative', zIndex: 2, marginBottom: 0 }}>
           
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 16px', borderRadius: '99px', background: 'rgba(37,99,235,0.18)', border: '1px solid rgba(37,99,235,0.4)', color: '#60A5FA', fontSize: '12px', fontWeight: 800, marginBottom: '24px', maxWidth: '100%', backdropFilter: 'blur(10px)' }}>
-            <Sparkles size={14} color="#60A5FA" style={{ flexShrink: 0 }} />
-            <span>GETVNT OS • Africa's AI-Powered Event Operating System</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '8px 20px', borderRadius: '99px', background: 'rgba(37,99,235,0.18)', border: '1px solid rgba(37,99,235,0.4)', color: '#60A5FA', fontSize: '13px', fontWeight: 800, marginBottom: '28px', maxWidth: '100%', backdropFilter: 'blur(12px)', boxShadow: '0 8px 24px rgba(37,99,235,0.25)' }}>
+            <Sparkles size={16} color="#60A5FA" style={{ flexShrink: 0 }} />
+            <span>GETVNT OS • Africa's AI-Powered Event Operating System & Marketplace</span>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(40px, 6vw, 68px)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.03em', color: '#FFFFFF', marginBottom: '20px', fontFamily: 'var(--font-heading)', textShadow: '0 10px 30px rgba(0,0,0,0.8)' }}>
+          <h1 style={{ fontSize: 'clamp(42px, 6.5vw, 76px)', fontWeight: 900, lineHeight: 1.02, letterSpacing: '-0.035em', color: '#FFFFFF', marginBottom: '24px', fontFamily: 'var(--font-heading)', textShadow: '0 10px 40px rgba(0,0,0,0.9)' }}>
             Sell Tickets for Free. <br />
-            <span style={{ color: '#60A5FA', background: 'linear-gradient(135deg, #60A5FA 0%, #2563EB 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Build Your Event Operating System.</span>
+            <span style={{ background: 'linear-gradient(135deg, #60A5FA 0%, #3B82F6 40%, #A78BFA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Build Your Event Operating System.</span>
           </h1>
 
-          <p style={{ fontSize: 'clamp(16px, 1.8vw, 20px)', color: '#D1D5DB', lineHeight: 1.55, maxWidth: '760px', margin: '0 auto 36px auto', fontWeight: 500, textShadow: '0 4px 12px rgba(0,0,0,0.9)' }}>
-            Create events, sell tickets online, build custom event websites, and scale your brand with AI-powered marketing and instant &lt;500ms QR check-ins.
+          <p style={{ fontSize: 'clamp(17px, 2vw, 22px)', color: '#E5E7EB', lineHeight: 1.55, maxWidth: '820px', margin: '0 auto 40px auto', fontWeight: 500, textShadow: '0 4px 16px rgba(0,0,0,0.9)' }}>
+            Discover extraordinary concerts, tech summits, and festivals across Africa—or launch your own event with 0% subscription fees, custom websites, and instant QR check-ins.
           </p>
 
-          {/* CTAs & Live Search Bar */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '40px' }}>
-            <button className="tixup-btn-primary" style={{ padding: '14px 32px', fontSize: '15px', fontWeight: 900 }} onClick={onNavigateToWorkspace}>
-              Create Event Free <ArrowRight size={18} />
-            </button>
-            <button className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '14px 28px', fontSize: '15px', fontWeight: 800 }} onClick={() => onNavigateToTab('events')}>
-              Explore Live Events
-            </button>
-          </div>
-
-          {/* Integrated Search Bar */}
-          <div className="hero-search-container">
-            <div className="hero-search-field">
+          {/* Airbnb-Style Floating Interactive Search Pill Bar */}
+          <div style={{
+            maxWidth: '960px',
+            margin: '0 auto 48px auto',
+            background: 'rgba(13, 18, 34, 0.88)',
+            border: '1px solid rgba(255, 255, 255, 0.14)',
+            borderRadius: '99px',
+            padding: '10px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1)',
+            backdropFilter: 'blur(20px)',
+            flexWrap: 'wrap'
+          }}>
+            {/* Search Input */}
+            <div style={{ flex: '1 1 240px', display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: '99px', border: '1px solid rgba(255,255,255,0.06)' }}>
               <Search size={18} color="#60A5FA" style={{ flexShrink: 0 }} />
               <input
                 type="text"
-                placeholder="Search events by title, artist, or venue..."
+                placeholder="Search events, artists, venues..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: '14px', fontWeight: 600, outline: 'none', width: '100%' }}
               />
             </div>
-            <button className="tixup-btn-primary hero-search-btn" onClick={() => onNavigateToTab('events')}>
-              Search Events
+
+            {/* City Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: '99px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <MapPin size={16} color="#34D399" />
+              <select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: '13.5px', fontWeight: 700, outline: 'none', cursor: 'pointer' }}
+              >
+                {citiesList.map(c => <option key={c.name} value={c.name} style={{ background: '#0D1222', color: '#FFF' }}>{c.flag} {c.name}</option>)}
+              </select>
+            </div>
+
+            {/* Category Selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'rgba(255,255,255,0.04)', borderRadius: '99px', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <SlidersHorizontal size={16} color="#A78BFA" />
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                style={{ background: 'transparent', border: 'none', color: '#FFF', fontSize: '13.5px', fontWeight: 700, outline: 'none', cursor: 'pointer' }}
+              >
+                <option value="All" style={{ background: '#0D1222', color: '#FFF' }}>All Categories</option>
+                {categoryCards.map(cat => <option key={cat.id} value={cat.id} style={{ background: '#0D1222', color: '#FFF' }}>{cat.label}</option>)}
+              </select>
+            </div>
+
+            {/* Action Search Button */}
+            <button
+              className="tixup-btn-primary"
+              style={{ padding: '12px 28px', borderRadius: '99px', fontSize: '14px', fontWeight: 900, whiteSpace: 'nowrap' }}
+              onClick={() => onNavigateToTab('events')}
+            >
+              Discover <ArrowRight size={16} />
             </button>
           </div>
 
-          {/* Platform Telemetry Stats Bar */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginTop: '48px', background: 'rgba(13,17,32,0.7)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px 28px', backdropFilter: 'blur(12px)' }}>
+          {/* Social Telemetry Counters */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', background: 'rgba(13,17,32,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '24px 32px', backdropFilter: 'blur(16px)', boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}>
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: '#FFF' }}>1.2M+</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Tickets Verified</div>
+              <div style={{ fontSize: '26px', fontWeight: 900, color: '#FFF' }}>1,248,500+</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Tickets Verified</div>
             </div>
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: '#34D399' }}>4.9 / 5.0</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Organizer Rating</div>
+              <div style={{ fontSize: '26px', fontWeight: 900, color: '#34D399' }}>4.95 / 5.0</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Organizer Rating</div>
             </div>
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: '#60A5FA' }}>&lt; 500ms</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>QR Gate Scan</div>
+              <div style={{ fontSize: '26px', fontWeight: 900, color: '#60A5FA' }}>&lt; 500ms</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>QR Gate Scan Latency</div>
             </div>
             <div>
-              <div style={{ fontSize: '24px', fontWeight: 900, color: '#F59E0B' }}>₦0 / mo</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF' }}>Core Subscription Fee</div>
+              <div style={{ fontSize: '26px', fontWeight: 900, color: '#F59E0B' }}>₦0 / mo</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Core Subscription Fee</div>
             </div>
           </div>
 
@@ -191,16 +229,20 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
           </div>
         </div>
 
-        <div className="tixup-featured-card" onClick={() => onSelectEvent(featuredEvent)} style={{ cursor: 'pointer' }}>
+        <div className="tixup-featured-card" onClick={() => onSelectEvent(featuredEvent)} style={{ cursor: 'pointer', borderRadius: '28px', overflow: 'hidden' }}>
           <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} className="tixup-featured-img-wrap" />
           <div className="tixup-featured-overlay" />
           <div className="tixup-featured-content">
-            <span className="tixup-category-badge">🔥 FEATURED HEADLINER</span>
-            <h3 style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, color: '#FFF', margin: '12px 0 8px 0', fontFamily: 'var(--font-heading)' }}>{featuredEvent.title}</h3>
-            <p style={{ color: '#D1D5DB', fontSize: '15px', marginBottom: '20px', maxWidth: '640px' }}>
-              📍 {featuredEvent.venue_name} • 📅 {new Date(featuredEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            <span className="tixup-category-badge" style={{ background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)', color: '#FFF', padding: '6px 14px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, letterSpacing: '1px' }}>
+              🔥 SELLING FAST • HEADLINER
+            </span>
+            <h3 style={{ fontSize: 'clamp(26px, 4.5vw, 44px)', fontWeight: 900, color: '#FFF', margin: '14px 0 10px 0', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>{featuredEvent.title}</h3>
+            <p style={{ color: '#E5E7EB', fontSize: '16px', marginBottom: '24px', maxWidth: '680px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+              <span>📍 {featuredEvent.venue_name}</span>
+              <span>📅 {new Date(featuredEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+              <span style={{ color: '#34D399', fontWeight: 800 }}>❤️ 1.4k Interested</span>
             </p>
-            <button className="tixup-btn-primary" onClick={(e) => { e.stopPropagation(); onSelectEvent(featuredEvent); }}>
+            <button className="tixup-btn-primary" style={{ padding: '14px 32px', fontSize: '15px', fontWeight: 900 }} onClick={(e) => { e.stopPropagation(); onSelectEvent(featuredEvent); }}>
               Get Tickets Now <ArrowRight size={16} />
             </button>
           </div>
@@ -209,7 +251,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 3. EXPLORE CATEGORIES (11 CATEGORY CARDS) ── */}
+      {/* ── 3. EXPLORE CATEGORIES (11 VISUAL CARDS) ── */}
       <section className="landing-section-wrap">
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>DISCOVER BY EXPERIENCE</span>
@@ -222,15 +264,16 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
               key={cat.id}
               onClick={() => { setSelectedCategory(cat.id); onNavigateToTab('events'); }}
               style={{
-                background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '20px',
-                textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px'
+                background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '22px', padding: '24px 18px',
+                textAlign: 'center', cursor: 'pointer', transition: 'all 0.25s ease', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.3)'
               }}
             >
-              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {cat.icon}
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFF' }}>{cat.label}</div>
-              <div style={{ fontSize: '11.5px', color: '#9CA3AF' }}>{cat.count}</div>
+              <div style={{ fontSize: '14.5px', fontWeight: 800, color: '#FFF' }}>{cat.label}</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>{cat.count}</div>
             </div>
           ))}
         </div>
@@ -238,29 +281,41 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 4. UPCOMING EVENTS GRID ── */}
+      {/* ── 4. UPCOMING EVENTS GRID (EDGE-TO-EDGE CARDS) ── */}
       <section className="landing-section-wrap">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>LIVE ON GETVNT</span>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>Upcoming Events Across Africa</h2>
+            <h2 style={{ fontSize: 'clamp(26px, 3.8vw, 38px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>Upcoming Events Across Africa</h2>
           </div>
-          <button className="btn-cta" style={{ background: 'rgba(255,255,255,0.06)', color: '#FFF' }} onClick={() => onNavigateToTab('events')}>
+          <button className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '10px 22px', fontSize: '13.5px', fontWeight: 800 }} onClick={() => onNavigateToTab('events')}>
             View All Events <ChevronRight size={16} />
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '24px' }}>
           {filteredEvents.slice(0, 6).map((ev) => (
-            <div key={ev.id} className="tixup-event-card" onClick={() => onSelectEvent(ev)} style={{ cursor: 'pointer' }}>
-              <LazyImage src={ev.banner_url} alt={ev.title} className="tixup-event-img-wrap" />
-              <div className="tixup-event-info" style={{ padding: '16px' }}>
-                <span style={{ color: '#60A5FA', fontSize: '11px', fontWeight: 900, textTransform: 'uppercase' }}>{ev.category || 'LIVE EVENT'}</span>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: '6px 0 4px', lineHeight: 1.3 }}>{ev.title}</h4>
-                <p style={{ color: '#9CA3AF', fontSize: '12.5px', margin: 0 }}>📍 {ev.venue_name}</p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 900, color: '#34D399' }}>₦{(ev.ticket_types?.[0]?.price || 15000).toLocaleString()}</span>
-                  <span style={{ fontSize: '12px', color: '#60A5FA', fontWeight: 700 }}>Get Passes →</span>
+            <div key={ev.id} className="tixup-event-card" onClick={() => onSelectEvent(ev)} style={{ cursor: 'pointer', borderRadius: '24px', overflow: 'hidden', background: 'rgba(13,17,32,0.9)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ position: 'relative', overflow: 'hidden' }}>
+                <LazyImage src={ev.banner_url} alt={ev.title} className="tixup-event-img-wrap" style={{ height: '200px', width: '100%', objectFit: 'cover' }} />
+                <span style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(6,9,19,0.85)', color: '#60A5FA', fontSize: '10.5px', fontWeight: 900, padding: '4px 10px', borderRadius: '99px', backdropFilter: 'blur(8px)', border: '1px solid rgba(96,165,250,0.3)' }}>
+                  {ev.category || 'LIVE EVENT'}
+                </span>
+                <span style={{ position: 'absolute', top: '12px', right: '12px', background: 'rgba(52,211,153,0.2)', color: '#34D399', fontSize: '10.5px', fontWeight: 900, padding: '4px 10px', borderRadius: '99px', border: '1px solid rgba(52,211,153,0.4)', backdropFilter: 'blur(8px)' }}>
+                  ✓ VERIFIED
+                </span>
+              </div>
+              <div className="tixup-event-info" style={{ padding: '20px' }}>
+                <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: '0 0 6px 0', lineHeight: 1.35, fontFamily: 'var(--font-heading)' }}>{ev.title}</h4>
+                <p style={{ color: '#9CA3AF', fontSize: '13px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <MapPin size={14} color="#60A5FA" /> {ev.venue_name}
+                </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+                  <div>
+                    <span style={{ fontSize: '11px', color: '#9CA3AF', display: 'block' }}>Starting from</span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#34D399' }}>₦{(ev.ticket_types?.[0]?.price || 15000).toLocaleString()}</span>
+                  </div>
+                  <span style={{ fontSize: '13px', color: '#60A5FA', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>Get Passes <ArrowRight size={14} /></span>
                 </div>
               </div>
             </div>
@@ -270,28 +325,28 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 7. WHY GETVNT (6 KEY VALUE PILLARS) ── */}
+      {/* ── 5. TRUST & SECURITY MATRIX ── */}
       <section className="landing-section-wrap">
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>THE GETVNT ADVANTAGE</span>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>Why Organizers Choose GetVNT</h2>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>Built for Trust, Speed &amp; Security</h2>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
           {[
-            { icon: <Cpu size={24} color="#60A5FA" />, title: 'AI-Powered Event Tools', desc: 'Generate event descriptions, promotional copy, poster graphics, and sponsorship decks automatically.' },
-            { icon: <Zap size={24} color="#34D399" />, title: 'Instant Free Ticketing', desc: 'Create unlimited events and sell tickets online for 0% monthly subscription. GetVNT earns a 5% processing fee on paid tickets.' },
-            { icon: <Shield size={24} color="#A78BFA" />, title: 'Organizer Verification', desc: 'Build attendee trust with verified promoter badges, government ID verification, and secure bank payouts.' },
-            { icon: <Globe size={24} color="#F59E0B" />, title: 'Framer-Grade Website Builder', desc: 'Build responsive event websites with custom domains (www.myfestival.com), SEO tools, blog hub, and sponsor logos.' },
-            { icon: <BarChart3 size={24} color="#EC4899" />, title: 'Real-Time Analytics', desc: 'Track sales funnels, attendee traffic heatmaps, revenue disbursals, and campaign conversion rates.' },
-            { icon: <Lock size={24} color="#38BDF8" />, title: 'PCI-DSS Secure Payments', desc: 'Settle revenues via Paystack, Flutterwave, and Stripe with 256-bit SSL encryption and instant payout options.' },
+            { icon: <Cpu size={26} color="#60A5FA" />, title: 'AI-Powered Event Copilot', desc: 'Generate high-converting promo graphics, event descriptions, and sponsorship decks in seconds.' },
+            { icon: <Zap size={26} color="#34D399" />, title: 'Instant Free Ticketing', desc: 'Create unlimited events and sell tickets online for 0% monthly subscription. GETVNT earns a 5% processing fee on paid tickets.' },
+            { icon: <Shield size={26} color="#A78BFA" />, title: 'Verified Organizer KYC', desc: 'Protect buyers with government ID verification, AI biometric selfie matching, and verified promoter badges.' },
+            { icon: <Globe size={26} color="#F59E0B" />, title: 'Custom Event Website Builder', desc: 'Host branded event websites on custom domains (www.myfestival.com) with automated SSL certificates.' },
+            { icon: <BarChart3 size={26} color="#EC4899" />, title: 'Real-Time Sales Telemetry', desc: 'Track ticket sales velocity, attendee rosters, check-in percentages, and instant revenue disbursals.' },
+            { icon: <Lock size={26} color="#38BDF8" />, title: 'PCI-DSS Level 1 Encryption', desc: 'Process payments via Paystack, Flutterwave, and Stripe with 256-bit SSL encryption and automated payouts.' },
           ].map((pillar, idx) => (
-            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '28px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '30px', display: 'flex', flexDirection: 'column', gap: '16px', boxShadow: '0 10px 30px rgba(0,0,0,0.4)' }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {pillar.icon}
               </div>
-              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFF', margin: 0 }}>{pillar.title}</h3>
-              <p style={{ color: '#9CA3AF', fontSize: '14px', lineHeight: 1.5, margin: 0 }}>{pillar.desc}</p>
+              <h3 style={{ fontSize: '19px', fontWeight: 800, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>{pillar.title}</h3>
+              <p style={{ color: '#9CA3AF', fontSize: '14.5px', lineHeight: 1.55, margin: 0 }}>{pillar.desc}</p>
             </div>
           ))}
         </div>
@@ -299,129 +354,22 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 8. ORGANIZER OS SHOWCASE ── */}
+      {/* ── 6. TRUSTED PROMOTERS SHOWCASE ── */}
       <section className="landing-section-wrap">
-        <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(13,17,32,0.95) 100%)', border: '1px solid rgba(37,99,235,0.3)', borderRadius: '32px', padding: 'clamp(32px, 5vw, 64px)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '36px', alignItems: 'center' }}>
-          <div>
-            <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>ORGANIZER OS</span>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#FFF', margin: '10px 0 16px', fontFamily: 'var(--font-heading)' }}>
-              Your Entire Event Business in One Dashboard.
-            </h2>
-            <p style={{ color: '#D1D5DB', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px' }}>
-              Organizer OS provides 20 core suites to run your live events: Website Builder, Gate Check-ins, Customer CRM, Ad Studio, Revenue Wallets, and AI Copilot.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13.5px', color: '#FFF', marginBottom: '28px' }}>
-              <div>✓ Sub-second offline QR gate check-in app</div>
-              <div>✓ Automatic Paystack &amp; Stripe bank settlement</div>
-              <div>✓ Multi-user team workspace access</div>
-            </div>
-            <button className="tixup-btn-primary" style={{ padding: '12px 28px', fontSize: '14px' }} onClick={onNavigateToWorkspace}>
-              Launch Organizer OS <ArrowRight size={16} />
-            </button>
-          </div>
-
-          <div style={{ background: '#05070E', borderRadius: '20px', padding: '20px', border: '1px solid rgba(255,255,255,0.1)', boxShadow: '0 25px 50px rgba(0,0,0,0.8)' }}>
-            <img src="/tech_summit_banner.png" alt="Organizer OS" style={{ width: '100%', borderRadius: '12px', display: 'block' }} />
-          </div>
-        </div>
-      </section>
-
-      <div className="glass-section-divider" />
-
-      {/* ── 9. BUILD YOUR EVENT WEBSITE (WEBSITE OS PRICING MODEL) ── */}
-      <section className="landing-section-wrap">
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>GETVNT ECOSYSTEM MODEL</span>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
-            Sell tickets for free. Build your event brand with GetVNT Websites.
-          </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '15px', maxWidth: '640px', margin: '12px auto 0', lineHeight: 1.6 }}>
-            Never pay a monthly subscription to list events or sell tickets. We only charge a 5% Platform Processing Fee on paid tickets sold.
-          </p>
+        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>PROMOTER SPOTLIGHT</span>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>Featured Verified Organizers</h2>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
-          {/* Starter Plan */}
-          <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#9CA3AF', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>STARTER</span>
-            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>Free Forever</div>
-            <div style={{ fontSize: '12.5px', color: '#60A5FA', fontFamily: 'monospace' }}>organizer.getvnt.com</div>
-            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
-              Perfect for new event organizers starting out. Unlimited events and ticket sales.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
-              <div>✓ Free Organizer Portal &amp; Ticket Creation</div>
-              <div>✓ Basic Event Landing Page Subdomain</div>
-              <div>✓ QR Door Entrance Scanner App</div>
-              <div>✓ 5% Platform Processing Fee on Paid Tickets</div>
-            </div>
-            <button className="btn-cta" style={{ width: '100%', background: 'rgba(255,255,255,0.08)', color: '#FFF', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
-              Start Free Today
-            </button>
-          </div>
-
-          {/* Professional Plan */}
-          <div style={{ background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(13,17,32,0.95) 100%)', border: '2px solid #2563EB', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column', position: 'relative', boxShadow: '0 20px 50px rgba(37,99,235,0.3)' }}>
-            <span style={{ position: 'absolute', top: '16px', right: '16px', background: '#2563EB', color: '#FFF', padding: '4px 12px', borderRadius: '99px', fontSize: '10.5px', fontWeight: 900 }}>
-              MOST POPULAR
-            </span>
-            <span style={{ color: '#60A5FA', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>PROFESSIONAL</span>
-            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>₦120,000 <span style={{ fontSize: '14px', color: '#9CA3AF' }}>/year</span></div>
-            <div style={{ fontSize: '12.5px', color: '#34D399', fontFamily: 'monospace' }}>www.myfestival.com</div>
-            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
-              For growing organizers wanting custom domain branding, Framer-grade website builder, &amp; SEO.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
-              <div>✓ Everything in Starter</div>
-              <div>✓ Custom Domain Connection &amp; Auto SSL</div>
-              <div>✓ Framer-Grade Website Builder (12 Templates)</div>
-              <div>✓ Blog, SEO, Sponsors, &amp; Gallery CMS</div>
-              <div>✓ Email Newsletter &amp; Audience CRM</div>
-            </div>
-            <button className="tixup-btn-primary" style={{ width: '100%', height: '48px', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
-              Build Organizer Brand <ArrowRight size={16} />
-            </button>
-          </div>
-
-          {/* Enterprise Plan */}
-          <div style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '32px', display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#C084FC', fontSize: '12px', fontWeight: 900, textTransform: 'uppercase' }}>ENTERPRISE</span>
-            <div style={{ fontSize: '36px', fontWeight: 900, color: '#FFF', margin: '10px 0 4px' }}>Custom</div>
-            <div style={{ fontSize: '12.5px', color: '#C084FC', fontFamily: 'monospace' }}>White-Label OS</div>
-            <p style={{ color: '#9CA3AF', fontSize: '13.5px', margin: '16px 0 24px', lineHeight: 1.5 }}>
-              For large festival promoters, stadium venues, &amp; enterprise agencies.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#D1D5DB', marginBottom: '32px', flex: 1 }}>
-              <div>✓ Multiple Team Admins &amp; Role Access</div>
-              <div>✓ Dedicated Sponsor Portal &amp; White-Label</div>
-              <div>✓ Enterprise API Vault &amp; Custom Webhooks</div>
-              <div>✓ Dedicated Account Manager &amp; Priority Payouts</div>
-            </div>
-            <button className="btn-cta" style={{ width: '100%', background: 'rgba(255,255,255,0.08)', color: '#FFF', justifyContent: 'center' }} onClick={onNavigateToWorkspace}>
-              Contact Enterprise Team
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <div className="glass-section-divider" />
-
-      {/* ── 10. TESTIMONIALS ── */}
-      <section className="landing-section-wrap">
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
-          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>PROMOTER STORIES</span>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>Trusted by Africa's Top Organizers</h2>
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
           {topOrganizers.map((org, idx) => (
-            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '20px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div key={idx} style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 10px 30px rgba(0,0,0,0.4)' }}>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{ color: '#FBBF24', fontSize: '13px', fontWeight: 900 }}>{org.rating}</span>
-                  <span style={{ color: '#34D399', fontSize: '12px', fontWeight: 800 }}>{org.growth}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <span style={{ color: '#FBBF24', fontSize: '13.5px', fontWeight: 900 }}>{org.rating}</span>
+                  <span style={{ color: '#34D399', fontSize: '12.5px', fontWeight: 800 }}>{org.growth}</span>
                 </div>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: '0 0 6px' }}>{org.name}</h4>
+                <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>{org.name}</h4>
                 <p style={{ color: '#9CA3AF', fontSize: '13px', margin: 0 }}>{org.followers}</p>
               </div>
             </div>
@@ -431,14 +379,14 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 8. UNBOXED ANDROID SCANNER APP SHOWCASE ── */}
+      {/* ── 7. UNBOXED ANDROID SCANNER SHOWCASE ── */}
       <section className="landing-section-wrap">
         <AndroidAppPromotion />
       </section>
 
       <div className="glass-section-divider" />
 
-      {/* ── 9. APPLE NEWS-STYLE PULSE BLOG ── */}
+      {/* ── 8. APPLE NEWS-STYLE PULSE BLOG ── */}
       <section className="landing-section-wrap">
         <HomeNewsCarousel
           onOpenArticle={(slug) => onNavigateToBlog(slug)}
@@ -448,19 +396,19 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 11. STRIPE-GRADE 2-COLUMN FAQ ACCORDION ── */}
-      <section style={{ maxWidth: '1200px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 48px)', boxSizing: 'border-box' }}>
-        <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+      {/* ── 9. STRIPE-GRADE 2-COLUMN FAQ ACCORDION ── */}
+      <section style={{ maxWidth: '1280px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 48px)', boxSizing: 'border-box' }}>
+        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
           <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>HELP &amp; KNOWLEDGE BASE</span>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
             Frequently Asked Questions
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '15px', marginTop: '10px', maxWidth: '640px', margin: '10px auto 0', lineHeight: 1.5 }}>
-            Everything you need to know about GETVNT's flat 5% platform fee, payouts, verification, and custom event websites.
+          <p style={{ color: '#9CA3AF', fontSize: '15.5px', marginTop: '10px', maxWidth: '680px', margin: '10px auto 0', lineHeight: 1.55 }}>
+            Everything you need to know about GETVNT's flat 5% platform fee, bank payouts, promoter verification, and event websites.
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', alignItems: 'start' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '16px', alignItems: 'start' }}>
           {faqs.map((faq, idx) => {
             const isOpen = openFaq === idx;
             return (
@@ -472,27 +420,27 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 onClick={() => setOpenFaq(isOpen ? null : idx)}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpenFaq(isOpen ? null : idx); } }}
                 style={{
-                  background: isOpen ? 'rgba(37,99,235,0.08)' : 'rgba(13,17,32,0.75)',
-                  border: `1px solid ${isOpen ? 'rgba(37,99,235,0.35)' : 'rgba(255,255,255,0.08)'}`,
-                  borderRadius: '16px',
-                  padding: '20px 24px',
+                  background: isOpen ? 'rgba(37,99,235,0.09)' : 'rgba(13,17,32,0.8)',
+                  border: `1px solid ${isOpen ? 'rgba(37,99,235,0.4)' : 'rgba(255,255,255,0.1)'}`,
+                  borderRadius: '18px',
+                  padding: '22px 26px',
                   cursor: 'pointer',
                   width: '100%',
                   boxSizing: 'border-box',
                   transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: isOpen ? '0 10px 30px rgba(0,0,0,0.35)' : 'none'
+                  boxShadow: isOpen ? '0 12px 32px rgba(0,0,0,0.4)' : 'none'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                  <h4 style={{ fontSize: '15.5px', fontWeight: 800, color: isOpen ? '#60A5FA' : '#FFF', margin: 0, fontFamily: 'var(--font-heading)', transition: 'color 0.2s ease', lineHeight: 1.4 }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: 800, color: isOpen ? '#60A5FA' : '#FFF', margin: 0, fontFamily: 'var(--font-heading)', transition: 'color 0.2s ease', lineHeight: 1.4 }}>
                     {idx + 1}. {faq.question}
                   </h4>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isOpen ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s ease' }}>
+                  <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: isOpen ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s ease' }}>
                     <ChevronRight size={16} color={isOpen ? '#60A5FA' : '#9CA3AF'} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }} />
                   </div>
                 </div>
                 {isOpen && (
-                  <p style={{ color: '#D1D5DB', fontSize: '14px', lineHeight: 1.6, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
+                  <p style={{ color: '#E5E7EB', fontSize: '14.5px', lineHeight: 1.6, marginTop: '16px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px' }}>
                     {faq.answer}
                   </p>
                 )}
@@ -504,27 +452,30 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 12. FINAL CALL-TO-ACTION BANNER ── */}
+      {/* ── 10. UNFORGETTABLE CALL-TO-ACTION BANNER ── */}
       <section className="landing-section-wrap" style={{ marginBottom: 0 }}>
         <div style={{
           position: 'relative',
-          background: 'linear-gradient(135deg, rgba(37,99,235,0.25) 0%, rgba(124,58,237,0.15) 50%, rgba(13,17,32,0.95) 100%)',
-          border: '1px solid rgba(37,99,235,0.35)',
-          borderRadius: '28px',
-          padding: 'clamp(40px, 6vw, 72px) clamp(24px, 4vw, 48px)',
+          background: 'linear-gradient(135deg, rgba(37,99,235,0.3) 0%, rgba(124,58,237,0.2) 50%, rgba(13,17,32,0.98) 100%)',
+          border: '1px solid rgba(37,99,235,0.4)',
+          borderRadius: '32px',
+          padding: 'clamp(48px, 7vw, 80px) clamp(24px, 5vw, 56px)',
           textAlign: 'center',
           overflow: 'hidden',
-          boxShadow: '0 20px 60px rgba(37, 99, 235, 0.2)'
+          boxShadow: '0 25px 70px rgba(37, 99, 235, 0.25)'
         }}>
-          <h2 style={{ fontSize: 'clamp(28px, 4.5vw, 48px)', fontWeight: 900, color: '#FFF', marginBottom: '16px', fontFamily: 'var(--font-heading)' }}>
-            Ready to Build Your Event Business on GetVNT OS?
+          <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900, color: '#FFF', marginBottom: '18px', fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em' }}>
+            Ready to Build Your Event Business on GETVNT OS?
           </h2>
-          <p style={{ color: '#D1D5DB', fontSize: 'clamp(15px, 1.8vw, 18px)', maxWidth: '640px', margin: '0 auto 32px auto', lineHeight: 1.6 }}>
+          <p style={{ color: '#E5E7EB', fontSize: 'clamp(16px, 2vw, 19px)', maxWidth: '680px', margin: '0 auto 36px auto', lineHeight: 1.6 }}>
             Join thousands of event organizers selling tickets and building custom event websites across Africa.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
-            <button className="tixup-btn-primary" style={{ padding: '16px 36px', fontSize: '15px', fontWeight: 900 }} onClick={onNavigateToWorkspace}>
+            <button className="tixup-btn-primary" style={{ padding: '16px 40px', fontSize: '16px', fontWeight: 900 }} onClick={onNavigateToWorkspace}>
               Launch Your Event OS Free <ArrowRight size={18} />
+            </button>
+            <button className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '16px 32px', fontSize: '16px', fontWeight: 800 }} onClick={() => onNavigateToTab('events')}>
+              Browse Live Events
             </button>
           </div>
         </div>
