@@ -303,54 +303,54 @@ function WorkspaceContent() {
   // ─────────────────────────────────────────────────────────────
   // NAVIGATION ITEMS
   // ─────────────────────────────────────────────────────────────
+  // NAVIGATION MODULES (APPROVED INFORMATION ARCHITECTURE)
   const navModules = [
     {
-      category: '1. ORGANIZER OS OVERVIEW',
+      category: '1. OVERVIEW',
       items: [
-        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Overview Dashboard' },
-        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Suite' },
+        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Dashboard' },
       ],
     },
     {
-      category: '2. EVENTS & TICKETING',
+      category: '2. EVENTS & TICKETS',
       items: [
-        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Ticket Designer' },
+        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Tickets' },
       ],
     },
     {
-      category: '3. ORDERS & GATE CONTROL',
+      category: '3. ORDERS & ROSTER',
       items: [
         { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
       ],
     },
     {
-      category: '4. WEBSITE BUILDER OS',
+      category: '4. MARKETING & CRM',
+      items: [
+        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
+        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM & Reviews' },
+        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship Decks' },
+      ],
+    },
+    {
+      category: '5. REVENUE & WALLET',
+      items: [
+        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Wallet & Payout Disbursals' },
+      ],
+    },
+    {
+      category: '6. WEBSITE BUILDER (PREMIUM)',
       items: [
         { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Website Builder & Domains' },
       ],
     },
     {
-      category: '5. MARKETING SUITE',
+      category: '7. AI STUDIO',
       items: [
-        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
-        { id: 'automation', icon: <IconContainer icon={Zap} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'AI Automation Engine' },
-        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsors & Decks' },
+        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Copilot' },
       ],
     },
     {
-      category: '6. AUDIENCE & CRM',
-      items: [
-        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM & Reviews' },
-      ],
-    },
-    {
-      category: '7. REVENUE & FINANCIALS',
-      items: [
-        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Revenue, Payouts & Wallet' },
-      ],
-    },
-    {
-      category: '8. SETTINGS & VERIFICATION',
+      category: '8. SETTINGS & KYC',
       items: [
         { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings & Verification' },
       ],
