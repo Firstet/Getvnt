@@ -176,7 +176,7 @@ export const FooterPageViews: React.FC<FooterPageViewProps> = ({ pageType, onBac
               <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', marginBottom: '24px', fontFamily: 'var(--font-heading)' }}>
                 Frequently Asked Questions
               </h2>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', alignItems: 'start' }}>
                 {[
                   { q: 'What is GETVNT?', a: 'GETVNT is Africa\'s AI-powered Event Operating System. We give organizers tools to create events, sell tickets online, build branded event websites, verify attendees, scan QR passes offline, and manage bank payouts—all in one dashboard.' },
                   { q: 'Is it free to create and sell events on GETVNT?', a: 'Yes. Anyone can create an account and list unlimited free or paid events with zero monthly subscription fees.' },

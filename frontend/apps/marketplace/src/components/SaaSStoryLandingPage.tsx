@@ -448,19 +448,19 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 11. STRIPE-GRADE FAQ ACCORDION ── */}
-      <section style={{ maxWidth: '840px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 48px)', boxSizing: 'border-box' }}>
+      {/* ── 11. STRIPE-GRADE 2-COLUMN FAQ ACCORDION ── */}
+      <section style={{ maxWidth: '1200px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 48px)', boxSizing: 'border-box' }}>
         <div style={{ textAlign: 'center', marginBottom: '44px' }}>
           <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>HELP &amp; KNOWLEDGE BASE</span>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
             Frequently Asked Questions
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '15px', marginTop: '10px', maxWidth: '600px', margin: '10px auto 0', lineHeight: 1.5 }}>
+          <p style={{ color: '#9CA3AF', fontSize: '15px', marginTop: '10px', maxWidth: '640px', margin: '10px auto 0', lineHeight: 1.5 }}>
             Everything you need to know about GETVNT's flat 5% platform fee, payouts, verification, and custom event websites.
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '16px', alignItems: 'start' }}>
           {faqs.map((faq, idx) => {
             const isOpen = openFaq === idx;
             return (
@@ -484,7 +484,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                  <h4 style={{ fontSize: '16px', fontWeight: 800, color: isOpen ? '#60A5FA' : '#FFF', margin: 0, fontFamily: 'var(--font-heading)', transition: 'color 0.2s ease' }}>
+                  <h4 style={{ fontSize: '15.5px', fontWeight: 800, color: isOpen ? '#60A5FA' : '#FFF', margin: 0, fontFamily: 'var(--font-heading)', transition: 'color 0.2s ease', lineHeight: 1.4 }}>
                     {idx + 1}. {faq.question}
                   </h4>
                   <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isOpen ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s ease' }}>
@@ -492,7 +492,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                   </div>
                 </div>
                 {isOpen && (
-                  <p style={{ color: '#D1D5DB', fontSize: '14.5px', lineHeight: 1.65, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px', maxWidth: '800px' }}>
+                  <p style={{ color: '#D1D5DB', fontSize: '14px', lineHeight: 1.6, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
                     {faq.answer}
                   </p>
                 )}
