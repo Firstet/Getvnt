@@ -565,8 +565,8 @@ export const SaaSOnboardingWizard: React.FC<SaaSOnboardingWizardProps> = ({ onCo
                     Your verification request has been logged. Our Super Admin compliance team will review your application within 2 hours.
                   </p>
 
-                  <button type="button" className="btn-cta" style={{ background: 'rgba(255,255,255,0.08)', color: '#FFF', padding: '0 28px' }} onClick={onComplete}>
-                    Return to User Portal
+                  <button type="button" className="tixup-btn-primary" style={{ padding: '0 32px', height: '50px', fontSize: '15px' }} onClick={onComplete}>
+                    Enter Organizer Workspace <ArrowRight size={16} />
                   </button>
                 </div>
               )}
