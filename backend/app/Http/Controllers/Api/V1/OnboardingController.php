@@ -93,8 +93,26 @@ class OnboardingController extends Controller
         if (isset($validated['is_completed']) && $validated['is_completed']) {
             $settings['onboarding_completed'] = true;
             $settings['verification_status'] = 'pending';
-            // Flag as pending approval until super admin approves
+            // Flag as unverified pending KYC approval
             $tenant->is_verified = false;
+
+            // 1. Instantly promote user role from attendee/user to organizer_owner
+            $user->role = 'organizer_owner';
+            $user->save();
+
+            // 2. Initialize Organizer Wallet if missing
+            if (\Illuminate\Support\Facades\Schema::hasTable('finance_wallets')) {
+                \Illuminate\Support\Facades\DB::table('finance_wallets')->updateOrInsert(
+                    ['tenant_id' => $tenant->id],
+                    [
+                        'balance' => 0.00,
+                        'currency' => 'NGN',
+                        'is_active' => true,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]
+                );
+            }
         }
 
         if (isset($validated['business_address'])) $settings['business_address'] = $validated['business_address'];
@@ -110,12 +128,13 @@ class OnboardingController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Onboarding & KYC step saved successfully',
+            'message' => 'Organizer registration submitted successfully! Account converted to Organizer.',
             'data' => [
                 'current_step' => $settings['onboarding_step'],
                 'completed' => $settings['onboarding_completed'] ?? false,
                 'verification_status' => $settings['verification_status'] ?? 'pending',
                 'tenant' => $tenant,
+                'user' => $user->fresh(),
             ]
         ]);
     }

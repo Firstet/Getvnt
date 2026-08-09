@@ -315,7 +315,11 @@ function WorkspaceContent() {
   if (view === 'onboarding') {
     return (
       <SaaSOnboardingWizard
-        onComplete={() => setView('dashboard')}
+        onComplete={async () => {
+          await refreshUser();
+          setView('dashboard');
+          triggerToast('🎉 Account converted to Organizer! Welcome to your Organizer Workspace.');
+        }}
         onToast={triggerToast}
       />
     );
