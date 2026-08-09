@@ -445,9 +445,7 @@ function WorkspaceContent() {
           <a href={getAppUrl('marketplace')} className="sidebar-link" style={{ color: '#9CA3AF' }}>
             <Globe size={17} /> Public Storefront
           </a>
-          <a href={getAppUrl('admin')} className="sidebar-link" style={{ color: '#F87171' }}>
-            <ShieldAlert size={17} color="#EF4444" /> Super Admin Control
-          </a>
+
           <a
             className="sidebar-link"
             style={{ color: '#60A5FA', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
