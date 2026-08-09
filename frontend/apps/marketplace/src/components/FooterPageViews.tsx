@@ -173,17 +173,35 @@ export const FooterPageViews: React.FC<FooterPageViewProps> = ({ pageType, onBac
 
             {/* Knowledge Base FAQs */}
             <div style={{ background: 'rgba(13, 17, 32, 0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '24px', padding: '40px' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', marginBottom: '24px' }}>Frequently Asked Questions</h2>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', marginBottom: '24px', fontFamily: 'var(--font-heading)' }}>
+                Frequently Asked Questions
+              </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
-                  { q: 'How do I download or present my ticket at the venue entrance?', a: 'Your ticket contains an encrypted 2D QR code. You can present it directly from your smartphone or print out the PDF attachment sent to your email.' },
-                  { q: 'What happens if an event gets postponed or cancelled?', a: 'If an event is rescheduled, your ticket remains automatically valid for the new date. If cancelled, a 100% full refund is issued back to your payment card.' },
-                  { q: 'Is it safe to buy tickets on Getvnt?', a: 'Yes! Getvnt uses SOC2 certified payment gateways and unique anti-counterfeit QR tokens to guarantee 100% genuine tickets.' },
-                  { q: 'How do event organizers receive payouts?', a: 'Payouts are disbursed automatically to organizers’ verified bank accounts or mobile money wallets following event execution.' }
+                  { q: 'What is GETVNT?', a: 'GETVNT is Africa\'s AI-powered Event Operating System. We give organizers tools to create events, sell tickets online, build branded event websites, verify attendees, scan QR passes offline, and manage bank payouts—all in one dashboard.' },
+                  { q: 'Is it free to create and sell events on GETVNT?', a: 'Yes. Anyone can create an account and list unlimited free or paid events with zero monthly subscription fees.' },
+                  { q: 'What fees does GETVNT charge on ticket sales?', a: 'GETVNT charges a flat 5% platform fee on every paid ticket sold. Free events are 100% free with zero platform fees.' },
+                  { q: 'Are payment gateway transaction fees separate?', a: 'Yes. Payment processors (Paystack, Flutterwave, Stripe) charge approximately 1.5% per transaction separately for secure payment processing.' },
+                  { q: 'How do organizers receive payouts?', a: 'Revenues are automatically settled into your connected bank account or GETVNT wallet according to automated disbursal rules.' },
+                  { q: 'How long do payouts take after an event?', a: 'Standard payouts process within 24 hours of ticket sales. Verified Trusted Organizers can also activate instant wallet disbursals in their Organizer OS dashboard.' },
+                  { q: 'What is a Trusted Organizer?', a: 'A Trusted Organizer is a verified event promoter who has completed government ID, selfie biometrics, and bank verification, earning a verified badge and priority search ranking.' },
+                  { q: 'Why do organizers need to verify identity?', a: 'Verification protects ticket buyers from fraudulent events, ensures ticket authenticity, and enables secure bank disbursals.' },
+                  { q: 'Which government IDs are accepted for verification?', a: 'We accept National Identity Number (NIN), International Passport, Driver\'s License, and Voter\'s Card.' },
+                  { q: 'How long does identity verification take?', a: 'Verification is powered by AI and usually completes in under 2 minutes. If manual review is required, our compliance team approves applications within 12 hours.' },
+                  { q: 'Can I build my own branded event website?', a: 'Yes. You can create a full multi-page event website using our Website Builder OS with 12 specialized category templates.' },
+                  { q: 'Can I use my own custom domain?', a: 'Yes. You can host your event website on a free subdomain (organizername.getvnt.com) or connect your custom domain (www.myfestival.com) with automated SSL certificates.' },
+                  { q: 'How are tickets validated at the venue?', a: 'Every ticket includes an encrypted digital QR code that gate staff scan using the GETVNT Android Scanner App in under 500ms.' },
+                  { q: 'Can I scan tickets without internet connectivity?', a: 'Yes. The GETVNT Android App supports offline RSA-encrypted QR validation that syncs automatically once internet connection is restored.' },
+                  { q: 'Can attendees transfer their tickets to someone else?', a: 'Yes. Attendees can securely transfer digital QR tickets to friends or colleagues directly from their GETVNT attendee portal.' },
+                  { q: 'How do refunds work and who sets the refund policy?', a: 'Event organizers set their own refund policies. Organizers can process instant full or partial refunds directly from their Organizer OS dashboard.' },
+                  { q: 'Can teams manage an organizer account together?', a: 'Yes. You can invite team members to your workspace with role-based access for gate scanners, accountants, and co-organizers.' },
+                  { q: 'Is payment information secure on GETVNT?', a: 'Yes. All checkout transactions are PCI-DSS Level 1 compliant and encrypted with 256-bit SSL.' },
                 ].map((item, idx) => (
                   <div key={idx} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '16px', padding: '20px' }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', marginBottom: '8px' }}>{item.q}</h4>
-                    <p style={{ fontSize: '13.5px', color: '#9CA3AF', lineHeight: 1.6 }}>{item.a}</p>
+                    <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#60A5FA', marginBottom: '8px' }}>
+                      {idx + 1}. {item.q}
+                    </h4>
+                    <p style={{ fontSize: '14px', color: '#D1D5DB', lineHeight: 1.65, margin: 0 }}>{item.a}</p>
                   </div>
                 ))}
               </div>
