@@ -92,10 +92,22 @@ function StatCard({
 
 // ─── Main WorkspaceContent ────────────────────────────────────────────────────
 function WorkspaceContent() {
-  const { user, token, loading, isImpersonating, impersonatedOrg, stopImpersonation, login, registerOrganizer, logout, switchOrganization, refreshUser } = useAuth();
+  const { user, token, loading, isImpersonating, impersonatedOrg, stopImpersonation, login, registerOrganizer, logout, switchOrganization, refreshUser, hasFeature } = useAuth();
   const { brand } = useBrand();
 
-  const [view, setView] = useState<'login' | 'register' | 'onboarding' | 'dashboard' | 'ai_assistant' | 'marketing' | 'automation' | 'qr_studio' | 'ticket_designer' | 'website_builder' | 'ad_studio' | 'crm' | 'sponsorship' | 'billing' | 'settings'>('dashboard');
+  const [view, setView] = useState<
+    | 'login' | 'register' | 'onboarding'
+    // Shared (all tiers)
+    | 'dashboard' | 'settings'
+    // USER tier
+    | 'my_tickets' | 'saved_events' | 'following' | 'notifications' | 'profile'
+    // ORGANIZER tier
+    | 'ticket_designer' | 'qr_studio' | 'billing'
+    // TRUSTED ORGANIZER tier
+    | 'marketing' | 'analytics' | 'crm' | 'sponsorship' | 'ad_studio' | 'automation' | 'ai_assistant' | 'team'
+    // ORGANIZER PRO tier
+    | 'website_builder'
+  >('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [showLoginPassword, setShowLoginPassword] = useState(false);
@@ -150,7 +162,7 @@ function WorkspaceContent() {
       setView('login');
     } else if (user) {
       const completed = user.tenant?.settings?.onboarding_completed;
-      if (!completed && user.role !== 'super_admin') {
+      if (!completed && (user.role as string) !== 'super_admin') {
         setView('onboarding');
       } else if (view === 'login' || view === 'register' || view === 'onboarding') {
         setView('dashboard');
@@ -301,61 +313,101 @@ function WorkspaceContent() {
   // ─────────────────────────────────────────────────────────────
   // 4. MAIN WORKSPACE APP
   // ─────────────────────────────────────────────────────────────
-  // NAVIGATION ITEMS
-  // ─────────────────────────────────────────────────────────────
-  // NAVIGATION MODULES (APPROVED INFORMATION ARCHITECTURE)
-  const navModules = [
-    {
-      category: '1. OVERVIEW',
-      items: [
-        { id: 'dashboard', icon: <IconContainer icon={House} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Dashboard' },
-      ],
-    },
-    {
-      category: '2. EVENTS & TICKETS',
-      items: [
-        { id: 'ticket_designer', icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Tickets' },
-      ],
-    },
-    {
-      category: '3. ORDERS & ROSTER',
-      items: [
-        { id: 'qr_studio', icon: <IconContainer icon={QrCode} color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
-      ],
-    },
-    {
-      category: '4. MARKETING & CRM',
-      items: [
-        { id: 'marketing', icon: <IconContainer icon={Share2} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
-        { id: 'crm', icon: <IconContainer icon={Award} color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM & Reviews' },
-        { id: 'sponsorship', icon: <IconContainer icon={Briefcase} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship Decks' },
-      ],
-    },
-    {
-      category: '5. REVENUE & WALLET',
-      items: [
-        { id: 'billing', icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={28} size={15} />, label: 'Wallet & Payout Disbursals' },
-      ],
-    },
-    {
-      category: '6. WEBSITE BUILDER (PREMIUM)',
-      items: [
-        { id: 'website_builder', icon: <IconContainer icon={Globe} color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={28} size={15} />, label: 'Website Builder & Domains' },
-      ],
-    },
-    {
-      category: '7. AI STUDIO',
-      items: [
-        { id: 'ai_assistant', icon: <IconContainer icon={Bot} color="#06B6D4" bg="rgba(6,182,212,0.12)" containerSize={28} size={15} />, label: 'AI Studio Copilot' },
-      ],
-    },
-    {
-      category: '8. SETTINGS & KYC',
-      items: [
-        { id: 'settings', icon: <IconContainer icon={Settings} color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings & Verification' },
-      ],
-    },
-  ];
+  // ─── ROLE-AWARE SIDEBAR (Single source of truth for navigation) ───────────
+  // Determines which sidebar items appear based on the user's account_tier.
+  // Fallback: if account_tier is missing, derive it from role string.
+  const getAccountTier = () => {
+    const tier = (user as any)?.account_tier;
+    if (tier) return tier;
+    const roleStr = (user?.role as string) || '';
+    if (roleStr === 'super_admin' || roleStr === 'platform_staff' || roleStr === 'platform_admin') return 'platform_staff';
+    if (roleStr === 'organizer_owner' || roleStr === 'organizer_staff' || (user?.tenant_id && roleStr !== 'attendee')) {
+      const isVerified = (user?.tenant as any)?.is_verified;
+      const hasPro = hasFeature('website_builder');
+      if (hasPro) return 'organizer_pro';
+      if (isVerified) return 'trusted_organizer';
+      return 'organizer';
+    }
+    return 'user';
+  };
+  const accountTier = getAccountTier();
+  const isProSubscriber = accountTier === 'organizer_pro' || hasFeature('website_builder');
+
+  // Build nav groups based on tier
+  const navModules = (() => {
+    // ── USER (attendee only) ──────────────────────────────────────────────
+    if (accountTier === 'user') {
+      return [
+        { category: 'OVERVIEW', items: [
+          { id: 'dashboard',    icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Dashboard' },
+        ]},
+        { category: 'MY EVENTS', items: [
+          { id: 'my_tickets',   icon: <IconContainer icon={Ticket}     color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'My Tickets' },
+          { id: 'saved_events', icon: <IconContainer icon={Calendar}   color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Saved Events' },
+          { id: 'following',    icon: <IconContainer icon={Users}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Following' },
+        ]},
+        { category: 'ACCOUNT', items: [
+          { id: 'notifications',icon: <IconContainer icon={Bell}       color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Notifications' },
+          { id: 'profile',      icon: <IconContainer icon={Building2}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Profile' },
+          { id: 'settings',     icon: <IconContainer icon={Settings}   color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings' },
+        ]},
+      ];
+    }
+
+    // ── ORGANIZER base items (all organizer tiers share these) ────────────
+    const organizerBase = [
+      { category: 'OVERVIEW', items: [
+        { id: 'dashboard',      icon: <IconContainer icon={House}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Dashboard' },
+      ]},
+      { category: 'EVENTS', items: [
+        { id: 'ticket_designer',icon: <IconContainer icon={PaletteIcon} color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={28} size={15} />, label: 'Events & Tickets' },
+      ]},
+      { category: 'ORDERS', items: [
+        { id: 'qr_studio',      icon: <IconContainer icon={QrCode}     color="#60A5FA" bg="rgba(96,165,250,0.12)"  containerSize={28} size={15} />, label: 'Orders & Gate Check-ins' },
+      ]},
+      { category: 'WALLET', items: [
+        { id: 'billing',        icon: <IconContainer icon={CreditCard} color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Wallet & Payouts' },
+      ]},
+      { category: 'SETTINGS', items: [
+        { id: 'settings',       icon: <IconContainer icon={Settings}   color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={28} size={15} />, label: 'Settings' },
+      ]},
+    ];
+
+    // ── ORGANIZER (basic) — stop here ────────────────────────────────────
+    if (accountTier === 'organizer') return organizerBase;
+
+    // ── TRUSTED ORGANIZER — adds Marketing, Analytics, Team, AI Studio ───
+    const trustedOrgItems = [
+      ...organizerBase.slice(0, 3), // Dashboard, Events, Orders
+      { category: 'MARKETING', items: [
+        { id: 'marketing',      icon: <IconContainer icon={Share2}     color="#34D399" bg="rgba(16,185,129,0.12)"  containerSize={28} size={15} />, label: 'Marketing & Ad Studio' },
+        { id: 'crm',            icon: <IconContainer icon={Award}      color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={28} size={15} />, label: 'Audience CRM' },
+        { id: 'sponsorship',    icon: <IconContainer icon={Briefcase}  color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={28} size={15} />, label: 'Sponsorship Decks' },
+      ]},
+      { category: 'ANALYTICS', items: [
+        { id: 'analytics',      icon: <IconContainer icon={BarChart3}  color="#06B6D4" bg="rgba(6,182,212,0.12)"   containerSize={28} size={15} />, label: 'Analytics' },
+      ]},
+      organizerBase[3], // Wallet
+      { category: 'TEAM', items: [
+        { id: 'team',           icon: <IconContainer icon={Users}      color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={28} size={15} />, label: 'Team' },
+      ]},
+      { category: 'AI STUDIO', items: [
+        { id: 'ai_assistant',   icon: <IconContainer icon={Bot}        color="#FBBF24" bg="rgba(245,158,11,0.12)"  containerSize={28} size={15} />, label: 'AI Studio' },
+      ]},
+      organizerBase[4], // Settings
+    ];
+
+    if (accountTier === 'trusted_organizer') return trustedOrgItems;
+
+    // ── ORGANIZER PRO — adds Website Builder (unlocked) ──────────────────
+    return [
+      ...trustedOrgItems.slice(0, -1), // everything except Settings
+      { category: 'WEBSITE BUILDER', items: [
+        { id: 'website_builder',icon: <IconContainer icon={Globe}      color="#38BDF8" bg="rgba(56,189,248,0.12)"  containerSize={28} size={15} />, label: 'Website Builder' },
+      ]},
+      trustedOrgItems[trustedOrgItems.length - 1], // Settings last
+    ];
+  })();
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -1260,12 +1312,63 @@ function WorkspaceContent() {
                 <AutomationRulesEngineViewLazy onTriggerToast={triggerToast} />
               )}
 
-              {view === 'marketing' && (
+              {(view === 'marketing' || view === 'analytics') && (
                 <MarketingAnalyticsCenterViewLazy onTriggerToast={triggerToast} />
               )}
 
+              {view === 'team' && (
+                <div className="card" style={{ padding: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Team & Staff Access</h2>
+                  <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '24px' }}>
+                    Manage team members, scanner staff, and permissions for your organization.
+                  </p>
+                  <div style={{ padding: '24px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                    <Users size={32} color="#A5B4FC" style={{ marginBottom: '12px' }} />
+                    <div style={{ fontWeight: 700, color: '#FFF' }}>Organization Owner (You)</div>
+                    <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px' }}>Full access to all organizer features</div>
+                  </div>
+                </div>
+              )}
+
+              {['my_tickets', 'saved_events', 'following', 'notifications', 'profile'].includes(view) && (
+                <div className="card" style={{ padding: '32px' }}>
+                  <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px', textTransform: 'capitalize' }}>
+                    {view.replace('_', ' ')}
+                  </h2>
+                  <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '24px' }}>
+                    Manage your attendee account preferences and activity.
+                  </p>
+                  <div style={{ padding: '32px', textAlign: 'center', color: '#6B7280' }}>
+                    <Ticket size={40} style={{ marginBottom: '12px', opacity: 0.5 }} />
+                    <div>No {view.replace('_', ' ')} records found for your account.</div>
+                  </div>
+                </div>
+              )}
+
               {view === 'website_builder' && (
-                <EventWebsiteBuilderViewLazy onToast={triggerToast} />
+                isProSubscriber ? (
+                  <EventWebsiteBuilderViewLazy onToast={triggerToast} />
+                ) : (
+                  <div className="card" style={{ padding: '40px', textAlign: 'center', background: 'linear-gradient(135deg, rgba(79,70,229,0.1), rgba(6,182,212,0.08))', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '24px' }}>
+                    <Crown size={48} color="#FBBF24" style={{ marginBottom: '16px' }} />
+                    <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#FFF', marginBottom: '12px' }}>
+                      Unlock Custom Website Builder & Domains
+                    </h2>
+                    <p style={{ color: '#9CA3AF', fontSize: '14px', maxWidth: '520px', margin: '0 auto 24px', lineHeight: 1.6 }}>
+                      Website Builder is exclusive to <strong style={{ color: '#FBBF24' }}>Organizer Pro</strong> subscribers. Launch custom event landing pages, connect custom domains/subdomains, write blog posts, and display sponsor galleries.
+                    </p>
+                    <button
+                      className="btn-cta"
+                      style={{ background: 'linear-gradient(135deg, #4F46E5, #06B6D4)', color: '#FFF', padding: '12px 28px', fontSize: '14px', fontWeight: 800, margin: '0 auto', display: 'inline-flex', alignItems: 'center', gap: '8px', borderRadius: '12px' }}
+                      onClick={() => {
+                        const proPlan = plans.find(p => p.features?.website_builder) || { id: 'pro', name: 'Organizer Pro', price_monthly: 15000 };
+                        setUpgradingPlan(proPlan);
+                      }}
+                    >
+                      <Sparkles size={16} /> Upgrade to Organizer Pro →
+                    </button>
+                  </div>
+                )
               )}
             </React.Suspense>
           </RouteErrorBoundary>
