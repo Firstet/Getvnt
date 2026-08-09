@@ -74,46 +74,49 @@ export const IntegrationsNav: React.FC<Props> = ({
 }) => {
   const menuItems = [
     // 1. Dashboard
-    { id: 'dashboard', label: '1. Dashboard & Telemetry', icon: LayoutDashboard, section: 'CORE PLATFORM' },
+    { id: 'dashboard', label: '1. Dashboard', icon: LayoutDashboard, section: 'CORE PLATFORM' },
 
-    // 2. Identity & Access
-    { id: 'users', label: '2. Identity & Access', icon: Users, section: 'GOVERNANCE' },
+    // 2. Marketplace CMS
+    { id: 'landing_cms', label: '2. Marketplace CMS', icon: Palette, section: 'CMS & FRONT' },
 
-    // 3. Verification Center
-    { id: 'verification', label: '3. Verification Center (KYC)', icon: ShieldAlert, section: 'GOVERNANCE' },
+    // 3. Users
+    { id: 'users', label: '3. Users', icon: Users, section: 'DIRECTORY' },
 
-    // 4. Marketplace CMS
-    { id: 'landing_cms', label: '4. Marketplace CMS', icon: Palette, section: 'STOREFRONT' },
+    // 4. Organizers
+    { id: 'organizers', label: '4. Organizers', icon: Briefcase, section: 'DIRECTORY' },
 
-    // 5. Event Management
-    { id: 'events', label: '5. Event Management', icon: Calendar, section: 'STOREFRONT' },
+    // 5. Verification Center
+    { id: 'verification', label: '5. Verification Center', icon: ShieldAlert, section: 'DIRECTORY' },
 
-    // 6. Financial Center
-    { id: 'transactions', label: '6. Financial Center & Fees', icon: DollarSign, section: 'FINANCE' },
+    // 6. Events
+    { id: 'events', label: '6. Events Moderation', icon: Calendar, section: 'OPERATIONS' },
 
-    // 7. Subscriptions
-    { id: 'plans', label: '7. Subscriptions Builder', icon: Crown, section: 'FINANCE' },
+    // 7. Finance
+    { id: 'transactions', label: '7. Financial Center', icon: DollarSign, section: 'FINANCE' },
 
-    // 8. AI Control Center
-    { id: 'ai_center', label: '8. AI Control Center', icon: Cpu, section: 'AI ENGINE' },
+    // 8. Subscriptions
+    { id: 'plans', label: '8. Subscriptions', icon: Crown, section: 'FINANCE' },
 
-    // 9. Integrations
-    { id: 'api_vault', label: '9. Integrations & API Vault', icon: KeyRound, section: 'INFRASTRUCTURE' },
+    // 9. AI Control Center
+    { id: 'ai_center', label: '9. AI Control Center', icon: Cpu, section: 'INTELLIGENCE' },
 
-    // 10. Platform Configuration
-    { id: 'feature_flags', label: '10. Platform Configuration', icon: Flag, section: 'INFRASTRUCTURE' },
+    // 10. API & Integrations
+    { id: 'api_vault', label: '10. API & Integrations', icon: KeyRound, section: 'INFRASTRUCTURE' },
 
-    // 11. Website Builder Manager
-    { id: 'website_builder', label: '11. Website Builder Manager', icon: Globe, section: 'SITES & DOMAINS' },
+    // 11. Platform Configuration
+    { id: 'feature_flags', label: '11. Platform Configuration', icon: Flag, section: 'INFRASTRUCTURE' },
 
     // 12. Reports
-    { id: 'analytics', label: '12. Telemetry Reports', icon: BarChart3, section: 'ANALYTICS' },
+    { id: 'analytics', label: '12. Reports & Telemetry', icon: BarChart3, section: 'REPORTS' },
 
     // 13. Audit Center
-    { id: 'audit_logs', label: '13. Security Audit Center', icon: ShieldCheck, section: 'SECURITY' },
+    { id: 'audit_logs', label: '13. Audit Center', icon: ShieldCheck, section: 'SECURITY' },
 
-    // 14. Settings
-    { id: 'system_settings', label: '14. Global Platform Settings', icon: Settings, section: 'SETTINGS' },
+    // 14. Brand Settings
+    { id: 'branding', label: '14. Brand Settings', icon: Sparkles, section: 'SETTINGS' },
+
+    // 15. System Settings
+    { id: 'system_settings', label: '15. System Settings', icon: Settings, section: 'SETTINGS' },
   ];
 
   let currentSection = '';
