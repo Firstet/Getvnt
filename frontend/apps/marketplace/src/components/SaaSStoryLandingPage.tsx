@@ -70,32 +70,26 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
     return matchesCity && matchesCat && matchesSearch;
   });
 
-  // 24 Precise Q&As
+  // 18 High-Trust Production Q&As
   const faqs = [
-    { question: 'What is GetVNT?', answer: 'GetVNT is Africa\'s AI-powered Event Operating System. It provides organizers with end-to-end tools to create events, sell tickets, build branded event websites, verify attendees, scan QR tickets, receive payouts, run marketing campaigns, and analyze performance.' },
-    { question: 'How do I buy tickets?', answer: 'Browse live events on the GetVNT Marketplace, select your desired ticket tier, enter your email and phone number, and complete secure checkout via Paystack, Flutterwave, or Stripe. Your encrypted digital QR ticket is delivered instantly via email and SMS.' },
-    { question: 'Is creating an account free?', answer: 'Yes! Account registration is 100% free for both attendees and event organizers.' },
-    { question: 'Can I create events for free?', answer: 'Yes. Anyone can create unlimited free or paid events on GetVNT without any monthly subscription fees.' },
-    { question: 'How much does GetVNT charge?', answer: 'GetVNT is 100% free for free events. For paid tickets, GetVNT automatically deducts a 5% Platform Processing Fee on ticket checkouts.' },
-    { question: 'What is the Platform Processing Fee?', answer: 'The Platform Processing Fee is 5% per paid ticket sold. It covers GetVNT\'s core infrastructure, AI marketing tools, server hosting, and customer support.' },
-    { question: 'Do attendees pay additional fees?', answer: 'No. Attendees see a clean checkout price with zero hidden booking or security fees.' },
-    { question: 'How do organizers receive payouts?', answer: 'Ticket revenues are settled directly into your verified bank account via automated Paystack, Flutterwave, or Stripe disbursals.' },
-    { question: 'How long do payouts take?', answer: 'Standard payouts process within 24 hours of ticket sales. Verified organizers can activate Instant Payout settlement in their Organizer OS dashboard.' },
-    { question: 'How do I become a verified organizer?', answer: 'Submit your business details, bank account, government ID, and a live selfie in your Organizer OS dashboard.' },
-    { question: 'What documents are accepted for verification?', answer: 'We accept National Identity Number (NIN), International Passport, Driver\'s License, and Voter\'s Card.' },
-    { question: 'Can I use my own website domain?', answer: 'Yes! Organizers on the Professional Website OS plan can connect custom domains (e.g. www.myfestival.com) with automatic CNAME DNS routing and free SSL certificates.' },
-    { question: 'Can I create an event website?', answer: 'Yes. GetVNT includes a Framer-grade Website Builder OS with 12 event category templates.' },
-    { question: 'Can I sell free and paid tickets?', answer: 'Yes. You can create multiple ticket tiers including Early Bird, VIP, VVIP, Table Packages, Free Passes, and Group Discount Passes.' },
-    { question: 'Can I issue refunds?', answer: 'Yes. Organizers can process single or bulk refunds directly from the Orders suite in Organizer OS.' },
-    { question: 'Can attendees transfer tickets?', answer: 'Yes. Attendees can securely transfer digital QR tickets to friends or colleagues from their GetVNT attendee portal.' },
-    { question: 'How does QR code check-in work?', answer: 'Gate staff use the GetVNT Android Scanner App to scan attendee digital QR passes in under 500ms, even with offline venue backup.' },
-    { question: 'Can multiple team members manage events?', answer: 'Yes. Organizer OS supports multi-user workspace access with role permissions for staff, accountants, and gate managers.' },
-    { question: 'Does GetVNT support recurring events?', answer: 'Yes. Organizers can configure daily, weekly, or monthly recurring event schedules.' },
-    { question: 'Can I integrate my existing website?', answer: 'Yes. You can embed GetVNT ticket checkout widgets directly onto any WordPress, Squarespace, or custom HTML website.' },
-    { question: 'Can I promote my events through GetVNT?', answer: 'Yes. GetVNT includes an AI Promotion & Ad Studio to run targeted email campaigns, social media ads, and sponsor deck proposals.' },
-    { question: 'What countries does GetVNT support?', answer: 'GetVNT natively supports events across Nigeria, Kenya, South Africa, Ghana, the United Kingdom, and the United States.' },
-    { question: 'Is my payment information secure?', answer: 'Yes. All payment processing is PCI-DSS Level 1 compliant and encrypted via 256-bit SSL.' },
-    { question: 'How can I contact support?', answer: 'Our support team is available 24/7 via live chat in the Organizer OS dashboard or by emailing support@getvnt.com.' },
+    { question: 'What is GETVNT?', answer: 'GETVNT is Africa\'s AI-powered Event Operating System. We give organizers tools to create events, sell tickets online, build branded event websites, verify attendees, scan QR passes offline, and manage bank payouts—all in one dashboard.' },
+    { question: 'Is it free to create and sell events on GETVNT?', answer: 'Yes. Anyone can create an account and list unlimited free or paid events with zero monthly subscription fees.' },
+    { question: 'What fees does GETVNT charge on ticket sales?', answer: 'GETVNT charges a flat 5% platform fee on every paid ticket sold. Free events are 100% free with zero platform fees.' },
+    { question: 'Are payment gateway transaction fees separate?', answer: 'Yes. Payment processors (Paystack, Flutterwave, Stripe) charge approximately 1.5% per transaction separately for secure payment processing.' },
+    { question: 'How do organizers receive payouts?', answer: 'Revenues are automatically settled into your connected bank account or GETVNT wallet according to automated disbursal rules.' },
+    { question: 'How long do payouts take after an event?', answer: 'Standard payouts process within 24 hours of ticket sales. Verified Trusted Organizers can also activate instant wallet disbursals in their Organizer OS dashboard.' },
+    { question: 'What is a Trusted Organizer?', answer: 'A Trusted Organizer is a verified event promoter who has completed government ID, selfie biometrics, and bank verification, earning a verified badge and priority search ranking.' },
+    { question: 'Why do organizers need to verify identity?', answer: 'Verification protects ticket buyers from fraudulent events, ensures ticket authenticity, and enables secure bank disbursals.' },
+    { question: 'Which government IDs are accepted for verification?', answer: 'We accept National Identity Number (NIN), International Passport, Driver\'s License, and Voter\'s Card.' },
+    { question: 'How long does identity verification take?', answer: 'Verification is powered by AI and usually completes in under 2 minutes. If manual review is required, our compliance team approves applications within 12 hours.' },
+    { question: 'Can I build my own branded event website?', answer: 'Yes. You can create a full multi-page event website using our Website Builder OS with 12 specialized category templates.' },
+    { question: 'Can I use my own custom domain?', answer: 'Yes. You can host your event website on a free subdomain (organizername.getvnt.com) or connect your custom domain (www.myfestival.com) with automated SSL certificates.' },
+    { question: 'How are tickets validated at the venue?', answer: 'Every ticket includes an encrypted digital QR code that gate staff scan using the GETVNT Android Scanner App in under 500ms.' },
+    { question: 'Can I scan tickets without internet connectivity?', answer: 'Yes. The GETVNT Android App supports offline RSA-encrypted QR validation that syncs automatically once internet connection is restored.' },
+    { question: 'Can attendees transfer their tickets to someone else?', answer: 'Yes. Attendees can securely transfer digital QR tickets to friends or colleagues directly from their GETVNT attendee portal.' },
+    { question: 'How do refunds work and who sets the refund policy?', answer: 'Event organizers set their own refund policies. Organizers can process instant full or partial refunds directly from their Organizer OS dashboard.' },
+    { question: 'Can teams manage an organizer account together?', answer: 'Yes. You can invite team members to your workspace with role-based access for gate scanners, accountants, and co-organizers.' },
+    { question: 'Is payment information secure on GETVNT?', answer: 'Yes. All checkout transactions are PCI-DSS Level 1 compliant and encrypted with 256-bit SSL.' },
   ];
 
   const topOrganizers = [
@@ -454,37 +448,57 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 11. COMPREHENSIVE 24-Q&A FAQ ACCORDION ── */}
-      <section style={{ maxWidth: '920px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 72px)', boxSizing: 'border-box' }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>KNOWLEDGE BASE</span>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
-            Frequently Asked Questions (24 Q&amp;As)
+      {/* ── 11. STRIPE-GRADE FAQ ACCORDION ── */}
+      <section style={{ maxWidth: '840px', margin: '0 auto clamp(60px, 8vw, 120px) auto', padding: '0 clamp(20px, 4vw, 48px)', boxSizing: 'border-box' }}>
+        <div style={{ textAlign: 'center', marginBottom: '44px' }}>
+          <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>HELP &amp; KNOWLEDGE BASE</span>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#FFF', marginTop: '6px', fontFamily: 'var(--font-heading)' }}>
+            Frequently Asked Questions
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '14.5px', marginTop: '8px' }}>
-            Everything you need to know about ticketing, payouts, custom domains, and AI tools on GetVNT OS.
+          <p style={{ color: '#9CA3AF', fontSize: '15px', marginTop: '10px', maxWidth: '600px', margin: '10px auto 0', lineHeight: 1.5 }}>
+            Everything you need to know about GETVNT's flat 5% platform fee, payouts, verification, and custom event websites.
           </p>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          {faqs.map((faq, idx) => (
-            <div
-              key={idx}
-              onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-              style={{ background: 'rgba(13,17,32,0.85)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '18px', padding: '20px 24px', cursor: 'pointer', width: '100%', boxSizing: 'border-box', transition: 'all 0.2s ease' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
-                <h4 style={{ fontSize: '16px', fontWeight: 800, color: '#FFF', margin: 0, fontFamily: 'var(--font-heading)' }}>
-                  {idx + 1}. {faq.question}
-                </h4>
-                <ChevronRight size={18} color="#60A5FA" style={{ transform: openFaq === idx ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s ease', flexShrink: 0 }} />
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          {faqs.map((faq, idx) => {
+            const isOpen = openFaq === idx;
+            return (
+              <div
+                key={idx}
+                tabIndex={0}
+                role="button"
+                aria-expanded={isOpen}
+                onClick={() => setOpenFaq(isOpen ? null : idx)}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpenFaq(isOpen ? null : idx); } }}
+                style={{
+                  background: isOpen ? 'rgba(37,99,235,0.08)' : 'rgba(13,17,32,0.75)',
+                  border: `1px solid ${isOpen ? 'rgba(37,99,235,0.35)' : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: '16px',
+                  padding: '20px 24px',
+                  cursor: 'pointer',
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  transition: 'all 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
+                  boxShadow: isOpen ? '0 10px 30px rgba(0,0,0,0.35)' : 'none'
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: 800, color: isOpen ? '#60A5FA' : '#FFF', margin: 0, fontFamily: 'var(--font-heading)', transition: 'color 0.2s ease' }}>
+                    {idx + 1}. {faq.question}
+                  </h4>
+                  <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: isOpen ? 'rgba(37,99,235,0.2)' : 'rgba(255,255,255,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.2s ease' }}>
+                    <ChevronRight size={16} color={isOpen ? '#60A5FA' : '#9CA3AF'} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 0.22s cubic-bezier(0.16, 1, 0.3, 1)' }} />
+                  </div>
+                </div>
+                {isOpen && (
+                  <p style={{ color: '#D1D5DB', fontSize: '14.5px', lineHeight: 1.65, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px', maxWidth: '800px' }}>
+                    {faq.answer}
+                  </p>
+                )}
               </div>
-              {openFaq === idx && (
-                <p style={{ color: '#9CA3AF', fontSize: '14.5px', lineHeight: 1.6, marginTop: '14px', marginBottom: 0, borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '14px' }}>
-                  {faq.answer}
-                </p>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
