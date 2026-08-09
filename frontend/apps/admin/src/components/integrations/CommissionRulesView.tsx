@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Percent, Plus, Trash2, Edit3, ShieldAlert, DollarSign } from 'lucide-react';
+import { ConfirmModal } from '../../../../../shared/src';
 
 interface Props {
   rules: any[];
@@ -11,14 +12,36 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedRule, setSelectedRule] = useState<any | null>(null);
 
+  // Enterprise Custom Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
   const getAuthHeaders = () => ({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
     'Authorization': `Bearer ${localStorage.getItem('getvnt_admin_token') || ''}`,
   });
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Delete this commission rule?')) return;
+  const promptDeleteRule = (id: number, name?: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete Commission Rule',
+      message: `Are you sure you want to delete ${name ? `"${name}"` : 'this commission rule'}? Ticket split calculations will revert to default rates.`,
+      onConfirm: () => executeDeleteRule(id),
+    });
+  };
+
+  const executeDeleteRule = async (id: number) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       const res = await fetch(`/api/v1/admin/integrations/commission-rules/${id}`, {
         method: 'DELETE',
@@ -38,9 +61,9 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Commission Engine & Dynamic Fee Rules</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>Commission Engine &amp; Dynamic Fee Rules</h2>
           <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>
-            Configure platform ticket split rules, VAT rates, service charges, & plan tier fee thresholds.
+            Configure platform ticket split rules, VAT rates, service charges, &amp; plan tier fee thresholds.
           </p>
         </div>
         <button
@@ -112,7 +135,7 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
                       <button
                         className="admin-btn admin-btn-secondary"
                         style={{ padding: '4px 8px', fontSize: '11px', color: '#EF4444' }}
-                        onClick={() => handleDelete(rule.id)}
+                        onClick={() => promptDeleteRule(rule.id, rule.name)}
                       >
                         <Trash2 size={12} /> Delete
                       </button>
@@ -234,6 +257,18 @@ export const CommissionRulesView: React.FC<Props> = ({ rules, onRefresh, onToast
           </div>
         </div>
       )}
+
+      {/* Enterprise Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Delete Rule"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

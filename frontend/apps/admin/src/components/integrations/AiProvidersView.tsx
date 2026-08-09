@@ -3,7 +3,7 @@ import {
   Cpu, Plus, RefreshCw, KeyRound, Trash2, Edit3, CheckCircle, Search, DollarSign,
   Activity, Eye, EyeOff, Copy, Sparkles, Send, Zap, Bot
 } from 'lucide-react';
-import { PasswordField } from '../../../../../shared/src';
+import { PasswordField, ConfirmModal } from '../../../../../shared/src';
 
 interface Props {
   providers: any[];
@@ -24,6 +24,19 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
   const [selectedAiProviderId, setSelectedAiProviderId] = useState<string>('');
   const [aiOutput, setAiOutput] = useState<any | null>(null);
   const [isGeneratingAi, setIsGeneratingAi] = useState<boolean>(false);
+
+  // Enterprise Custom Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   const getAuthHeaders = () => ({
     'Content-Type': 'application/json',
@@ -88,8 +101,17 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
     }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+  const promptDeleteProvider = (id: number, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete AI Provider',
+      message: `Are you sure you want to delete ${name}? AI assistance features using this provider will be rerouted to default.`,
+      onConfirm: () => executeDeleteProvider(id, name),
+    });
+  };
+
+  const executeDeleteProvider = async (id: number, name: string) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       const res = await fetch(`/api/v1/admin/integrations/ai-providers/${id}`, {
         method: 'DELETE',
@@ -139,9 +161,9 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
       {/* Header Toolbar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>AI Provider Fleet & API Key Management</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>AI Provider Fleet &amp; API Key Management</h2>
           <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>
-            Configure LLM engines, manage secret API keys, monitor daily quotas, token pricing, & test AI assistance.
+            Configure LLM engines, manage secret API keys, monitor daily quotas, token pricing, &amp; test AI assistance.
           </p>
         </div>
         <button
@@ -172,7 +194,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
               <select className="admin-input" value={aiFeature} onChange={(e) => setAiFeature(e.target.value)}>
                 <option value="event_description">Event Description Generator</option>
                 <option value="pricing_advice">Smart Ticket Pricing Advisor</option>
-                <option value="marketing_copywriter">Marketing & Email Copywriter</option>
+                <option value="marketing_copywriter">Marketing &amp; Email Copywriter</option>
                 <option value="organizer_bot">Organizer Support AI Bot</option>
               </select>
             </div>
@@ -373,7 +395,7 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
               <button
                 className="admin-btn admin-btn-secondary"
                 style={{ fontSize: '12px', padding: '6px 12px', color: '#EF4444' }}
-                onClick={() => handleDelete(provider.id, provider.name)}
+                onClick={() => promptDeleteProvider(provider.id, provider.name)}
               >
                 <Trash2 size={14} /> Delete
               </button>
@@ -481,6 +503,18 @@ export const AiProvidersView: React.FC<Props> = ({ providers, onRefresh, onToast
           </div>
         </div>
       )}
+
+      {/* Enterprise Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Delete Provider"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

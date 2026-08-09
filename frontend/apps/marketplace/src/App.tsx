@@ -541,7 +541,23 @@ function MarketplaceContent() {
               <h3 style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>Subscribe to Event Intelligence</h3>
               <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>Get weekly curated drops, concert announcements, and promoter strategy reports.</p>
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); alert('Subscribed to GETVNT VIP newsletter!'); }} style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '460px' }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const target = e.currentTarget;
+                const btn = target.querySelector('button');
+                if (btn) {
+                  btn.innerText = '✓ Subscribed!';
+                  btn.style.background = '#10B981';
+                  setTimeout(() => {
+                    btn.innerText = 'Subscribe';
+                    btn.style.background = '';
+                    target.reset();
+                  }, 2500);
+                }
+              }}
+              style={{ display: 'flex', gap: '10px', flex: 1, maxWidth: '460px' }}
+            >
               <input
                 type="email"
                 placeholder="Enter your email address..."

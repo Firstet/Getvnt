@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { KeyRound, Plus, Eye, RefreshCw, Trash2, ShieldCheck, Lock, Copy } from 'lucide-react';
-import { PasswordField } from '../../../../../shared/src';
+import { PasswordField, ConfirmModal } from '../../../../../shared/src';
 
 interface Props {
   vaultKeys: any[];
@@ -12,6 +12,19 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [revealedKeyMap, setRevealedKeyMap] = useState<Record<number, string>>({});
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  // Enterprise Custom Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
 
   const categories = ['ALL', 'AI', 'Payment', 'Email', 'SMS', 'Maps', 'Storage', 'Analytics', 'Security', 'Custom'];
 
@@ -57,8 +70,17 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
     }
   };
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete API Vault Key "${name}"?`)) return;
+  const promptDeleteVaultKey = (id: number, name: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Delete API Vault Key',
+      message: `Are you sure you want to delete API Vault Key "${name}"? Modules depending on this key will lose API access.`,
+      onConfirm: () => executeDeleteVaultKey(id, name),
+    });
+  };
+
+  const executeDeleteVaultKey = async (id: number, name: string) => {
+    setConfirmModal((prev) => ({ ...prev, isOpen: false }));
     try {
       const res = await fetch(`/api/v1/admin/integrations/api-vault/${id}`, {
         method: 'DELETE',
@@ -78,7 +100,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>API Key Vault & Encrypted Credentials</h2>
+          <h2 style={{ fontSize: '22px', fontWeight: 800 }}>API Key Vault &amp; Encrypted Credentials</h2>
           <p style={{ color: '#9CA3AF', fontSize: '13px', marginTop: '4px' }}>
             Centralized zero-exposure AES-256 vault for all third-party secrets, keys, and tokens with access auditing.
           </p>
@@ -191,7 +213,7 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
                       <button
                         className="admin-btn admin-btn-secondary"
                         style={{ padding: '4px 8px', fontSize: '11px', color: '#EF4444' }}
-                        onClick={() => handleDelete(k.id, k.name)}
+                        onClick={() => promptDeleteVaultKey(k.id, k.name)}
                       >
                         <Trash2 size={12} /> Delete
                       </button>
@@ -280,13 +302,25 @@ export const ApiVaultView: React.FC<Props> = ({ vaultKeys, onRefresh, onToast })
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
-                <button type="submit" className="admin-btn admin-btn-primary" style={{ flex: 1 }}>Encrypt & Store Key</button>
+                <button type="submit" className="admin-btn admin-btn-primary" style={{ flex: 1 }}>Encrypt &amp; Store Key</button>
                 <button type="button" className="admin-btn admin-btn-secondary" onClick={() => setDrawerOpen(false)}>Cancel</button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Enterprise Custom Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText="Delete Key"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal((prev) => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

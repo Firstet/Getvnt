@@ -19,4 +19,5 @@ export * from './components/RouteErrorBoundary';
 export * from './components/SaaSAuthModal';
 export * from './components/SaaSOnboardingWizard';
 export * from './components/SaaSVerificationBanner';
+export * from './components/ConfirmModal';
 export * from './utils/roleUtils';
