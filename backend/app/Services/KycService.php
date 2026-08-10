@@ -11,9 +11,30 @@ class KycService
 {
     /**
      * Submit onboarding verification request for Attendee.
+     * Automatically creates Organizer Workspace (Tenant) & updates role to trusted_organizer.
      */
     public function submit(User $user, array $data): OrganizerVerification
     {
+        // 1. Ensure Tenant (Organizer Workspace) exists for user
+        if (!$user->tenant_id) {
+            $tenant = Tenant::create([
+                'id' => (string) Str::uuid(),
+                'name' => $data['business_name'],
+                'slug' => Str::slug($data['business_name']) . '-' . Str::random(5),
+                'domain' => Str::slug($data['business_name']) . '.getvnt.com',
+                'status' => 'active',
+                'is_verified' => false,
+            ]);
+            $user->tenant_id = $tenant->id;
+            $user->save();
+            $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+        } else {
+            $user->tenant->update([
+                'name' => $data['business_name'],
+            ]);
+        }
+
+        // 2. Create Verification record
         $verification = OrganizerVerification::create([
             'id' => (string) Str::uuid(),
             'user_id' => $user->id,
@@ -30,15 +51,17 @@ class KycService
             'status' => 'pending',
         ]);
 
+        // 3. Update User role and verification status immediately
         $user->update([
             'verification_status' => 'pending',
+            'role' => 'trusted_organizer',
         ]);
 
         return $verification;
     }
 
     /**
-     * Approve verification request -> Role transitions ATTENDEE -> TRUSTED ORGANIZER.
+     * Approve verification request -> Grant Blue Badge & set status to approved.
      */
     public function approve(OrganizerVerification $verification, ?User $admin = null): void
     {
@@ -50,7 +73,6 @@ class KycService
 
         $user = $verification->user;
 
-        // Ensure organizer tenant exists
         if (!$user->tenant_id) {
             $tenant = Tenant::create([
                 'id' => (string) Str::uuid(),
@@ -63,6 +85,8 @@ class KycService
             $user->tenant_id = $tenant->id;
             $user->save();
             $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+        } else {
+            $user->tenant->update(['is_verified' => true]);
         }
 
         $user->update([

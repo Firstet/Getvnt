@@ -44,16 +44,16 @@ export function App() {
     fetchUserMe();
     fetchCounters();
 
-    // Session Polling every 10 seconds to auto-detect Super Admin KYC approval & trigger instant role switch
+    // Session Polling every 6 seconds to auto-detect Super Admin KYC approval & trigger instant role refresh
     const interval = setInterval(() => {
       fetchUserMe(true);
-    }, 10000);
+    }, 6000);
 
     return () => clearInterval(interval);
   }, []);
 
   const fetchUserMe = async (isBackgroundPoll = false) => {
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
     if (!token) {
       if (!isBackgroundPoll) setLoading(false);
       return;
@@ -69,8 +69,13 @@ export function App() {
         const newRole = data.data.role || 'attendee';
         const newStatus = data.data.verification_status || 'unverified';
 
-        // Check if role transitioned to Organizer
-        const isOrganizerNow = data.data.is_trusted_organizer || data.data.is_super_admin || newStatus === 'approved';
+        // Check if role transitioned to Organizer or if verification is pending/approved
+        const isOrganizerNow = data.data.is_trusted_organizer ||
+                               data.data.is_super_admin ||
+                               newRole === 'trusted_organizer' ||
+                               newRole === 'organizer_pro' ||
+                               newStatus === 'approved' ||
+                               newStatus === 'pending';
 
         setUser(u);
         setRole(newRole);
@@ -93,7 +98,7 @@ export function App() {
   };
 
   const fetchCounters = async () => {
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
     if (!token) return;
     try {
       const res = await fetch('/api/v1/attendee/counters', {
@@ -128,7 +133,7 @@ export function App() {
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
     try {
       const res = await fetch('/api/v1/workspace/events', {
         method: 'POST',
@@ -157,7 +162,7 @@ export function App() {
 
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
     try {
       const res = await fetch('/api/v1/workspace/payouts/request', {
         method: 'POST',
@@ -187,7 +192,7 @@ export function App() {
 
   const handleVerifyQr = async () => {
     if (!scanQrCode) return;
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
     try {
       const res = await fetch('/api/v1/workspace/qr/verify', {
         method: 'POST',
@@ -208,10 +213,11 @@ export function App() {
   const handleLogout = () => {
     localStorage.removeItem('auth_token');
     sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('token');
     window.location.href = 'https://getvnt.com';
   };
 
-  const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved';
+  const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved' || verificationStatus === 'pending';
 
   if (loading) {
     return (
@@ -250,6 +256,34 @@ export function App() {
         ) : (
           <div style={{ padding: '32px', color: '#f8fafc' }}>
             
+            {/* Pending Verification Notice Banner */}
+            {verificationStatus === 'pending' && (
+              <div style={{
+                background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(245, 158, 11, 0.15))',
+                border: '1px solid rgba(251, 191, 36, 0.4)',
+                borderRadius: '16px',
+                padding: '20px 24px',
+                marginBottom: '28px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                color: '#fbbf24'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <Sparkles size={24} color="#fbbf24" />
+                  <div>
+                    <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>Organizer Verification Under Review</h4>
+                    <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#fef08a' }}>
+                      Your business onboarding application has been received and is under review by GETVNT Super Admin. Your Organizer Workspace is active.
+                    </p>
+                  </div>
+                </div>
+                <span style={{ background: '#78350f', color: '#fef08a', padding: '6px 14px', borderRadius: '99px', fontSize: '11px', fontWeight: 900 }}>
+                  STATUS: PENDING REVIEW ⏳
+                </span>
+              </div>
+            )}
+
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
               <div>
@@ -464,6 +498,7 @@ export function App() {
         onSuccessRedirect={() => {
           setIsBecomeOrganizerOpen(false);
           fetchUserMe();
+          setActiveView('dashboard');
         }}
       />
 
