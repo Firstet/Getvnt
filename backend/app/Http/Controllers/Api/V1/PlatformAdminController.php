@@ -728,18 +728,20 @@ class PlatformAdminController extends Controller
 
         $slug = $request->slug ?? Str::slug($request->name);
 
-        $provider = AiProvider::create([
-            'id' => (string) Str::uuid(),
-            'name' => $request->name,
-            'slug' => $slug,
-            'provider' => $request->provider ?? $slug,
-            'api_key' => $request->api_key ?? null,
-            'default_model' => $request->default_model ?? 'gpt-4o',
-            'base_url' => $request->base_url ?? null,
-            'status' => $request->status ?? 'active',
-            'priority' => 1,
-            'cost_per_1k_tokens' => 0.002,
-        ]);
+        $provider = AiProvider::updateOrCreate(
+            ['slug' => $slug],
+            [
+                'name' => $request->name,
+                'slug' => $slug,
+                'api_key' => $request->api_key ?? null,
+                'default_model' => $request->default_model ?? 'gpt-4o',
+                'base_url' => $request->base_url ?? null,
+                'available_models' => $request->available_models ?? null,
+                'status' => $request->status ?? 'active',
+                'priority' => 1,
+                'cost_per_1k_tokens' => 0.002,
+            ]
+        );
 
         $this->logAdminAction($request->user(), 'create_ai_provider', 'ai_provider', $provider->id);
 

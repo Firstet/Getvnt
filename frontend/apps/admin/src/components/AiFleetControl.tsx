@@ -290,6 +290,13 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       });
       const data = await res.json();
       if (data.success) {
+        if (data.data) {
+          setFormData(prev => ({
+            ...prev,
+            [id]: { ...prev[id], ...data.data },
+            [data.data.id]: { ...data.data }
+          }));
+        }
         setSavedId(id);
         setTimeout(() => setSavedId(null), 3000);
         showToast(`AI Provider "${payload.name}" saved to database successfully!`, 'success');
