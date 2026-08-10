@@ -130,6 +130,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/users/{id}/verification', [PlatformAdminController::class, 'updateUserVerification']);
         Route::get('/organizers', [PlatformAdminController::class, 'organizers']);
         Route::post('/organizers/{id}/blue-tick', [PlatformAdminController::class, 'toggleBlueTick']);
+        Route::post('/organizers/{id}/wallet-adjust', [PlatformAdminController::class, 'organizerWalletAdjust']);
 
         // Section 4 & 5: Verifications & Event Control
         Route::get('/verifications', [PlatformAdminController::class, 'verifications']);
@@ -144,11 +145,16 @@ Route::prefix('v1')->group(function () {
         Route::get('/fee-rules', [PlatformAdminController::class, 'feeRules']);
         Route::put('/fee-rules', [PlatformAdminController::class, 'updateFeeRules']);
 
-        // Section 7: Payment Gateways Configuration
+        // Section 7: Payment Gateways Configuration, Webhooks & Refund Center
         Route::get('/payment-gateways', [PlatformAdminController::class, 'paymentConfigs']);
         Route::get('/gateways', [PlatformAdminController::class, 'paymentConfigs']);
         Route::put('/payment-gateways/{id}', [PlatformAdminController::class, 'updatePaymentConfig']);
         Route::put('/gateways/rules/{id}', [PlatformAdminController::class, 'updateFeeRules']);
+        Route::get('/webhooks', [PlatformAdminController::class, 'webhooks']);
+        Route::post('/webhooks/{id}/replay', [PlatformAdminController::class, 'replayWebhook']);
+        Route::get('/refunds', [PlatformAdminController::class, 'refunds']);
+        Route::post('/refunds/{id}/approve', [PlatformAdminController::class, 'approveRefund']);
+        Route::post('/refunds/{id}/reject', [PlatformAdminController::class, 'rejectRefund']);
 
         // Section 9: Double-Entry Ledger
         Route::get('/ledger', [PlatformAdminController::class, 'ledger']);
@@ -165,6 +171,11 @@ Route::prefix('v1')->group(function () {
         // Section 14: AI Fleet Control Center
         Route::get('/ai-providers', [PlatformAdminController::class, 'aiProviders']);
         Route::put('/ai-providers/{id}', [PlatformAdminController::class, 'updateAiProvider']);
+        Route::get('/ai/fleet', [PlatformAdminController::class, 'aiFleet']);
+        Route::put('/ai/feature-models/{id}', [PlatformAdminController::class, 'updateAiFeatureModel']);
+        Route::post('/ai/prompts', [PlatformAdminController::class, 'createAiPrompt']);
+        Route::put('/ai/prompts/{id}', [PlatformAdminController::class, 'updateAiPrompt']);
+        Route::post('/ai/test-connection', [PlatformAdminController::class, 'testAiConnection']);
 
         // Section 15: Broadcast Notifications
         Route::get('/broadcasts', [PlatformAdminController::class, 'broadcasts']);
