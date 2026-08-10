@@ -30,7 +30,7 @@ Route::prefix('v1')->group(function () {
     // ─── 1. AUTHENTICATION & IDENTITY ENGINE ─────────────────────────────────
     Route::prefix('auth')->group(function () {
         Route::post('/register', [AuthController::class, 'registerMarketplace']);
-        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/login', [AuthController::class, 'login'])->name('login');
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
         Route::post('/reset-password', [AuthController::class, 'resetPassword']);
         Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
