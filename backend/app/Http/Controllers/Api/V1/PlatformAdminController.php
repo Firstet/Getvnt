@@ -712,11 +712,48 @@ class PlatformAdminController extends Controller
     public function updateAiProvider(Request $request, string $id)
     {
         $provider = AiProvider::findOrFail($id);
-        $provider->update($request->only(['api_key', 'default_model', 'priority', 'fallback_provider', 'temperature', 'status']));
+        $provider->update($request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'priority', 'fallback_provider', 'temperature', 'status']));
 
         $this->logAdminAction($request->user(), 'update_ai_provider', 'ai_provider', $provider->id);
 
         return response()->json(['success' => true, 'data' => $provider, 'message' => "AI Provider {$provider->name} updated."]);
+    }
+
+    public function createAiProvider(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+        ]);
+
+        $slug = $request->slug ?? Str::slug($request->name);
+
+        $provider = AiProvider::create([
+            'id' => (string) Str::uuid(),
+            'name' => $request->name,
+            'slug' => $slug,
+            'provider' => $request->provider ?? $slug,
+            'api_key' => $request->api_key ?? null,
+            'default_model' => $request->default_model ?? 'gpt-4o',
+            'base_url' => $request->base_url ?? null,
+            'status' => $request->status ?? 'active',
+            'priority' => 1,
+            'cost_per_1k_tokens' => 0.002,
+        ]);
+
+        $this->logAdminAction($request->user(), 'create_ai_provider', 'ai_provider', $provider->id);
+
+        return response()->json(['success' => true, 'data' => $provider, 'message' => "AI Provider {$provider->name} created."]);
+    }
+
+    public function deleteAiProvider(Request $request, string $id)
+    {
+        $provider = AiProvider::findOrFail($id);
+        $name = $provider->name;
+        $provider->delete();
+
+        $this->logAdminAction($request->user(), 'delete_ai_provider', 'ai_provider', $id);
+
+        return response()->json(['success' => true, 'message' => "AI Provider {$name} deleted permanently."]);
     }
 
     public function updateAiFeatureModel(Request $request, string $id)

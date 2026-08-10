@@ -174,7 +174,13 @@ Route::prefix('v1')->group(function () {
 
         // Section 14: AI Fleet Control Center
         Route::get('/ai-providers', [PlatformAdminController::class, 'aiProviders']);
+        Route::get('/ai/providers', [PlatformAdminController::class, 'aiProviders']);
+        Route::post('/ai-providers', [PlatformAdminController::class, 'createAiProvider']);
+        Route::post('/ai/providers', [PlatformAdminController::class, 'createAiProvider']);
         Route::put('/ai-providers/{id}', [PlatformAdminController::class, 'updateAiProvider']);
+        Route::put('/ai/providers/{id}', [PlatformAdminController::class, 'updateAiProvider']);
+        Route::delete('/ai-providers/{id}', [PlatformAdminController::class, 'deleteAiProvider']);
+        Route::delete('/ai/providers/{id}', [PlatformAdminController::class, 'deleteAiProvider']);
         Route::get('/ai/fleet', [PlatformAdminController::class, 'aiFleet']);
         Route::put('/ai/feature-models/{id}', [PlatformAdminController::class, 'updateAiFeatureModel']);
         Route::post('/ai/prompts', [PlatformAdminController::class, 'createAiPrompt']);

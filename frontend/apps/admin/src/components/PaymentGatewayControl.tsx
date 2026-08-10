@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Save, CheckCircle2, ShieldCheck, RefreshCw, Key, Globe, Eye, EyeOff, Plus, Trash2, X } from 'lucide-react';
+import { CreditCard, Save, CheckCircle2, ShieldCheck, RefreshCw, Key, Globe, Eye, EyeOff, Plus, Trash2, X, CheckCircle, AlertTriangle } from 'lucide-react';
+import { ConfirmModal } from '@getvnt/shared';
 
 interface Gateway {
   id: string;
@@ -45,6 +46,17 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
 
+  // Toast Notification State
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Confirm Modal State
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: string; name: string } | null>(null);
+
   // Modal State for Adding New Gateway
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newGateway, setNewGateway] = useState({
@@ -84,7 +96,6 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
 
     setSavingId(id);
     try {
-      // If it's a fallback ID (starts with 'gw-'), use POST to create it first in DB
       const isFallback = id.startsWith('gw-');
       const url = isFallback ? '/api/v1/admin/payment-gateways' : `/api/v1/admin/payment-gateways/${id}`;
       const method = isFallback ? 'POST' : 'PUT';
@@ -111,19 +122,20 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
       if (data.success) {
         setSavedId(id);
         setTimeout(() => setSavedId(null), 3000);
+        showToast(`Payment Gateway "${payload.provider.toUpperCase()}" credentials saved!`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to save gateway config.');
+        showToast(data.message || 'Failed to save gateway config.', 'error');
       }
     } catch (e: any) {
-      alert('Save failed: ' + e.message);
+      showToast('Save failed: ' + e.message, 'error');
     } finally {
       setSavingId(null);
     }
   };
 
-  const handleDelete = async (id: string, providerName: string) => {
-    if (!confirm(`Are you sure you want to delete payment gateway "${providerName.toUpperCase()}"?`)) return;
+  const executeDelete = async (id: string, providerName: string) => {
+    setConfirmModal(null);
     setDeletingId(id);
     try {
       const res = await fetch(`/api/v1/admin/payment-gateways/${id}`, {
@@ -132,12 +144,13 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
       });
       const data = await res.json();
       if (data.success) {
+        showToast(`Payment Gateway "${providerName.toUpperCase()}" deleted.`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to delete gateway.');
+        showToast(data.message || 'Failed to delete gateway.', 'error');
       }
     } catch (e: any) {
-      alert('Delete failed: ' + e.message);
+      showToast('Delete failed: ' + e.message, 'error');
     } finally {
       setDeletingId(null);
     }
@@ -147,7 +160,7 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
     e.preventDefault();
     const finalProvider = newGateway.provider === 'custom' ? newGateway.custom_provider : newGateway.provider;
     if (!finalProvider) {
-      alert('Please select or enter a payment gateway provider name.');
+      showToast('Please select or enter a payment gateway provider name.', 'error');
       return;
     }
 
@@ -175,19 +188,51 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
       if (data.success) {
         setIsAddModalOpen(false);
         setNewGateway({ provider: 'stripe', custom_provider: '', public_key: '', secret_key: '', webhook_secret: '', merchant_id: '', environment: 'sandbox', is_enabled: true });
+        showToast(`Payment Gateway "${finalProvider.toUpperCase()}" added successfully!`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to create payment gateway.');
+        showToast(data.message || 'Failed to create payment gateway.', 'error');
       }
     } catch (e: any) {
-      alert('Creation error: ' + e.message);
+      showToast('Creation error: ' + e.message, 'error');
     } finally {
       setAdding(false);
     }
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      
+      {/* Sleek Custom Toast Notification */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '24px',
+            right: '24px',
+            zIndex: 99999,
+            background: toast.type === 'success' ? '#052e16' : '#450a0a',
+            border: `1px solid ${toast.type === 'success' ? '#10b981' : '#f87171'}`,
+            color: '#fff',
+            padding: '14px 20px',
+            borderRadius: '14px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            maxWidth: '420px',
+            fontSize: '13.5px',
+            fontWeight: 700
+          }}
+        >
+          {toast.type === 'success' ? <CheckCircle size={20} color="#10b981" /> : <AlertTriangle size={20} color="#f87171" />}
+          <div style={{ flex: 1 }}>{toast.message}</div>
+          <button onClick={() => setToast(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Top Action Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
@@ -353,7 +398,7 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
                 {!gw.id.startsWith('gw-') && (
                   <button
                     type="button"
-                    onClick={() => handleDelete(gw.id, gw.provider)}
+                    onClick={() => setConfirmModal({ isOpen: true, id: gw.id, name: gw.provider })}
                     disabled={isDeleting}
                     style={{
                       background: '#1e293b',
@@ -492,6 +537,20 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Sleek Custom Confirm Modal for Gateway Deletion */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title="Delete Payment Gateway"
+          message={`Are you sure you want to permanently delete Payment Gateway "${confirmModal.name.toUpperCase()}"? This action cannot be undone.`}
+          confirmText="Yes, Delete Gateway"
+          cancelText="Cancel"
+          variant="danger"
+          onConfirm={() => executeDelete(confirmModal.id, confirmModal.name)}
+          onCancel={() => setConfirmModal(null)}
+        />
       )}
     </div>
   );
