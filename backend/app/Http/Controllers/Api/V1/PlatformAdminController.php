@@ -202,6 +202,49 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'verified_badge' => $user->verified_badge, 'message' => 'Blue badge toggled.']);
     }
 
+    public function provisionOrganizer(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|email|unique:users,email',
+            'business_name' => 'required|string',
+            'subscription_plan' => 'required|in:starter,pro,enterprise',
+        ]);
+
+        $user = User::create([
+            'id' => (string) Str::uuid(),
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt('Password123!'),
+            'role' => 'trusted_organizer',
+            'subscription_plan' => $request->subscription_plan,
+            'verification_status' => 'approved',
+            'verified_badge' => true,
+        ]);
+
+        $tenant = \App\Models\Tenant::create([
+            'id' => (string) Str::uuid(),
+            'name' => $request->business_name,
+            'slug' => Str::slug($request->business_name) . '-' . Str::random(5),
+            'domain' => Str::slug($request->business_name) . '.getvnt.com',
+            'status' => 'active',
+            'is_verified' => true,
+        ]);
+
+        $user->tenant_id = $tenant->id;
+        $user->save();
+        $tenant->users()->attach($user->id, ['role' => 'organizer_owner']);
+
+        $this->logAdminAction($request->user(), 'provision_organizer', 'user', $user->id);
+
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+            'tenant' => $tenant,
+            'message' => "Organizer {$user->name} & workspace '{$tenant->name}' provisioned successfully.",
+        ]);
+    }
+
     public function organizers()
     {
         $organizers = User::whereIn('role', ['trusted_organizer', 'organizer_pro', 'enterprise'])

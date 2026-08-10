@@ -129,6 +129,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/users/{id}/plan', [PlatformAdminController::class, 'updateUserPlan']);
         Route::post('/users/{id}/verification', [PlatformAdminController::class, 'updateUserVerification']);
         Route::get('/organizers', [PlatformAdminController::class, 'organizers']);
+        Route::post('/organizers/provision', [PlatformAdminController::class, 'provisionOrganizer']);
         Route::post('/organizers/{id}/blue-tick', [PlatformAdminController::class, 'toggleBlueTick']);
         Route::post('/organizers/{id}/wallet-adjust', [PlatformAdminController::class, 'organizerWalletAdjust']);
 

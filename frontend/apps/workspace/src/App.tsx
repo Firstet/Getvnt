@@ -237,11 +237,31 @@ export function App() {
     );
   }
 
+  const isImpersonating = typeof window !== 'undefined' && localStorage.getItem('getvnt_impersonating') === 'true';
+
+  const handleExitImpersonation = () => {
+    localStorage.removeItem('getvnt_impersonating');
+    window.location.href = 'https://admin.getvnt.com';
+  };
+
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#090d16', fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#090d16', fontFamily: 'Inter, sans-serif' }}>
       
-      {/* Sidebar Navigation */}
-      <UserSidebar
+      {/* Impersonation Banner */}
+      {isImpersonating && (
+        <div style={{ background: 'linear-gradient(90deg, #7c3aed, #db2777)', color: '#fff', padding: '10px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontWeight: 800, fontSize: '13.5px', zIndex: 9999 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Sparkles size={16} />
+            <span>SUPER ADMIN IMPERSONATION MODE: Viewing Workspace for {user?.name || 'Organizer'}</span>
+          </div>
+          <button onClick={handleExitImpersonation} style={{ background: '#fff', color: '#7c3aed', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '12px' }}>
+            Exit Impersonation →
+          </button>
+        </div>
+      )}
+
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        <UserSidebar
         role={role}
         verificationStatus={verificationStatus}
         subscriptionPlan={subscriptionPlan}
@@ -576,6 +596,7 @@ export function App() {
         </div>
       )}
 
+    </div>
     </div>
   );
 }
