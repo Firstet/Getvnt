@@ -14,22 +14,20 @@ class Event extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'gallery_urls' => 'array',
-        'agenda' => 'array',
-        'speakers' => 'array',
-        'sponsors' => 'array',
-        'faqs' => 'array',
         'start_date' => 'datetime',
         'end_date' => 'datetime',
+        'is_published' => 'boolean',
         'is_featured' => 'boolean',
-        'is_trending' => 'boolean',
-        'latitude' => 'decimal:7',
-        'longitude' => 'decimal:7',
     ];
 
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function ticketTypes()

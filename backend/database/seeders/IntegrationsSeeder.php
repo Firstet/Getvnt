@@ -12,7 +12,6 @@ use App\Models\CommunicationService;
 use App\Models\StorageProvider;
 use App\Models\AnalyticsIntegration;
 use App\Models\WebhookEndpoint;
-use App\Models\MarketplaceItem;
 use App\Models\AuditLog;
 use App\Models\SystemIntegrationSetting;
 
@@ -203,24 +202,6 @@ class IntegrationsSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        CommissionRule::create([
-            'name' => 'Enterprise Preferred Tier',
-            'rule_type' => 'percentage',
-            'platform_fee' => 2.50,
-            'organizer_fee' => 0.00,
-            'processing_fee' => 1.00,
-            'vat_percent' => 7.50,
-            'service_charge' => 0.00,
-            'min_charge' => 0.00,
-            'max_charge' => 100000.00,
-            'plan_scope' => 'enterprise',
-            'country_scope' => 'all',
-            'currency_scope' => 'all',
-            'gateway_scope' => 'all',
-            'event_category_scope' => 'all',
-            'is_active' => true,
-        ]);
-
         // 5. API Key Vault
         ApiKeyVault::create([
             'name' => 'OpenAI Production Master Key',
@@ -231,28 +212,6 @@ class IntegrationsSeeder extends Seeder
             'expiration_date' => now()->addYear(),
             'last_used_at' => now()->subMinutes(12),
             'notes' => 'Primary production key for all automated copywriter services',
-            'is_active' => true,
-        ]);
-
-        ApiKeyVault::create([
-            'name' => 'Paystack Live Secret Key',
-            'category' => 'Payment',
-            'provider' => 'Paystack',
-            'encrypted_value' => 'sk_live_mock_paystack_secret_key_11928',
-            'environment' => 'production',
-            'last_used_at' => now()->subMinutes(2),
-            'notes' => 'Platform checkout settlement secret key',
-            'is_active' => true,
-        ]);
-
-        ApiKeyVault::create([
-            'name' => 'SendGrid Transactional Key',
-            'category' => 'Email',
-            'provider' => 'SendGrid',
-            'encrypted_value' => 'SG.mock_sendgrid_key_99218273.88271',
-            'environment' => 'production',
-            'last_used_at' => now()->subMinutes(5),
-            'notes' => 'Transactional tickets & receipt dispatcher',
             'is_active' => true,
         ]);
 
@@ -267,18 +226,6 @@ class IntegrationsSeeder extends Seeder
             'rate_limit_per_min' => 600,
             'status' => 'active',
             'is_default' => true,
-        ]);
-
-        CommunicationService::create([
-            'name' => 'Twilio SMS & WhatsApp',
-            'slug' => 'twilio',
-            'type' => 'twilio',
-            'api_key' => 'AC_mock_twilio_account_sid_99281',
-            'sender_id' => '+1800GETVNT',
-            'domain' => 'messaging.twilio.com',
-            'rate_limit_per_min' => 200,
-            'status' => 'active',
-            'is_default' => false,
         ]);
 
         // 7. Storage Providers
@@ -296,36 +243,12 @@ class IntegrationsSeeder extends Seeder
             'is_default' => true,
         ]);
 
-        StorageProvider::create([
-            'name' => 'Cloudflare R2 Storage',
-            'slug' => 'cloudflare-r2',
-            'driver' => 'r2',
-            'bucket' => 'getvnt-assets-r2',
-            'region' => 'auto',
-            'endpoint' => 'https://r2.cloudflarestorage.com',
-            'access_key' => 'r2_access_key_mock_992',
-            'secret_key' => 'r2_secret_key_mock_88172',
-            'cdn_url' => 'https://media.getvnt.com',
-            'status' => 'active',
-            'is_default' => false,
-        ]);
-
         // 8. Analytics Services
         AnalyticsIntegration::create([
             'name' => 'Google Analytics 4',
             'slug' => 'ga4',
             'service' => 'ga',
             'tracking_id' => 'G-9821739281',
-            'environment' => 'production',
-            'is_verified' => true,
-            'status' => 'active',
-        ]);
-
-        AnalyticsIntegration::create([
-            'name' => 'Meta (Facebook) Pixel',
-            'slug' => 'meta-pixel',
-            'service' => 'meta_pixel',
-            'tracking_id' => '998271625341',
             'environment' => 'production',
             'is_verified' => true,
             'status' => 'active',
@@ -344,74 +267,22 @@ class IntegrationsSeeder extends Seeder
             'payload_preview' => '{"event": "ticket.issued", "order_id": "ORD-2026-9912", "amount": 15000}',
         ]);
 
-        // 10. Integration Marketplace
-        MarketplaceItem::create([
-            'name' => 'Mailchimp Sync',
-            'slug' => 'mailchimp',
-            'category' => 'Marketing',
-            'logo' => 'https://api.iconify.design/logos:mailchimp-freddie.svg',
-            'description' => 'Automatically synchronize event attendees and VIP ticket buyers to targeted Mailchimp email lists.',
-            'developer' => 'GETVNT Official',
-            'version' => '2.1.0',
-            'rating' => 4.9,
-            'doc_url' => 'https://docs.getvnt.com/integrations/mailchimp',
-            'is_installed' => true,
-            'is_featured' => true,
-        ]);
-
-        MarketplaceItem::create([
-            'name' => 'Zapier Automation Hub',
-            'slug' => 'zapier',
-            'category' => 'Productivity',
-            'logo' => 'https://api.iconify.design/simple-icons:zapier.svg',
-            'description' => 'Connect GETVNT events and sales data to over 5,000+ web applications seamlessly via Zapier Zaps.',
-            'developer' => 'GETVNT Official',
-            'version' => '1.4.0',
-            'rating' => 4.8,
-            'doc_url' => 'https://docs.getvnt.com/integrations/zapier',
-            'is_installed' => true,
-            'is_featured' => true,
-        ]);
-
-        MarketplaceItem::create([
-            'name' => 'Xero Accounting',
-            'slug' => 'xero',
-            'category' => 'Accounting',
-            'logo' => 'https://api.iconify.design/simple-icons:xero.svg',
-            'description' => 'Automate event ticket revenue reconciliation, VAT invoicing, and payouts directly into Xero Ledger.',
-            'developer' => 'Xero Partner Team',
-            'version' => '1.0.2',
-            'rating' => 4.7,
-            'doc_url' => 'https://docs.getvnt.com/integrations/xero',
-            'is_installed' => false,
-            'is_featured' => false,
-        ]);
-
-        // 11. System Integration Settings (BYOK Tier Configuration)
+        // 10. System Integration Settings
         SystemIntegrationSetting::create([
             'key' => 'byok_tier_permissions',
             'value' => [
                 'starter' => [
                     'allow_custom_ai' => false,
                     'allow_custom_payment' => false,
-                    'ai_monthly_token_quota' => 50000,
-                ],
-                'professional' => [
-                    'allow_custom_ai' => false,
-                    'allow_custom_payment' => true,
-                    'supported_gateways' => ['paystack', 'flutterwave'],
-                    'ai_monthly_token_quota' => 500000,
                 ],
                 'enterprise' => [
                     'allow_custom_ai' => true,
                     'allow_custom_payment' => true,
-                    'supported_gateways' => ['paystack', 'flutterwave', 'stripe', 'monnify', 'paypal'],
-                    'ai_monthly_token_quota' => -1, // Unlimited BYOK
                 ],
             ]
         ]);
 
-        // 12. Audit Logs
+        // 11. Audit Logs
         AuditLog::create([
             'user_name' => 'Chief Technology Officer',
             'user_role' => 'Platform Super Admin',
@@ -422,18 +293,6 @@ class IntegrationsSeeder extends Seeder
             'resource_id' => '1',
             'before_state' => ['status' => 'active', 'environment' => 'live'],
             'after_state' => ['status' => 'active', 'environment' => 'live', 'key_rotated_at' => now()->toIso8601String()],
-        ]);
-
-        AuditLog::create([
-            'user_name' => 'Lead AI Engineer',
-            'user_role' => 'AI Fleet Operator',
-            'ip_address' => '102.89.44.19',
-            'browser' => 'Firefox 130 / macOS',
-            'action' => 'Updated AI Route for Event Description to GPT-4o',
-            'resource_type' => 'ai_routes',
-            'resource_id' => '1',
-            'before_state' => ['primary_provider' => 'gemini-2.0-flash'],
-            'after_state' => ['primary_provider' => 'gpt-4o'],
         ]);
     }
 }

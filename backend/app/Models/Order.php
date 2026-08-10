@@ -14,8 +14,9 @@ class Order extends Model
 
     protected $casts = [
         'subtotal' => 'decimal:2',
-        'fees' => 'decimal:2',
-        'total_amount' => 'decimal:2',
+        'platform_fee' => 'decimal:2',
+        'gateway_fee' => 'decimal:2',
+        'total_charged' => 'decimal:2',
     ];
 
     public function event()
@@ -28,8 +29,18 @@ class Order extends Model
         return $this->belongsTo(Tenant::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function ledgerEntries()
+    {
+        return $this->hasMany(LedgerEntry::class);
     }
 }

@@ -6,21 +6,16 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TicketType extends Model
+class OrganizerWebsite extends Model
 {
     use HasFactory, HasUuids;
 
     protected $guarded = [];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
+        'is_published' => 'boolean',
+        'dns_verified' => 'boolean',
     ];
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
 
     public function tenant()
     {
