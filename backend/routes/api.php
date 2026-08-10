@@ -121,24 +121,23 @@ Route::prefix('v1')->group(function () {
         Route::get('/overview', [PlatformAdminController::class, 'overview']);
         Route::get('/stats', [PlatformAdminController::class, 'overview']);
 
-        // Section 2: User Directory & Actions
+        // Section 2 & 3: User & Organizer Control Room
         Route::get('/users', [PlatformAdminController::class, 'users']);
+        Route::post('/users/{id}/impersonate', [PlatformAdminController::class, 'impersonateUser']);
+        Route::delete('/users/{id}', [PlatformAdminController::class, 'deleteUser']);
         Route::post('/users/{id}/role', [PlatformAdminController::class, 'updateUserRole']);
         Route::post('/users/{id}/plan', [PlatformAdminController::class, 'updateUserPlan']);
         Route::post('/users/{id}/verification', [PlatformAdminController::class, 'updateUserVerification']);
-
-        // Section 3: Organizers Control Room
         Route::get('/organizers', [PlatformAdminController::class, 'organizers']);
         Route::post('/organizers/{id}/blue-tick', [PlatformAdminController::class, 'toggleBlueTick']);
 
-        // Section 4: Verification Queue
+        // Section 4 & 5: Verifications & Event Control
         Route::get('/verifications', [PlatformAdminController::class, 'verifications']);
         Route::post('/verifications/{id}/approve', [PlatformAdminController::class, 'approveVerification']);
         Route::post('/verifications/{id}/reject', [PlatformAdminController::class, 'rejectVerification']);
-
-        // Section 5: Events Directory
         Route::get('/events', [PlatformAdminController::class, 'events']);
         Route::post('/events/{id}/feature', [PlatformAdminController::class, 'featureEvent']);
+        Route::delete('/events/{id}', [PlatformAdminController::class, 'deleteEvent']);
 
         // Section 6 & 8: Finance & Fee Rules
         Route::get('/finance', [PlatformAdminController::class, 'finance']);
