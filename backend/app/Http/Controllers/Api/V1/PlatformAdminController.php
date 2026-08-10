@@ -778,25 +778,177 @@ class PlatformAdminController extends Controller
             'id' => (string) Str::uuid(),
             'category' => $request->category,
             'title' => $request->title,
+            'description' => $request->description ?? null,
             'prompt_text' => $request->prompt_text,
+            'provider_code' => $request->provider_code ?? 'openai',
+            'preferred_model' => $request->preferred_model ?? 'gpt-4o',
+            'temperature' => $request->temperature ?? 0.70,
+            'max_tokens' => $request->max_tokens ?? 2048,
+            'top_p' => $request->top_p ?? 1.00,
+            'frequency_penalty' => $request->frequency_penalty ?? 0.00,
+            'presence_penalty' => $request->presence_penalty ?? 0.00,
             'version' => 1,
-            'is_published' => true,
+            'is_published' => isset($request->is_published) ? $request->is_published : true,
+            'role_scope' => $request->role_scope ?? 'global',
+            'created_by' => $request->user()?->name ?? 'Super Admin',
         ]);
 
-        return response()->json(['success' => true, 'data' => $prompt, 'message' => 'System prompt added to library.']);
+        return response()->json(['success' => true, 'data' => $prompt, 'message' => "System prompt '{$prompt->title}' added to library."]);
     }
 
     public function updateAiPrompt(Request $request, string $id)
     {
         $prompt = AiPrompt::findOrFail($id);
         $prompt->update([
-            'prompt_text' => $request->prompt_text ?? $prompt->prompt_text,
+            'category' => $request->category ?? $prompt->category,
             'title' => $request->title ?? $prompt->title,
+            'description' => $request->description ?? $prompt->description,
+            'prompt_text' => $request->prompt_text ?? $prompt->prompt_text,
+            'provider_code' => $request->provider_code ?? $prompt->provider_code,
+            'preferred_model' => $request->preferred_model ?? $prompt->preferred_model,
+            'temperature' => $request->temperature ?? $prompt->temperature,
+            'max_tokens' => $request->max_tokens ?? $prompt->max_tokens,
+            'top_p' => $request->top_p ?? $prompt->top_p,
+            'frequency_penalty' => $request->frequency_penalty ?? $prompt->frequency_penalty,
+            'presence_penalty' => $request->presence_penalty ?? $prompt->presence_penalty,
             'version' => $prompt->version + 1,
-            'is_published' => $request->is_published ?? $prompt->is_published,
+            'is_published' => isset($request->is_published) ? $request->is_published : $prompt->is_published,
+            'role_scope' => $request->role_scope ?? $prompt->role_scope,
         ]);
 
-        return response()->json(['success' => true, 'data' => $prompt, 'message' => 'System prompt updated.']);
+        return response()->json(['success' => true, 'data' => $prompt, 'message' => "System prompt '{$prompt->title}' updated to version v{$prompt->version}."]);
+    }
+
+    public function deleteAiPrompt(Request $request, string $id)
+    {
+        $prompt = AiPrompt::findOrFail($id);
+        $title = $prompt->title;
+        $prompt->delete();
+
+        return response()->json(['success' => true, 'message' => "System prompt '{$title}' deleted from library."]);
+    }
+
+    public function cloneAiPrompt(Request $request, string $id)
+    {
+        $prompt = AiPrompt::findOrFail($id);
+        $cloned = $prompt->replicate();
+        $cloned->id = (string) Str::uuid();
+        $cloned->title = $prompt->title . ' (Copy)';
+        $cloned->version = 1;
+        $cloned->save();
+
+        return response()->json(['success' => true, 'data' => $cloned, 'message' => "System prompt cloned as '{$cloned->title}'."]);
+    }
+
+    public function seedDefaultPrompts(Request $request)
+    {
+        $defaultPrompts = [
+            [
+                'title' => 'Enterprise Marketing Strategist',
+                'category' => 'General Marketing',
+                'description' => 'Persuasive marketing campaign strategist using AIDA & PAS frameworks.',
+                'provider_code' => 'openai',
+                'preferred_model' => 'gpt-4o',
+                'role_scope' => 'global',
+                'prompt_text' => "You are GETVNT's Enterprise Marketing Strategist.\n\nYour responsibility is to help organizers create high-converting marketing campaigns that increase ticket sales, audience engagement, brand awareness, and event attendance.\n\nAlways write like a senior marketing strategist.\n\nYou must:\n\n• Understand the event audience before writing.\n• Create persuasive copy using proven marketing frameworks (AIDA, PAS, Storytelling, Emotional Selling).\n• Write headlines that grab attention.\n• Create compelling CTAs.\n• Optimize content for Instagram, Facebook, LinkedIn, TikTok, X, WhatsApp, Email, SMS, and Blogs.\n• Recommend hashtags.\n• Suggest campaign timelines.\n• Recommend posting schedules.\n• Improve conversion rates.\n• Never generate generic marketing copy.\n• Adapt tone depending on the event category.\n\nAlways produce premium marketing content.",
+            ],
+            [
+                'title' => 'Organizer Verification AI',
+                'category' => 'KYC Document Review',
+                'description' => 'Evaluates organizer verification documents and risk scoring.',
+                'provider_code' => 'openai',
+                'preferred_model' => 'gpt-4o',
+                'role_scope' => 'super_admin',
+                'prompt_text' => "You are GETVNT's Organizer Verification Assistant.\n\nYour responsibility is to assist administrators during organizer verification.\n\nReview all submitted information carefully.\n\nEvaluate:\n\n• Business Name\n• Government ID\n• CAC Registration\n• Selfie Verification\n• Bank Information\n• Phone Number\n• Email\n• Address\n• Website\n• Social Accounts\n\nYour response must include:\n\nRisk Level\n\nLow\n\nMedium\n\nHigh\n\nVerification Score (0-100)\n\nPotential Fraud Indicators\n\nMissing Documents\n\nRecommendation\n\nApprove\n\nReject\n\nRequest More Information\n\nNever make the final approval.\n\nOnly provide recommendations for human administrators.",
+            ],
+            [
+                'title' => 'Website Conversion Copywriter',
+                'category' => 'Website Copy',
+                'description' => 'High-conversion SaaS landing page and section copywriter.',
+                'provider_code' => 'anthropic',
+                'preferred_model' => 'claude-3-5-sonnet',
+                'role_scope' => 'global',
+                'prompt_text' => "You are GETVNT's Website Copy Specialist.\n\nWrite persuasive landing page copy that increases conversions.\n\nOptimize for:\n\nHomepage\n\nHero Section\n\nAbout\n\nFeatures\n\nPricing\n\nFAQ\n\nCTA\n\nSEO\n\nBenefits\n\nTestimonials\n\nTrust Elements\n\nUse modern SaaS copywriting principles.\n\nAvoid fluff.\n\nWrite with clarity.\n\nAlways focus on user benefits before features.\n\nOptimize for search engines without keyword stuffing.\n\nEvery section should naturally lead users toward registration or ticket purchase.",
+            ],
+            [
+                'title' => 'AI Creative Director',
+                'category' => 'Poster Design Prompts',
+                'description' => 'Detailed AI artwork generation prompts for Midjourney, Flux, and Imagen.',
+                'provider_code' => 'openai',
+                'preferred_model' => 'gpt-4o',
+                'role_scope' => 'organizer',
+                'prompt_text' => "You are GETVNT's Creative Director.\n\nGenerate highly detailed prompts for AI image generation.\n\nAlways include:\n\nTheme\n\nLighting\n\nMood\n\nComposition\n\nTypography Position\n\nCamera Angle\n\nColor Palette\n\nGraphic Style\n\nBrand Style\n\nAudience\n\nResolution\n\nAspect Ratio\n\nDesign Hierarchy\n\nAvoid vague prompts.\n\nProduce prompts suitable for Midjourney, Flux, Imagen, GPT Image, Ideogram, and Stable Diffusion.\n\nAlways create premium event artwork.",
+            ],
+            [
+                'title' => 'Attendee Support Assistant',
+                'category' => 'Attendee Support Bot',
+                'description' => 'Polite and efficient customer support bot for attendees.',
+                'provider_code' => 'google',
+                'preferred_model' => 'gemini-1.5-flash',
+                'role_scope' => 'attendee',
+                'prompt_text' => "You are GETVNT's Customer Support Assistant.\n\nHelp attendees with:\n\nTicket purchases\n\nQR codes\n\nRefunds\n\nTransfers\n\nSchedules\n\nVenue information\n\nParking\n\nCheck-in\n\nLost tickets\n\nPayment issues\n\nAccount settings\n\nRemain polite.\n\nRemain professional.\n\nNever fabricate information.\n\nEscalate to human support when required.\n\nAlways provide the fastest solution first.",
+            ],
+        ];
+
+        $count = 0;
+        foreach ($defaultPrompts as $dp) {
+            AiPrompt::updateOrCreate(
+                ['title' => $dp['title']],
+                [
+                    'id' => (string) Str::uuid(),
+                    'category' => $dp['category'],
+                    'description' => $dp['description'],
+                    'provider_code' => $dp['provider_code'],
+                    'preferred_model' => $dp['preferred_model'],
+                    'role_scope' => $dp['role_scope'],
+                    'prompt_text' => $dp['prompt_text'],
+                    'temperature' => 0.70,
+                    'max_tokens' => 2048,
+                    'version' => 1,
+                    'is_published' => true,
+                    'created_by' => 'GETVNT Core System',
+                ]
+            );
+            $count++;
+        }
+
+        return response()->json(['success' => true, 'message' => "Successfully seeded {$count} enterprise system prompts into library."]);
+    }
+
+    public function exportPrompts()
+    {
+        $prompts = AiPrompt::all();
+        return response()->json($prompts);
+    }
+
+    public function importPrompts(Request $request)
+    {
+        $request->validate(['prompts' => 'required|array']);
+
+        $count = 0;
+        foreach ($request->prompts as $p) {
+            if (isset($p['title']) && isset($p['prompt_text'])) {
+                AiPrompt::updateOrCreate(
+                    ['title' => $p['title']],
+                    [
+                        'id' => $p['id'] ?? (string) Str::uuid(),
+                        'category' => $p['category'] ?? 'General Marketing',
+                        'description' => $p['description'] ?? null,
+                        'prompt_text' => $p['prompt_text'],
+                        'provider_code' => $p['provider_code'] ?? 'openai',
+                        'preferred_model' => $p['preferred_model'] ?? 'gpt-4o',
+                        'temperature' => $p['temperature'] ?? 0.70,
+                        'max_tokens' => $p['max_tokens'] ?? 2048,
+                        'role_scope' => $p['role_scope'] ?? 'global',
+                        'version' => 1,
+                        'is_published' => true,
+                    ]
+                );
+                $count++;
+            }
+        }
+
+        return response()->json(['success' => true, 'message' => "Successfully imported {$count} AI prompts into library."]);
     }
 
     public function testAiConnection(Request $request)
