@@ -108,7 +108,8 @@ return new class extends Migration
         if (!Schema::hasTable('tenant_payment_connections')) {
             Schema::create('tenant_payment_connections', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+                $table->uuid('tenant_id');
+                $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
                 $table->foreignId('payment_gateway_id')->constrained('payment_gateways')->cascadeOnDelete();
                 $table->text('custom_public_key')->nullable();
                 $table->text('custom_secret_key')->nullable();
@@ -122,7 +123,8 @@ return new class extends Migration
         if (!Schema::hasTable('tenant_ai_connections')) {
             Schema::create('tenant_ai_connections', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
+                $table->uuid('tenant_id');
+                $table->foreign('tenant_id')->references('id')->on('tenants')->cascadeOnDelete();
                 $table->foreignId('ai_provider_id')->constrained('ai_providers')->cascadeOnDelete();
                 $table->text('custom_api_key')->nullable();
                 $table->boolean('is_enabled')->default(true);
@@ -291,7 +293,8 @@ return new class extends Migration
                 $table->integer('tokens_used')->default(0);
                 $table->decimal('cost', 10, 4)->default(0.0000);
                 $table->integer('duration_ms')->default(150);
-                $table->foreignId('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
+                $table->uuid('tenant_id')->nullable();
+                $table->foreign('tenant_id')->references('id')->on('tenants')->nullOnDelete();
                 $table->timestamps();
             });
         }
