@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Settings, Save, ToggleLeft, ToggleRight } from 'lucide-react';
+import { OAuthProvidersControl } from './OAuthProvidersControl';
 
 interface Props { settings: any; token: string; onRefresh: () => void; }
 
@@ -97,6 +98,10 @@ export function SystemSettings({ settings, token, onRefresh }: Props) {
           <Save size={16} /> {saving ? 'Saving...' : saved ? '✓ All Settings Saved!' : 'Save All Settings'}
         </button>
       </form>
+
+      {/* Social & Google OAuth Credentials Section */}
+      <OAuthProvidersControl token={token} onRefresh={onRefresh} />
     </div>
   );
 }
+

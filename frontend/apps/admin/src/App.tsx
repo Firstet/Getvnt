@@ -6,6 +6,8 @@ import {
   Search, Trash2, UserPlus, Info, Save, Star, Eye, ArrowUpRight, ArrowDownRight
 } from 'lucide-react';
 
+import { PaymentGatewayControl } from './components/PaymentGatewayControl';
+import { AiFleetControl } from './components/AiFleetControl';
 import { EventManagement } from './components/EventManagement';
 import { FinanceCenter } from './components/FinanceCenter';
 import { PlatformFees } from './components/PlatformFees';
@@ -525,43 +527,7 @@ export function App() {
         {activeModule === 'finance' && <FinanceCenter financeData={financeData} payouts={payouts} token={token} onRefresh={fetchAdminData} />}
 
         {/* MODULE 7: Payment Settings */}
-        {activeModule === 'gateways' && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 16px', color: '#fff' }}>Payment Gateway Configuration</h2>
-            <div style={{ background: '#0f172a', border: '1px solid #3b82f6', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <Info size={16} color="#60a5fa" />
-              <div style={{ fontSize: '13px', color: '#cbd5e1' }}>
-                Enter live/sandbox keys for <strong>Paystack</strong>, <strong>Flutterwave</strong>, <strong>Stripe</strong>, <strong>Monnify</strong>, <strong>Remita</strong>, <strong>Square</strong>. Saved directly to database — no server restart needed.
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-              {gateways.length === 0 && (
-                <div style={{ gridColumn: '1/-1', background: '#0f172a', border: '1px dashed #334155', borderRadius: '16px', padding: '40px', textAlign: 'center', color: '#64748b' }}>
-                  No gateways configured yet. Seed the database or visit <code>php artisan db:seed --class=PaymentGatewaySeeder</code>.
-                </div>
-              )}
-              {gateways.map(gw => (
-                <div key={gw.id} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '24px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                    <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#fff', textTransform: 'capitalize' }}>{gw.provider}</h3>
-                    {badge(gw.is_enabled ? '#34d399' : '#fbbf24', gw.is_enabled ? '#052e16' : '#78350f', (gw.environment || 'sandbox').toUpperCase())}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {[{ label: 'Public Key', field: 'public_key', type: 'text' }, { label: 'Secret Key', field: 'secret_key', type: 'password' }].map(k => (
-                      <div key={k.field}>
-                        <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px' }}>{k.label}</label>
-                        <input type={k.type} defaultValue={gw[k.field] || ''} onChange={e => { gw[k.field] = e.target.value; }} placeholder={`${k.field.split('_')[0]}_live_...`} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '13px' }} />
-                      </div>
-                    ))}
-                    <button onClick={() => handleUpdatePaymentConfig(gw.id, gw)} style={{ background: '#4f46e5', color: '#fff', border: 'none', padding: '9px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', marginTop: '6px' }}>
-                      Save to Database
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {activeModule === 'gateways' && <PaymentGatewayControl gateways={gateways} token={token} onRefresh={fetchAdminData} />}
 
         {/* MODULE 8: Platform Fees */}
         {activeModule === 'fee_rules' && <PlatformFees feeRules={feeRules} token={token} onRefresh={fetchAdminData} />}
@@ -582,54 +548,7 @@ export function App() {
         {activeModule === 'websites' && <WebsiteBuilderControl websites={websites} />}
 
         {/* MODULE 14: AI Control Center */}
-        {activeModule === 'ai_fleet' && (
-          <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 16px', color: '#fff' }}>AI Operations Fleet Control Center</h2>
-            <div style={{ background: '#0f172a', border: '1px solid #7c3aed', borderRadius: '14px', padding: '16px 20px', marginBottom: '24px', display: 'flex', gap: '10px', alignItems: 'center' }}>
-              <Bot size={16} color="#c084fc" />
-              <div style={{ fontSize: '13px', color: '#cbd5e1' }}>
-                Configure API keys for <strong>OpenAI, Claude, Gemini, DeepSeek, Groq, OpenRouter, Ollama</strong>. Each feature can use a different model. No code changes required.
-              </div>
-            </div>
-
-            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#fff' }}>Provider Fleet</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
-              {(aiFleetData?.providers ?? []).map((prov: any) => (
-                <div key={prov.id} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#fff' }}>{prov.name}</h4>
-                    {badge('#34d399', '#052e16', 'ACTIVE')}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>Model: <strong style={{ color: '#fff' }}>{prov.default_model}</strong></div>
-                  <input type="password" defaultValue={prov.api_key || ''} onChange={e => { prov.api_key = e.target.value; }} placeholder="sk-..." style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '8px 12px', color: '#fff', fontSize: '12px', marginBottom: '10px' }} />
-                  <button onClick={() => handleTestAiConnection(prov.provider)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', color: '#c084fc', padding: '8px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '12px' }}>
-                    Test Connection →
-                  </button>
-                </div>
-              ))}
-              {(aiFleetData?.providers ?? []).length === 0 && (
-                <div style={{ gridColumn: '1/-1', background: '#0f172a', border: '1px dashed #334155', borderRadius: '16px', padding: '32px', textAlign: 'center', color: '#64748b' }}>
-                  No AI providers in database. Seed via <code>php artisan db:seed --class=AiProviderSeeder</code>.
-                </div>
-              )}
-            </div>
-
-            <h3 style={{ fontSize: '18px', fontWeight: 800, marginBottom: '16px', color: '#fff' }}>Add System Prompt</h3>
-            <form onSubmit={handleCreateAiPrompt} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '24px', maxWidth: '600px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Prompt Title</label>
-                <input type="text" value={newPromptTitle} onChange={e => setNewPromptTitle(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Prompt Text</label>
-                <textarea value={newPromptText} onChange={e => setNewPromptText(e.target.value)} required rows={4} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff', resize: 'vertical' }} />
-              </div>
-              <button type="submit" style={{ background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer', width: 'fit-content' }}>
-                Save Prompt to Library
-              </button>
-            </form>
-          </div>
-        )}
+        {activeModule === 'ai_fleet' && <AiFleetControl aiFleetData={aiFleetData} token={token} onRefresh={fetchAdminData} />}
 
         {/* MODULE 15: Broadcast Center */}
         {activeModule === 'broadcasts' && <BroadcastCenter broadcasts={broadcasts} token={token} onRefresh={fetchAdminData} />}
