@@ -41,7 +41,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   onOpenBecomeOrganizer,
   onLogout,
 }) => {
-  const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved';
+  const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved' || verificationStatus === 'pending';
   const isPro = subscriptionPlan === 'pro' || subscriptionPlan === 'enterprise' || role === 'super_admin';
 
   const attendeeNav: NavItem[] = [
@@ -105,26 +105,23 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             <Sparkles size={14} /> Host & Sell Tickets
           </div>
           <p style={{ margin: '0 0 12px', fontSize: '12.5px', color: '#cbd5e1', lineHeight: '1.4' }}>
-            {verificationStatus === 'pending'
-              ? 'Your onboarding request is currently under review by Super Admin.'
-              : 'Verify your business identity to unlock Organizer Workspace.'}
+            Verify your business identity to unlock your Organizer Workspace.
           </p>
           <button
             onClick={onOpenBecomeOrganizer}
-            disabled={verificationStatus === 'pending'}
             style={{
               width: '100%',
-              background: verificationStatus === 'pending' ? '#334155' : 'linear-gradient(135deg, #6366f1, #a855f7)',
+              background: 'linear-gradient(135deg, #6366f1, #a855f7)',
               color: '#ffffff',
               fontWeight: 800,
               fontSize: '13px',
               padding: '10px',
               borderRadius: '10px',
               border: 'none',
-              cursor: verificationStatus === 'pending' ? 'not-allowed' : 'pointer'
+              cursor: 'pointer'
             }}
           >
-            {verificationStatus === 'pending' ? '⏳ Under Review...' : '🚀 Become Organizer Now'}
+            🚀 Become Organizer Now
           </button>
         </div>
       )}

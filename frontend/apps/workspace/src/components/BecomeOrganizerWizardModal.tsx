@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Rocket, CheckCircle2, ChevronRight, ChevronLeft, Shield, Building, CreditCard, FileCheck } from 'lucide-react';
+import { X, Rocket, CheckCircle2, ChevronRight, ChevronLeft, Shield, Building, CreditCard, FileCheck, AlertCircle } from 'lucide-react';
 
 interface BecomeOrganizerWizardModalProps {
   isOpen: boolean;
@@ -14,6 +14,7 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
 }) => {
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State
   const [businessName, setBusinessName] = useState('AfroNation Live Events');
@@ -31,7 +32,15 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
 
   const handleSubmitOnboarding = async () => {
     setSubmitting(true);
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    setErrorMessage(null);
+
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+
+    if (!token) {
+      setSubmitting(false);
+      setErrorMessage('Authentication token missing. Please log in to complete organizer onboarding.');
+      return;
+    }
 
     try {
       const res = await fetch('/api/v1/kyc/submit', {
@@ -58,11 +67,18 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
       if (res.ok && data.success) {
         onSuccessRedirect();
       } else {
-        alert(data.message || 'Onboarding submitted.');
-        onSuccessRedirect();
+        const errorText = data.message || `Onboarding failed with status code ${res.status}`;
+        console.error('Kyc Onboarding Error:', data);
+        setErrorMessage(errorText);
+        // If successful or pending verification created, execute redirect
+        if (data.data || res.status === 201) {
+          onSuccessRedirect();
+        }
       }
-    } catch (e) {
+    } catch (e: any) {
       setSubmitting(false);
+      console.error('Kyc Onboarding Request Failed:', e);
+      setErrorMessage('Network error during organizer onboarding. Redirecting to workspace...');
       onSuccessRedirect();
     }
   };
@@ -86,6 +102,13 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
             <X size={20} />
           </button>
         </div>
+
+        {/* Error Feedback Banner */}
+        {errorMessage && (
+          <div style={{ background: 'rgba(239, 68, 68, 0.15)', border: '1px solid #ef4444', borderRadius: '12px', padding: '12px 16px', color: '#f87171', fontSize: '13.5px', fontWeight: 700, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <AlertCircle size={18} /> {errorMessage}
+          </div>
+        )}
 
         {/* Stepper Indicator */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
