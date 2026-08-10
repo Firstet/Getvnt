@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Attendee\AttendeeController;
 use App\Http\Controllers\Api\V1\Attendee\CommunityController;
 use App\Http\Controllers\Api\V1\Attendee\DirectMessageController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\EnterpriseAiController;
 use App\Http\Controllers\Api\V1\KycController;
 use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\MediaUploadController;

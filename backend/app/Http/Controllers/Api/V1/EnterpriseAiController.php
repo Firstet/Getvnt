@@ -228,6 +228,9 @@ class EnterpriseAiController extends Controller
         }
 
         switch ($type) {
+            case 'general_chat':
+                return "Hello! I am GETVNT AI Assistant, your dedicated event intelligence copilot. I can help you discover upcoming concerts and festivals, buy tickets, draft event campaigns, configure pricing tiers, or answer any platform support questions. How can I assist you today?";
+
             case 'event_planning':
                 return "Phase 1: Pre-Event Preparation (T-60 Days)\n"
                     . "1. Secure venue contract and confirm target capacity.\n"
