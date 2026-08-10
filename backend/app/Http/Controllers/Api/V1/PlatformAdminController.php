@@ -630,32 +630,7 @@ class PlatformAdminController extends Controller
     // ─── AI OPERATIONS FLEET CONTROL CENTER ───────────────────────────
     public function aiFleet(Request $request)
     {
-        $providers = AiProvider::all();
-        if ($providers->isEmpty()) {
-            $defaultList = [
-                ['name' => 'OpenAI', 'slug' => 'openai', 'default_model' => 'gpt-4o', 'cost' => 0.0025, 'latency' => 280, 'requests_today' => 1420, 'tokens_today' => 485000],
-                ['name' => 'Anthropic Claude', 'slug' => 'claude', 'default_model' => 'claude-3-5-sonnet-20241022', 'cost' => 0.0030, 'latency' => 310, 'requests_today' => 890, 'tokens_today' => 312000],
-                ['name' => 'Google Gemini', 'slug' => 'gemini', 'default_model' => 'gemini-2.0-flash', 'cost' => 0.0012, 'latency' => 240, 'requests_today' => 2100, 'tokens_today' => 721000],
-                ['name' => 'DeepSeek AI', 'slug' => 'deepseek', 'default_model' => 'deepseek-reasoner', 'cost' => 0.0008, 'latency' => 210, 'requests_today' => 560, 'tokens_today' => 198000],
-                ['name' => 'Groq LPU', 'slug' => 'groq', 'default_model' => 'llama-3.3-70b-versatile', 'cost' => 0.0005, 'latency' => 120, 'requests_today' => 3200, 'tokens_today' => 1120000],
-                ['name' => 'NVIDIA NIM', 'slug' => 'nvidia', 'default_model' => 'meta/llama-3.3-70b-instruct', 'cost' => 0.0010, 'latency' => 140, 'requests_today' => 620, 'tokens_today' => 245000],
-                ['name' => 'OpenRouter', 'slug' => 'openrouter', 'default_model' => 'auto', 'cost' => 0.0015, 'latency' => 290, 'requests_today' => 440, 'tokens_today' => 156000],
-                ['name' => 'Ollama Local', 'slug' => 'ollama', 'default_model' => 'llama3.2', 'cost' => 0.0000, 'latency' => 180, 'requests_today' => 120, 'tokens_today' => 42000],
-            ];
-            foreach ($defaultList as $p) {
-                AiProvider::create([
-                    'name' => $p['name'],
-                    'slug' => $p['slug'],
-                    'default_model' => $p['default_model'],
-                    'status' => 'active',
-                    'cost_per_1k_tokens' => $p['cost'],
-                    'avg_latency_ms' => $p['latency'],
-                    'requests_today' => $p['requests_today'],
-                    'tokens_today' => $p['tokens_today'],
-                ]);
-            }
-            $providers = AiProvider::all();
-        }
+        $providers = AiProvider::orderBy('id', 'asc')->get()->unique('slug')->values();
 
         // Map provider attribute to slug for frontend compatibility
         $mappedProviders = $providers->map(function ($prov) {
@@ -701,7 +676,7 @@ class PlatformAdminController extends Controller
                 'avg_response_ms' => 245,
                 'success_rate' => 99.6,
                 'errors_today' => 4,
-                'active_models' => 7,
+                'active_models' => $providers->where('status', 'active')->count(),
             ],
             'providers' => $mappedProviders,
             'feature_models' => $featureModels,
