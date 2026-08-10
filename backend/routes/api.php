@@ -117,34 +117,68 @@ Route::prefix('v1')->group(function () {
 
     // ─── 5. SUPER ADMIN CONTROL CENTER (Role: Super Admin) ───────────────────
     Route::prefix('admin')->middleware(['auth:sanctum', RequireSuperAdmin::class])->group(function () {
-        Route::get('/stats', [PlatformAdminController::class, 'stats']);
+        // Section 1: Overview
+        Route::get('/overview', [PlatformAdminController::class, 'overview']);
+        Route::get('/stats', [PlatformAdminController::class, 'overview']);
 
-        // Users & Role / Plan / Verification Override
+        // Section 2: User Directory & Actions
         Route::get('/users', [PlatformAdminController::class, 'users']);
         Route::post('/users/{id}/role', [PlatformAdminController::class, 'updateUserRole']);
         Route::post('/users/{id}/plan', [PlatformAdminController::class, 'updateUserPlan']);
         Route::post('/users/{id}/verification', [PlatformAdminController::class, 'updateUserVerification']);
 
-        // Verification Queue Review
+        // Section 3: Organizers Control Room
+        Route::get('/organizers', [PlatformAdminController::class, 'organizers']);
+        Route::post('/organizers/{id}/blue-tick', [PlatformAdminController::class, 'toggleBlueTick']);
+
+        // Section 4: Verification Queue
         Route::get('/verifications', [PlatformAdminController::class, 'verifications']);
         Route::post('/verifications/{id}/approve', [PlatformAdminController::class, 'approveVerification']);
         Route::post('/verifications/{id}/reject', [PlatformAdminController::class, 'rejectVerification']);
 
-        // Wallet Ledger Audit & Payout Disbursal
+        // Section 5: Events Directory
+        Route::get('/events', [PlatformAdminController::class, 'events']);
+        Route::post('/events/{id}/feature', [PlatformAdminController::class, 'featureEvent']);
+
+        // Section 6 & 8: Finance & Fee Rules
+        Route::get('/finance', [PlatformAdminController::class, 'finance']);
+        Route::get('/fee-rules', [PlatformAdminController::class, 'feeRules']);
+        Route::put('/fee-rules', [PlatformAdminController::class, 'updateFeeRules']);
+
+        // Section 7: Payment Gateways Configuration
+        Route::get('/payment-gateways', [PlatformAdminController::class, 'paymentConfigs']);
+        Route::get('/gateways', [PlatformAdminController::class, 'paymentConfigs']);
+        Route::put('/payment-gateways/{id}', [PlatformAdminController::class, 'updatePaymentConfig']);
+        Route::put('/gateways/rules/{id}', [PlatformAdminController::class, 'updateFeeRules']);
+
+        // Section 9: Double-Entry Ledger
         Route::get('/ledger', [PlatformAdminController::class, 'ledger']);
+
+        // Section 10: Payout Center
         Route::get('/payouts', [PlatformAdminController::class, 'payouts']);
         Route::post('/payouts/{id}/disburse', [PlatformAdminController::class, 'disbursePayout']);
 
-        // Payment Gateways & Editable 5%/1.5% Fee Calculator
-        Route::get('/gateways', [PlatformAdminController::class, 'gateways']);
-        Route::put('/gateways/rules/{id}', [PlatformAdminController::class, 'updateGatewayFee']);
+        // Section 12 & 13: CMS & Website Builder Control
+        Route::get('/cms', [PlatformAdminController::class, 'cmsSections']);
+        Route::put('/cms/{id}', [PlatformAdminController::class, 'updateCmsSection']);
+        Route::get('/websites', [PlatformAdminController::class, 'websites']);
 
-        // AI Fleet & CMS Landing Builder
+        // Section 14: AI Fleet Control Center
         Route::get('/ai-providers', [PlatformAdminController::class, 'aiProviders']);
         Route::put('/ai-providers/{id}', [PlatformAdminController::class, 'updateAiProvider']);
 
-        Route::get('/cms', [PlatformAdminController::class, 'cmsSections']);
-        Route::put('/cms/{id}', [PlatformAdminController::class, 'updateCmsSection']);
+        // Section 15: Broadcast Notifications
+        Route::get('/broadcasts', [PlatformAdminController::class, 'broadcasts']);
+        Route::post('/broadcasts', [PlatformAdminController::class, 'createBroadcast']);
+
+        // Section 16 & 17: System Settings & Audit Logs
+        Route::get('/system-settings', [PlatformAdminController::class, 'systemSettings']);
+        Route::put('/system-settings', [PlatformAdminController::class, 'updateSystemSetting']);
+        Route::get('/audit-logs', [PlatformAdminController::class, 'auditLogs']);
+
+        // Section 19 & 20: Reports & Developer Health
+        Route::get('/developer-health', [PlatformAdminController::class, 'developerHealth']);
+        Route::post('/developer-health/flush-cache', [PlatformAdminController::class, 'flushCache']);
     });
 
     // ─── 6. MEDIA UPLOAD & STORAGE ───────────────────────────────────────────
