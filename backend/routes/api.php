@@ -185,6 +185,11 @@ Route::prefix('v1')->group(function () {
         Route::put('/ai/feature-models/{id}', [PlatformAdminController::class, 'updateAiFeatureModel']);
         Route::post('/ai/prompts', [PlatformAdminController::class, 'createAiPrompt']);
         Route::put('/ai/prompts/{id}', [PlatformAdminController::class, 'updateAiPrompt']);
+        Route::delete('/ai/prompts/{id}', [PlatformAdminController::class, 'deleteAiPrompt']);
+        Route::post('/ai/prompts/{id}/clone', [PlatformAdminController::class, 'cloneAiPrompt']);
+        Route::post('/ai/prompts/seed-default', [PlatformAdminController::class, 'seedDefaultPrompts']);
+        Route::get('/ai/prompts/export', [PlatformAdminController::class, 'exportPrompts']);
+        Route::post('/ai/prompts/import', [PlatformAdminController::class, 'importPrompts']);
         Route::post('/ai/test-connection', [PlatformAdminController::class, 'testAiConnection']);
         Route::post('/ai/fetch-models', [PlatformAdminController::class, 'fetchAiModels']);
 
