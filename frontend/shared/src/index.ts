@@ -20,4 +20,5 @@ export * from './components/SaaSAuthModal';
 export * from './components/SaaSOnboardingWizard';
 export * from './components/SaaSVerificationBanner';
 export * from './components/ConfirmModal';
+export * from './components/FloatingAiAssistant';
 export * from './utils/roleUtils';

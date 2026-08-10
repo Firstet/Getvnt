@@ -21,6 +21,7 @@ import { AuditLogs } from './components/AuditLogs';
 import { SecurityControl } from './components/SecurityControl';
 import { ReportsGrowth } from './components/ReportsGrowth';
 import { DeveloperSystemHealth } from './components/DeveloperSystemHealth';
+import { FloatingAiAssistant } from '@getvnt/shared';
 
 /* ─── helpers ─── */
 const cell: React.CSSProperties = { padding: '14px 18px' };
@@ -634,6 +635,8 @@ export function App() {
         </div>
       )}
 
+      {/* Universal Floating AI Assistant */}
+      <FloatingAiAssistant role="super_admin" />
     </div>
   );
 }

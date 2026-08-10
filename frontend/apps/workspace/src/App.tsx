@@ -3,6 +3,7 @@ import { UserSidebar } from './components/UserSidebar';
 import { AttendeeDashboardView } from './components/AttendeeDashboardView';
 import { BecomeOrganizerWizardModal } from './components/BecomeOrganizerWizardModal';
 import { Calendar, ShoppingCart, Wallet, Ticket, Plus, CheckCircle2, QrCode, ArrowUpRight, Sparkles, Globe, Bot } from 'lucide-react';
+import { FloatingAiAssistant } from '@getvnt/shared';
 
 export function App() {
   const [user, setUser] = useState<any>(null);
@@ -39,6 +40,22 @@ export function App() {
   // Door QR Check-in Code Input
   const [scanQrCode, setScanQrCode] = useState('');
   const [scanResult, setScanResult] = useState<any>(null);
+
+  useEffect(() => {
+    const handlePrefill = (e: any) => {
+      const draft = e.detail;
+      if (draft) {
+        if (draft.title) setEventTitle(draft.title);
+        if (draft.ticket_types && draft.ticket_types[0]) {
+          setTicketName(draft.ticket_types[0].name);
+          setTicketPrice(String(draft.ticket_types[0].price));
+        }
+        setIsCreateEventOpen(true);
+      }
+    };
+    window.addEventListener('getvnt:prefill_event', handlePrefill);
+    return () => window.removeEventListener('getvnt:prefill_event', handlePrefill);
+  }, []);
 
   const getAuthToken = () => {
     return localStorage.getItem('getvnt_auth_token') ||
@@ -596,6 +613,8 @@ export function App() {
         </div>
       )}
 
+      {/* Floating AI Assistant Chatbot */}
+      <FloatingAiAssistant role={role === 'attendee' ? 'attendee' : 'organizer'} />
     </div>
     </div>
   );

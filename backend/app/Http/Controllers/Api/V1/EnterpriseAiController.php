@@ -9,6 +9,61 @@ use Illuminate\Support\Str;
 class EnterpriseAiController extends Controller
 {
     /**
+     * Public AI Assistant Chatbot Endpoint for Attendee & Organizer Floating Copilot
+     */
+    public function chat(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string',
+            'context' => 'nullable|string',
+        ]);
+
+        $message = $request->input('message');
+        $context = $request->input('context', 'attendee');
+
+        $isDraftRequest = preg_match('/(create|draft|plan|make|generate)\s+(an?\s+)?event/i', $message) ||
+                          preg_match('/(concert|festival|summit|conference|party|meetup|workshop|tech|gala|hackathon)/i', $message);
+
+        $promptType = $isDraftRequest ? 'event_planning' : 'general_chat';
+        $replyText = $this->buildAiResponse($promptType, $message, ['context' => $context]);
+
+        $eventDraft = null;
+        if ($context === 'organizer' && $isDraftRequest) {
+            $cleanTitle = trim(preg_replace('/^(create|draft|make|plan|generate)\s+(an?\s+)?(event\s+for\s+|event\s+about\s+|event\s+called\s+)?/i', '', $message));
+            if (strlen($cleanTitle) < 3) {
+                $cleanTitle = 'Global Tech & Cultural Innovation Festival 2026';
+            } else {
+                $cleanTitle = ucwords($cleanTitle);
+            }
+
+            $eventDraft = [
+                'title' => $cleanTitle,
+                'description' => "Join industry leaders, creators, and innovators for {$cleanTitle}. Featuring live keynote speeches, interactive workshops, VIP networking lounges, and digital QR ticket access.",
+                'banner_url' => 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=1200&auto=format&fit=crop&q=80',
+                'venue_name' => 'Eko Atlantic Convention Center',
+                'address' => 'Plot 1, Ocean View Drive, Victoria Island, Lagos',
+                'start_date' => date('Y-m-d', strtotime('+30 days')),
+                'start_time' => '09:00',
+                'end_date' => date('Y-m-d', strtotime('+30 days')),
+                'end_time' => '18:00',
+                'ticket_types' => [
+                    ['name' => 'Early Bird Access', 'price' => 25.00, 'quantity' => 100],
+                    ['name' => 'General Pass', 'price' => 50.00, 'quantity' => 500],
+                    ['name' => 'VIP Executive Pass', 'price' => 150.00, 'quantity' => 50],
+                ]
+            ];
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'reply' => $replyText,
+                'event_draft' => $eventDraft,
+            ]
+        ]);
+    }
+
+    /**
      * AI Assistant Generation Engine
      */
     public function generate(Request $request)
