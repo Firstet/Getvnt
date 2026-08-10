@@ -79,7 +79,7 @@ return [
         ],
 
         'redis' => [
-            'driver' => 'redis',
+            'driver' => (extension_loaded('redis') || class_exists(\Predis\Client::class)) ? 'redis' : 'file',
             'connection' => env('REDIS_CACHE_CONNECTION', 'cache'),
             'lock_connection' => env('REDIS_CACHE_LOCK_CONNECTION', 'default'),
         ],
