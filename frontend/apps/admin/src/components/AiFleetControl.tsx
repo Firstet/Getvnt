@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Bot, Save, RefreshCw, Eye, EyeOff, CheckCircle2, Zap, Send, Plus, Trash2, X, Terminal, Cpu } from 'lucide-react';
+import { Bot, Save, RefreshCw, Eye, EyeOff, CheckCircle2, Zap, Send, Plus, Trash2, X, AlertTriangle, CheckCircle } from 'lucide-react';
+import { ConfirmModal } from '@getvnt/shared';
 
 interface Provider {
   id: string | number;
@@ -48,6 +49,17 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
   const [testingId, setTestingId] = useState<string | null>(null);
   const [testResult, setTestResult] = useState<Record<string, string>>({});
   const [showKey, setShowKey] = useState<Record<string, boolean>>({});
+
+  // Custom Toast Notification (replaces native browser alert)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ type, message });
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Custom Confirm Modal (replaces native browser confirm)
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; id: string; name: string } | null>(null);
 
   // Add Provider Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -118,19 +130,20 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       if (data.success) {
         setSavedId(id);
         setTimeout(() => setSavedId(null), 3000);
+        showToast(`AI Provider "${payload.name}" saved to database successfully!`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to save provider credentials.');
+        showToast(data.message || 'Failed to save provider credentials.', 'error');
       }
     } catch (e: any) {
-      alert('Save failed: ' + e.message);
+      showToast('Save error: ' + e.message, 'error');
     } finally {
       setSavingId(null);
     }
   };
 
-  const handleDeleteProvider = async (id: string, name: string) => {
-    if (!confirm(`Are you sure you want to delete AI provider "${name}"?`)) return;
+  const executeDelete = async (id: string, name: string) => {
+    setConfirmModal(null);
     setDeletingId(id);
     try {
       const res = await fetch(`/api/v1/admin/ai/providers/${id}`, {
@@ -139,12 +152,13 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       });
       const data = await res.json();
       if (data.success) {
+        showToast(`AI Provider "${name}" deleted permanently.`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to delete provider.');
+        showToast(data.message || 'Failed to delete provider.', 'error');
       }
     } catch (e: any) {
-      alert('Delete failed: ' + e.message);
+      showToast('Delete error: ' + e.message, 'error');
     } finally {
       setDeletingId(null);
     }
@@ -166,12 +180,13 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       if (data.success) {
         setIsAddModalOpen(false);
         setNewProv({ name: 'Mistral AI', slug: 'mistral', api_key: '', default_model: 'mistral-large-latest', base_url: 'https://api.mistral.ai/v1', status: 'active' });
+        showToast(`New AI Provider "${newProv.name}" created!`, 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to create provider.');
+        showToast(data.message || 'Failed to create provider.', 'error');
       }
     } catch (e: any) {
-      alert('Create error: ' + e.message);
+      showToast('Create error: ' + e.message, 'error');
     } finally {
       setAddingProv(false);
     }
@@ -213,10 +228,10 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       if (data.success) {
         setPromptTitle('');
         setPromptText('');
-        alert('System prompt saved to library!');
+        showToast('System prompt saved to library!', 'success');
         onRefresh();
       } else {
-        alert(data.message || 'Failed to save prompt.');
+        showToast(data.message || 'Failed to save prompt.', 'error');
       }
     } finally {
       setSavingPrompt(false);
@@ -224,7 +239,38 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
+      
+      {/* Sleek Custom Toast Notification Banner */}
+      {toast && (
+        <div
+          style={{
+            position: 'fixed',
+            top: '24px',
+            right: '24px',
+            zIndex: 99999,
+            background: toast.type === 'success' ? '#052e16' : '#450a0a',
+            border: `1px solid ${toast.type === 'success' ? '#10b981' : '#f87171'}`,
+            color: '#fff',
+            padding: '14px 20px',
+            borderRadius: '14px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            maxWidth: '420px',
+            fontSize: '13.5px',
+            fontWeight: 700
+          }}
+        >
+          {toast.type === 'success' ? <CheckCircle size={20} color="#10b981" /> : <AlertTriangle size={20} color="#f87171" />}
+          <div style={{ flex: 1 }}>{toast.message}</div>
+          <button onClick={() => setToast(null)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* Top Action Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
@@ -379,7 +425,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
                 {!idStr.startsWith('prov-') && (
                   <button
                     type="button"
-                    onClick={() => handleDeleteProvider(idStr, prov.name)}
+                    onClick={() => setConfirmModal({ isOpen: true, id: idStr, name: prov.name })}
                     disabled={isDeleting}
                     style={{
                       background: '#1e293b',
@@ -498,6 +544,20 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
           <Send size={14} /> {savingPrompt ? 'Saving Prompt...' : 'Save Prompt to Library'}
         </button>
       </form>
+
+      {/* Sleek Custom Confirm Modal for Provider Deletion */}
+      {confirmModal && (
+        <ConfirmModal
+          isOpen={confirmModal.isOpen}
+          title="Delete AI Provider"
+          message={`Are you sure you want to permanently delete AI Provider "${confirmModal.name}"? This action cannot be undone.`}
+          confirmText="Yes, Delete Provider"
+          cancelText="Cancel"
+          variant="danger"
+          onConfirm={() => executeDelete(confirmModal.id, confirmModal.name)}
+          onCancel={() => setConfirmModal(null)}
+        />
+      )}
     </div>
   );
 }
