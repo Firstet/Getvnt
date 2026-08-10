@@ -116,17 +116,17 @@ class AuthController extends Controller
             'country' => 'sometimes|nullable|string',
             'language' => 'sometimes|nullable|string',
             'timezone' => 'sometimes|nullable|string',
-            'avatar' => 'sometimes|nullable|string',
+            'avatar_url' => 'sometimes|nullable|string',
         ]);
 
         $user->update($request->only([
-            'name', 'phone', 'bio', 'country', 'language', 'timezone', 'avatar'
+            'name', 'phone', 'bio', 'country', 'language', 'timezone', 'avatar_url'
         ]));
 
         return response()->json([
             'success' => true,
             'data' => $user->fresh(),
-            'message' => 'Profile settings updated successfully.',
+            'message' => 'Profile updated successfully.',
         ]);
     }
 

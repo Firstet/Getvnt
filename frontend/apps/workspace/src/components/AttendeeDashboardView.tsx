@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Ticket, Heart, MessageSquare, Bell, User, Sparkles, ExternalLink, QrCode, Share2, Download, CheckCircle2, Trash2, Send, Paperclip, Search, Shield, Globe, Lock, ArrowRight, Eye, Calendar, MapPin, Clock, Camera, ShieldCheck, Key, Settings, AlertTriangle } from 'lucide-react';
+import { Ticket, Heart, MessageSquare, Bell, User, Sparkles, ExternalLink, QrCode, Share2, Download, CheckCircle2, Trash2, Send, Paperclip, Search, Shield, Globe, Lock, ArrowRight, Eye, Calendar, MapPin, Clock, Camera, Key, ToggleLeft, ToggleRight, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 interface AttendeeDashboardViewProps {
   user: any;
@@ -34,36 +34,53 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
   const [receiptData, setReceiptData] = useState<any>(null);
   const [notifFilter, setNotifFilter] = useState('all');
 
-  // Full Profile Form State
+  // Profile Form State
   const [profileName, setProfileName] = useState(user?.name || '');
+  const [profileEmail, setProfileEmail] = useState(user?.email || '');
   const [profilePhone, setProfilePhone] = useState(user?.phone || '+234 812 345 6789');
-  const [profileBio, setProfileBio] = useState(user?.bio || 'Music lover, tech enthusiast & live concert lover.');
+  const [profileBio, setProfileBio] = useState(user?.bio || 'Music lover & live event enthusiast.');
   const [profileCountry, setProfileCountry] = useState(user?.country || 'Nigeria');
   const [profileLanguage, setProfileLanguage] = useState(user?.language || 'English');
   const [profileTimezone, setProfileTimezone] = useState(user?.timezone || 'Africa/Lagos');
-  const [avatarUrl, setAvatarUrl] = useState(user?.avatar || '');
+  const [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
 
-  // Password & Security
+  // Security Form State
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordFeedback, setPasswordFeedback] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [profileFeedback, setProfileFeedback] = useState<{ msg: string; isError?: boolean } | null>(null);
+  const [passwordFeedback, setPasswordFeedback] = useState<{ msg: string; isError?: boolean } | null>(null);
 
-  // Notification Toggles State
-  const [notifEmailReceipts, setNotifEmailReceipts] = useState(true);
-  const [notifEventReminders, setNotifEventReminders] = useState(true);
-  const [notifPriceAlerts, setNotifPriceAlerts] = useState(true);
-  const [notifCommunityAlerts, setNotifCommunityAlerts] = useState(true);
+  // Notification Toggles
+  const [notifEmail, setNotifEmail] = useState(true);
+  const [notifSms, setNotifSms] = useState(true);
+  const [notifPush, setNotifPush] = useState(true);
+  const [notifReminders, setNotifReminders] = useState(true);
+  const [notifMarketing, setNotifMarketing] = useState(false);
 
-  // Privacy Settings
-  const [privacyPublicProfile, setPrivacyPublicProfile] = useState(true);
-  const [privacyAllowMessages, setPrivacyAllowMessages] = useState(true);
+  // Privacy Toggles
+  const [privacyPublic, setPrivacyPublic] = useState(true);
+  const [privacyWishlist, setPrivacyWishlist] = useState(false);
+  const [privacyDirectMsgs, setPrivacyDirectMsgs] = useState(true);
 
-  // Account Feedback & Delete Confirmation Modal
-  const [profileFeedback, setProfileFeedback] = useState<string | null>(null);
+  // Danger Zone Modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const getToken = () => localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+
+  // Sync user prop changes into state
+  useEffect(() => {
+    if (user) {
+      if (user.name) setProfileName(user.name);
+      if (user.email) setProfileEmail(user.email);
+      if (user.phone) setProfilePhone(user.phone);
+      if (user.bio) setProfileBio(user.bio);
+      if (user.country) setProfileCountry(user.country);
+      if (user.language) setProfileLanguage(user.language);
+      if (user.timezone) setProfileTimezone(user.timezone);
+      if (user.avatar_url) setAvatarUrl(user.avatar_url);
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchHomeData();
@@ -225,28 +242,9 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
     } catch (e) { console.error(e); }
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const token = getToken();
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const res = await fetch('/api/v1/media/upload', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData
-      });
-      const data = await res.json();
-      if (data.success) {
-        setAvatarUrl(data.url);
-      }
-    } catch (e) { console.error(e); }
-  };
-
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    setProfileFeedback(null);
     const token = getToken();
     try {
       const res = await fetch('/api/v1/auth/profile', {
@@ -259,21 +257,25 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
           country: profileCountry,
           language: profileLanguage,
           timezone: profileTimezone,
-          avatar: avatarUrl
+          avatar_url: avatarUrl,
         })
       });
       const data = await res.json();
       if (data.success) {
-        setProfileFeedback('✅ Profile details updated successfully!');
-        setTimeout(() => setProfileFeedback(null), 4000);
+        setProfileFeedback({ msg: 'Profile updated successfully!' });
+      } else {
+        setProfileFeedback({ msg: data.message || 'Update failed.', isError: true });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setProfileFeedback({ msg: 'An error occurred while saving profile.', isError: true });
+    }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordFeedback(null);
     if (newPassword !== confirmPassword) {
-      setPasswordFeedback({ type: 'error', text: 'New passwords do not match.' });
+      setPasswordFeedback({ msg: 'New passwords do not match.', isError: true });
       return;
     }
     const token = getToken();
@@ -285,14 +287,37 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
       });
       const data = await res.json();
       if (data.success) {
-        setPasswordFeedback({ type: 'success', text: 'Password updated successfully!' });
+        setPasswordFeedback({ msg: 'Password updated successfully!' });
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
       } else {
-        setPasswordFeedback({ type: 'error', text: data.message || 'Password update failed.' });
+        setPasswordFeedback({ msg: data.message || 'Failed to change password.', isError: true });
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      setPasswordFeedback({ msg: 'Error updating password.', isError: true });
+    }
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const token = getToken();
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch('/api/v1/media/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAvatarUrl(data.url);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleExportData = async () => {
@@ -318,8 +343,8 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
       });
       const data = await res.json();
       if (data.success) {
-        localStorage.clear();
-        sessionStorage.clear();
+        localStorage.removeItem('auth_token');
+        sessionStorage.removeItem('auth_token');
         window.location.href = 'https://getvnt.com';
       }
     } catch (e) { console.error(e); }
@@ -612,213 +637,222 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
         </div>
       )}
 
-      {/* ────────────────── 7. MODULE: FULL PROFILE & SETTINGS ────────────────── */}
+      {/* ────────────────── 7. MODULE: EXPANDED PROFILE & SETTINGS ────────────────── */}
       {activeView === 'profile' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '840px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
           
-          {/* Header & Identity Card */}
+          {/* Card 1: Profile Details & Avatar Photo */}
           <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div style={{ position: 'relative' }}>
-                <div style={{ width: '88px', height: '88px', borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '32px', overflow: 'hidden', border: '3px solid #334155' }}>
-                  {avatarUrl ? <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : (profileName ? profileName[0] : 'U')}
-                </div>
-                <label style={{ position: 'absolute', bottom: 0, right: 0, background: '#3b82f6', color: '#fff', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '2px solid #0f172a' }}>
-                  <Camera size={14} />
-                  <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
-                </label>
-              </div>
-
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <h3 style={{ fontSize: '22px', fontWeight: 900, margin: 0, color: '#fff' }}>{profileName || user?.name || 'Attendee User'}</h3>
-                  <ShieldCheck size={18} color="#34d399" />
-                </div>
-                <p style={{ margin: '4px 0 8px', color: '#94a3b8', fontSize: '13.5px' }}>{user?.email || 'user@getvnt.com'}</p>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(96, 165, 250, 0.15)', color: '#60a5fa', padding: '3px 10px', borderRadius: '99px', border: '1px solid rgba(96, 165, 250, 0.3)' }}>
-                    ATTENDEE ACCOUNT
-                  </span>
-                  <span style={{ fontSize: '11px', fontWeight: 800, background: 'rgba(52, 211, 153, 0.15)', color: '#34d399', padding: '3px 10px', borderRadius: '99px', border: '1px solid rgba(52, 211, 153, 0.3)' }}>
-                    EMAIL VERIFIED ✓
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 1: Personal Information */}
-          <form onSubmit={handleSaveProfile} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
-            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: '0 0 4px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <User size={18} color="#60a5fa" /> Personal Details &amp; Bio
-            </h4>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px' }}>Update your personal identity details visible on your event passes and community activity.</p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Full Name</label>
-                <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Email Address (Verified)</label>
-                <input type="text" value={user?.email || ''} readOnly style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#94a3b8', fontSize: '14px', cursor: 'not-allowed' }} />
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Phone Number</label>
-                <input type="text" value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Country</label>
-                <select value={profileCountry} onChange={(e) => setProfileCountry(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
-                  <option value="Nigeria">Nigeria 🇳🇬</option>
-                  <option value="Ghana">Ghana 🇬🇭</option>
-                  <option value="Kenya">Kenya 🇰🇪</option>
-                  <option value="South Africa">South Africa 🇿🇦</option>
-                  <option value="United Kingdom">United Kingdom 🇬🇧</option>
-                  <option value="United States">United States 🇺🇸</option>
-                  <option value="Canada">Canada 🇨🇦</option>
-                  <option value="United Arab Emirates">United Arab Emirates 🇦🇪</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Preferred Language</label>
-                <select value={profileLanguage} onChange={(e) => setProfileLanguage(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
-                  <option value="English">English</option>
-                  <option value="French">French</option>
-                  <option value="Spanish">Spanish</option>
-                  <option value="Portuguese">Portuguese</option>
-                  <option value="Swahili">Swahili</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Timezone</label>
-                <select value={profileTimezone} onChange={(e) => setProfileTimezone(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
-                  <option value="Africa/Lagos">Africa/Lagos (WAT, GMT+1)</option>
-                  <option value="Africa/Accra">Africa/Accra (GMT)</option>
-                  <option value="Africa/Nairobi">Africa/Nairobi (EAT, GMT+3)</option>
-                  <option value="Europe/London">Europe/London (BST, GMT+1)</option>
-                  <option value="America/New_York">America/New_York (EST, GMT-5)</option>
-                  <option value="UTC">Coordinated Universal Time (UTC)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '24px' }}>
-              <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>About Bio</label>
-              <textarea value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={3} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px', resize: 'none' }} />
-            </div>
-
+            <h3 style={{ fontSize: '22px', fontWeight: 900, margin: '0 0 4px', color: '#fff' }}>Attendee Account Settings</h3>
+            <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 28px' }}>Manage your personal details, avatar photo, language, and country preferences.</p>
+            
             {profileFeedback && (
-              <div style={{ background: 'rgba(52, 211, 153, 0.15)', border: '1px solid #34d399', borderRadius: '10px', padding: '12px 16px', color: '#34d399', fontSize: '13.5px', fontWeight: 700, marginBottom: '16px' }}>
-                {profileFeedback}
+              <div style={{ background: profileFeedback.isError ? 'rgba(248,113,113,0.15)' : 'rgba(52,211,153,0.15)', border: `1px solid ${profileFeedback.isError ? '#f87171' : '#34d399'}`, color: profileFeedback.isError ? '#f87171' : '#34d399', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, marginBottom: '20px' }}>
+                {profileFeedback.msg}
               </div>
             )}
 
-            <button type="submit" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 24px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>
-              💾 Save Profile Details
-            </button>
-          </form>
-
-          {/* Section 2: Security & Change Password */}
-          <form onSubmit={handleChangePassword} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
-            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: '0 0 4px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Key size={18} color="#fbbf24" /> Password &amp; Authentication Security
-            </h4>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px' }}>Ensure your account is using a strong password.</p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Current Password</label>
-                <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required placeholder="••••••••" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
+            <form onSubmit={handleSaveProfile} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              
+              {/* Photo Avatar Upload */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#1e293b', border: '2px solid #6366f1', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User size={36} color="#60a5fa" />
+                  )}
+                </div>
+                <div>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#1e293b', border: '1px solid #334155', color: '#fff', padding: '10px 18px', borderRadius: '12px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                    <Camera size={16} /> Upload Photo
+                    <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{ display: 'none' }} />
+                  </label>
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#64748b' }}>JPG, PNG or WEBP. Max 5MB.</p>
+                </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Full Name</label>
+                  <input type="text" value={profileName} onChange={(e) => setProfileName(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Email Address</label>
+                  <div style={{ position: 'relative' }}>
+                    <input type="email" value={profileEmail} readOnly style={{ width: '100%', background: '#162032', border: '1px solid #334155', borderRadius: '12px', padding: '12px 40px 12px 16px', color: '#94a3b8', fontSize: '14px' }} />
+                    <ShieldCheck size={18} color="#34d399" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Phone Number</label>
+                  <input type="text" value={profilePhone} onChange={(e) => setProfilePhone(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Country / Region</label>
+                  <select value={profileCountry} onChange={(e) => setProfileCountry(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="United States">United States</option>
+                    <option value="United Kingdom">United Kingdom</option>
+                    <option value="Ghana">Ghana</option>
+                    <option value="South Africa">South Africa</option>
+                    <option value="Canada">Canada</option>
+                    <option value="United Arab Emirates">United Arab Emirates</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Short Bio</label>
+                <textarea value={profileBio} onChange={(e) => setProfileBio(e.target.value)} rows={3} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px', resize: 'none' }} />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Preferred Language</label>
+                  <select value={profileLanguage} onChange={(e) => setProfileLanguage(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
+                    <option value="English">English</option>
+                    <option value="French">French</option>
+                    <option value="Spanish">Spanish</option>
+                    <option value="German">German</option>
+                    <option value="Portuguese">Portuguese</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Timezone</label>
+                  <select value={profileTimezone} onChange={(e) => setProfileTimezone(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff', fontSize: '14px' }}>
+                    <option value="Africa/Lagos">Africa/Lagos (GMT+1)</option>
+                    <option value="UTC">UTC (GMT+0)</option>
+                    <option value="America/New_York">US Eastern (EST)</option>
+                    <option value="Europe/London">London (BST)</option>
+                    <option value="Asia/Dubai">Dubai (GST)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '12px' }}>
+                <button type="submit" style={{ background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 28px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>
+                  Save Profile Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Card 2: Security & Password Change */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+              <Key size={22} color="#60a5fa" />
+              <h3 style={{ fontSize: '20px', fontWeight: 900, margin: 0, color: '#fff' }}>Security &amp; Password</h3>
+            </div>
+            
+            {passwordFeedback && (
+              <div style={{ background: passwordFeedback.isError ? 'rgba(248,113,113,0.15)' : 'rgba(52,211,153,0.15)', border: `1px solid ${passwordFeedback.isError ? '#f87171' : '#34d399'}`, color: passwordFeedback.isError ? '#f87171' : '#34d399', padding: '12px 16px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, marginBottom: '20px' }}>
+                {passwordFeedback.msg}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Current Password</label>
+                <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required placeholder="••••••••" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff' }} />
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>New Password</label>
-                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required placeholder="At least 8 characters" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>New Password</label>
+                  <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} placeholder="At least 8 characters" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff' }} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Confirm New Password</label>
-                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required placeholder="Confirm new password" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
+                  <label style={{ display: 'block', fontSize: '12.5px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Confirm New Password</label>
+                  <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} placeholder="Re-enter new password" style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '12px', padding: '12px 16px', color: '#fff' }} />
                 </div>
               </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '8px' }}>
+                <button type="submit" style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '12px', padding: '10px 24px', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer' }}>
+                  Update Password
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Card 3: Notification & Privacy Settings */}
+          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+              <Bell size={22} color="#c084fc" />
+              <h3 style={{ fontSize: '20px', fontWeight: 900, margin: 0, color: '#fff' }}>Notification &amp; Privacy Preferences</h3>
             </div>
 
-            {passwordFeedback && (
-              <div style={{ background: passwordFeedback.type === 'success' ? 'rgba(52, 211, 153, 0.15)' : 'rgba(248, 113, 113, 0.15)', border: `1px solid ${passwordFeedback.type === 'success' ? '#34d399' : '#f87171'}`, borderRadius: '10px', padding: '12px 16px', color: passwordFeedback.type === 'success' ? '#34d399' : '#f87171', fontSize: '13.5px', fontWeight: 700, marginBottom: '16px' }}>
-                {passwordFeedback.text}
-              </div>
-            )}
-
-            <button type="submit" style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 24px', fontWeight: 800, fontSize: '14px', cursor: 'pointer' }}>
-              🔒 Update Password
-            </button>
-          </form>
-
-          {/* Section 3: Notification & Privacy Preferences */}
-          <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
-            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: '0 0 4px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Bell size={18} color="#c084fc" /> Notifications &amp; Privacy Control
-            </h4>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px' }}>Choose which notifications you receive and manage public visibility.</p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '14px 18px', borderRadius: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '16px 20px', borderRadius: '14px' }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff' }}>Email Ticket Receipts &amp; Passes</div>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Receive PDF ticket downloads and payment confirmation receipts.</span>
+                  <div style={{ fontWeight: 700, fontSize: '14.5px', color: '#fff' }}>Email Order Receipts &amp; Pass Confirmations</div>
+                  <span style={{ fontSize: '12.5px', color: '#94a3b8' }}>Receive ticket passes and official payment receipts via email.</span>
                 </div>
-                <input type="checkbox" checked={notifEmailReceipts} onChange={(e) => setNotifEmailReceipts(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                <button onClick={() => setNotifEmail(!notifEmail)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: notifEmail ? '#34d399' : '#64748b' }}>
+                  {notifEmail ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                </button>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '14px 18px', borderRadius: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '16px 20px', borderRadius: '14px' }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff' }}>Upcoming Event Reminders (24h Before)</div>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Get automated email &amp; push alerts before your events start.</span>
+                  <div style={{ fontWeight: 700, fontSize: '14.5px', color: '#fff' }}>SMS Event Gate Code Alerts</div>
+                  <span style={{ fontSize: '12.5px', color: '#94a3b8' }}>Get instant SMS alerts with door entry codes before event start time.</span>
                 </div>
-                <input type="checkbox" checked={notifEventReminders} onChange={(e) => setNotifEventReminders(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                <button onClick={() => setNotifSms(!notifSms)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: notifSms ? '#34d399' : '#64748b' }}>
+                  {notifSms ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                </button>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '14px 18px', borderRadius: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '16px 20px', borderRadius: '14px' }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff' }}>Saved Wishlist Price Drops</div>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Get notified when ticket prices change for saved events.</span>
+                  <div style={{ fontWeight: 700, fontSize: '14.5px', color: '#fff' }}>Public Community Profile Visibility</div>
+                  <span style={{ fontSize: '12.5px', color: '#94a3b8' }}>Allow other attendees to view your community posts and comments.</span>
                 </div>
-                <input type="checkbox" checked={notifPriceAlerts} onChange={(e) => setNotifPriceAlerts(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#1e293b', padding: '14px 18px', borderRadius: '12px' }}>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: '14px', color: '#fff' }}>Allow Direct Messaging from Event Organizers</div>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Permit verified organizers to send direct message updates.</span>
-                </div>
-                <input type="checkbox" checked={privacyAllowMessages} onChange={(e) => setPrivacyAllowMessages(e.target.checked)} style={{ width: '18px', height: '18px', cursor: 'pointer' }} />
+                <button onClick={() => setPrivacyPublic(!privacyPublic)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: privacyPublic ? '#34d399' : '#64748b' }}>
+                  {privacyPublic ? <ToggleRight size={32} /> : <ToggleLeft size={32} />}
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Section 4: Data Export & Account Deletion */}
+          {/* Card 4: Connected Accounts */}
           <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '24px', padding: '32px' }}>
-            <h4 style={{ fontSize: '18px', fontWeight: 900, margin: '0 0 4px', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Download size={18} color="#60a5fa" /> Data Rights &amp; Danger Zone
-            </h4>
-            <p style={{ color: '#94a3b8', fontSize: '13px', margin: '0 0 24px' }}>Export your personal ticket data or request account deletion.</p>
+            <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 16px', color: '#fff' }}>Connected Identity Accounts</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div style={{ background: '#1e293b', padding: '16px', borderRadius: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '14px' }}>Google Account</div>
+                  <span style={{ fontSize: '12px', color: '#34d399' }}>Connected ({profileEmail})</span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#34d399', fontWeight: 800 }}>ACTIVE ✓</span>
+              </div>
+              <div style={{ background: '#1e293b', padding: '16px', borderRadius: '14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <div style={{ fontWeight: 800, color: '#fff', fontSize: '14px' }}>Apple ID</div>
+                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>Not Connected</span>
+                </div>
+                <button style={{ background: '#334155', color: '#fff', border: 'none', padding: '6px 14px', borderRadius: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}>Connect</button>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 5: Danger Zone & Data Export */}
+          <div style={{ background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '24px', padding: '32px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <AlertTriangle size={22} color="#f87171" />
+              <h3 style={{ fontSize: '20px', fontWeight: 900, margin: 0, color: '#f87171' }}>Data Export &amp; Danger Zone</h3>
+            </div>
+            <p style={{ color: '#cbd5e1', fontSize: '14px', margin: '0 0 20px', lineHeight: '1.5' }}>
+              Download your personal data archive (purchased passes, order history, wishlist, and profile details) or delete your GETVNT account permanently.
+            </p>
 
             <div style={{ display: 'flex', gap: '16px' }}>
-              <button onClick={handleExportData} style={{ flex: 1, background: '#1e293b', border: '1px solid #334155', color: '#60a5fa', borderRadius: '12px', padding: '14px', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <button onClick={handleExportData} style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                 <Download size={16} /> Download Personal Data (JSON Export)
               </button>
-
-              <button onClick={() => setIsDeleteModalOpen(true)} style={{ background: 'rgba(248, 113, 113, 0.15)', border: '1px solid #f87171', color: '#f87171', borderRadius: '12px', padding: '14px 20px', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <button onClick={() => setIsDeleteModalOpen(true)} style={{ background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontWeight: 800, fontSize: '13.5px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                 <Trash2 size={16} /> Delete Account
               </button>
             </div>
@@ -843,20 +877,22 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
         </div>
       )}
 
-      {/* Confirm Account Deletion Modal */}
+      {/* Delete Account Confirmation Modal */}
       {isDeleteModalOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(5,7,14,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#0f172a', border: '1px solid #f87171', borderRadius: '24px', maxWidth: '440px', width: '100%', padding: '32px', color: '#fff', textAlign: 'center' }}>
-            <AlertTriangle size={48} color="#f87171" style={{ margin: '0 auto 16px' }} />
-            <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 8px' }}>Permanently Delete Account?</h3>
-            <p style={{ color: '#94a3b8', fontSize: '13.5px', lineHeight: '1.5', margin: '0 0 24px' }}>
-              This action is permanent. All your purchased ticket passes, saved wishlists, community messages, and preferences will be permanently wiped.
+          <div style={{ background: '#0f172a', border: '1px solid #f87171', borderRadius: '24px', maxWidth: '480px', width: '100%', padding: '32px', color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+              <AlertTriangle size={28} color="#ef4444" />
+              <h3 style={{ fontSize: '20px', fontWeight: 900, margin: 0, color: '#f87171' }}>Delete GETVNT Account?</h3>
+            </div>
+            <p style={{ color: '#cbd5e1', fontSize: '14px', lineHeight: '1.5', margin: '0 0 24px' }}>
+              Are you sure you want to delete your account? This action will permanently invalidate your tickets, delete your saved wishlist, and wipe your profile history. This action cannot be undone.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
-              <button onClick={handleDeleteAccount} style={{ flex: 1, background: '#f87171', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 900, cursor: 'pointer' }}>
+              <button onClick={handleDeleteAccount} style={{ flex: 1, background: '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}>
                 Yes, Delete My Account
               </button>
-              <button onClick={() => setIsDeleteModalOpen(false)} style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontWeight: 700, cursor: 'pointer' }}>
+              <button onClick={() => setIsDeleteModalOpen(false)} style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '12px', padding: '12px 20px', fontWeight: 700, cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
