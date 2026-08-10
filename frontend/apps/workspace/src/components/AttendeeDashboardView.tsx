@@ -66,7 +66,12 @@ export const AttendeeDashboardView: React.FC<AttendeeDashboardViewProps> = ({
   // Danger Zone Modal
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const getToken = () => localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+  const getToken = () =>
+    localStorage.getItem('getvnt_auth_token') ||
+    localStorage.getItem('auth_token') ||
+    sessionStorage.getItem('getvnt_auth_token') ||
+    sessionStorage.getItem('auth_token') ||
+    localStorage.getItem('token');
 
   // Sync user prop changes into state
   useEffect(() => {

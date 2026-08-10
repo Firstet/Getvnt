@@ -35,7 +35,12 @@ export function App() {
   const [broadcastMsg, setBroadcastMsg] = useState('');
   const [broadcastChannel, setBroadcastChannel] = useState('push');
 
-  const getToken = () => localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+  const getToken = () =>
+    localStorage.getItem('getvnt_auth_token') ||
+    localStorage.getItem('auth_token') ||
+    sessionStorage.getItem('getvnt_auth_token') ||
+    sessionStorage.getItem('auth_token') ||
+    localStorage.getItem('token');
 
   useEffect(() => {
     fetchAdminData();
