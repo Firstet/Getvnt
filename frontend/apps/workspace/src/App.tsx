@@ -11,11 +11,12 @@ export function App() {
   const [subscriptionPlan, setSubscriptionPlan] = useState<'starter' | 'pro' | 'enterprise'>('starter');
   const [verifiedBadge, setVerifiedBadge] = useState<boolean>(false);
 
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState('home');
   const [isBecomeOrganizerOpen, setIsBecomeOrganizerOpen] = useState(false);
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
 
+  const [counters, setCounters] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
   const [events, setEvents] = useState<any[]>([]);
@@ -41,12 +42,20 @@ export function App() {
 
   useEffect(() => {
     fetchUserMe();
+    fetchCounters();
+
+    // Session Polling every 10 seconds to auto-detect Super Admin KYC approval & trigger instant role switch
+    const interval = setInterval(() => {
+      fetchUserMe(true);
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchUserMe = async () => {
+  const fetchUserMe = async (isBackgroundPoll = false) => {
     const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     if (!token) {
-      setLoading(false);
+      if (!isBackgroundPoll) setLoading(false);
       return;
     }
 
@@ -57,24 +66,42 @@ export function App() {
       const data = await res.json();
       if (res.ok && data.success) {
         const u = data.data.user;
+        const newRole = data.data.role || 'attendee';
+        const newStatus = data.data.verification_status || 'unverified';
+
+        // Check if role transitioned to Organizer
+        const isOrganizerNow = data.data.is_trusted_organizer || data.data.is_super_admin || newStatus === 'approved';
+
         setUser(u);
-        setRole(data.data.role || 'attendee');
-        setVerificationStatus(data.data.verification_status || 'unverified');
+        setRole(newRole);
+        setVerificationStatus(newStatus);
         setSubscriptionPlan(data.data.subscription_plan || 'starter');
         setVerifiedBadge(data.data.verified_badge || false);
 
-        if (data.data.is_trusted_organizer || data.data.is_super_admin) {
-          setActiveView('dashboard');
+        if (isOrganizerNow) {
+          if (activeView === 'home' || activeView === 'tickets' || activeView === 'wishlist') {
+            setActiveView('dashboard');
+          }
           fetchOrganizerData(token);
-        } else {
-          setActiveView('tickets');
         }
       }
     } catch (e) {
       console.error(e);
     } finally {
-      setLoading(false);
+      if (!isBackgroundPoll) setLoading(false);
     }
+  };
+
+  const fetchCounters = async () => {
+    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    if (!token) return;
+    try {
+      const res = await fetch('/api/v1/attendee/counters', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) setCounters(data.data);
+    } catch (e) { console.error(e); }
   };
 
   const fetchOrganizerData = (token: string) => {
@@ -204,6 +231,7 @@ export function App() {
         subscriptionPlan={subscriptionPlan}
         verifiedBadge={verifiedBadge}
         activeView={activeView}
+        counters={counters}
         onSelectView={setActiveView}
         onOpenBecomeOrganizer={() => setIsBecomeOrganizerOpen(true)}
         onLogout={handleLogout}
@@ -215,6 +243,8 @@ export function App() {
           <AttendeeDashboardView
             user={user}
             verificationStatus={verificationStatus}
+            activeView={activeView}
+            onSelectView={setActiveView}
             onBecomeOrganizer={() => setIsBecomeOrganizerOpen(true)}
           />
         ) : (
@@ -433,8 +463,7 @@ export function App() {
         onClose={() => setIsBecomeOrganizerOpen(false)}
         onSuccessRedirect={() => {
           setIsBecomeOrganizerOpen(false);
-          const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
-          if (token) fetchUserMe();
+          fetchUserMe();
         }}
       />
 
