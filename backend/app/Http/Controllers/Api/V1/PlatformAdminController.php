@@ -120,6 +120,35 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'data' => $users]);
     }
 
+    public function impersonateUser(Request $request, string $id)
+    {
+        $targetUser = User::findOrFail($id);
+        $token = $targetUser->createToken('impersonation_token')->plainTextToken;
+
+        $this->logAdminAction($request->user(), 'impersonate_user', 'user', $targetUser->id);
+
+        return response()->json([
+            'success' => true,
+            'impersonate_token' => $token,
+            'target_user' => $targetUser,
+            'redirect_url' => "https://app.getvnt.com?impersonate_token={$token}&org=" . urlencode($targetUser->tenant ? $targetUser->tenant->name : 'Workspace'),
+            'message' => "Impersonation token generated for {$targetUser->name}.",
+        ]);
+    }
+
+    public function deleteUser(Request $request, string $id)
+    {
+        $user = User::findOrFail($id);
+        if ($user->isSuperAdmin()) {
+            return response()->json(['success' => false, 'message' => 'Cannot delete Super Admin account.'], 403);
+        }
+        $this->logAdminAction($request->user(), 'delete_user', 'user', $user->id);
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json(['success' => true, 'message' => 'User account permanently deleted.']);
+    }
+
     public function updateUserRole(Request $request, string $id)
     {
         $request->validate(['role' => 'required|string']);
@@ -221,6 +250,15 @@ class PlatformAdminController extends Controller
         $event->update(['is_published' => true]);
 
         return response()->json(['success' => true, 'message' => 'Event featured on platform.']);
+    }
+
+    public function deleteEvent(Request $request, string $id)
+    {
+        $event = Event::findOrFail($id);
+        $this->logAdminAction($request->user(), 'delete_event', 'event', $event->id);
+        $event->delete();
+
+        return response()->json(['success' => true, 'message' => 'Event deleted successfully.']);
     }
 
     public function finance()
