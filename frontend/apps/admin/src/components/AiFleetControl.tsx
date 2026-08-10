@@ -377,19 +377,26 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
 
   const handleTestConnection = async (id: string, providerCode: string) => {
     setTestingId(id);
+    const payload = formData[id];
     try {
       const res = await fetch('/api/v1/admin/ai/test-connection', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           Authorization: `Bearer ${getEffectiveToken()}`
         },
-        body: JSON.stringify({ provider_code: providerCode }),
+        body: JSON.stringify({
+          id,
+          provider_code: providerCode,
+          api_key: payload?.api_key,
+          base_url: payload?.base_url
+        }),
       });
       const data = await res.json();
       setTestResult(prev => ({
         ...prev,
-        [id]: data.success ? `✓ Connected (${data.latency_ms ?? 180}ms)` : '✕ Connection failed'
+        [id]: (res.ok && data.success) ? `✓ Connected (${data.latency_ms ?? 180}ms)` : '✕ Connection failed'
       }));
     } catch (e) {
       setTestResult(prev => ({ ...prev, [id]: '✕ Connection error' }));
