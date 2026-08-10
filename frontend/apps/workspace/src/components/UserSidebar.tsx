@@ -2,7 +2,7 @@ import React from 'react';
 import {
   Home, Ticket, Heart, MessageSquare, Bell, User, Settings, Sparkles,
   LayoutDashboard, Calendar, ShoppingCart, Users, Wallet, BarChart3,
-  Megaphone, Globe, Bot, ShieldCheck, LogOut, Award, Zap
+  Megaphone, Globe, Bot, ShieldCheck, LogOut, Zap
 } from 'lucide-react';
 
 interface UserSidebarProps {
@@ -11,9 +11,23 @@ interface UserSidebarProps {
   subscriptionPlan: 'starter' | 'pro' | 'enterprise';
   verifiedBadge: boolean;
   activeView: string;
+  counters?: {
+    my_tickets?: number;
+    wishlist?: number;
+    notifications?: number;
+    unread_messages?: number;
+    community_alerts?: number;
+  };
   onSelectView: (view: string) => void;
   onOpenBecomeOrganizer: () => void;
   onLogout: () => void;
+}
+
+interface NavItem {
+  key: string;
+  label: string;
+  icon: any;
+  count?: number;
 }
 
 export const UserSidebar: React.FC<UserSidebarProps> = ({
@@ -22,6 +36,7 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   subscriptionPlan,
   verifiedBadge,
   activeView,
+  counters = {},
   onSelectView,
   onOpenBecomeOrganizer,
   onLogout,
@@ -29,17 +44,17 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
   const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved';
   const isPro = subscriptionPlan === 'pro' || subscriptionPlan === 'enterprise' || role === 'super_admin';
 
-  const attendeeNav = [
-    { key: 'home', label: 'Home', icon: Home },
-    { key: 'tickets', label: 'My Tickets & Passes', icon: Ticket },
-    { key: 'wishlist', label: 'Saved Wishlist', icon: Heart },
-    { key: 'community', label: 'Community', icon: MessageSquare },
-    { key: 'messages', label: 'Direct Messages', icon: MessageSquare },
-    { key: 'notifications', label: 'Notifications', icon: Bell },
+  const attendeeNav: NavItem[] = [
+    { key: 'home', label: 'Home Overview', icon: Home },
+    { key: 'tickets', label: 'My Tickets & Passes', icon: Ticket, count: counters.my_tickets },
+    { key: 'wishlist', label: 'Saved Wishlist', icon: Heart, count: counters.wishlist },
+    { key: 'community', label: 'Community Hub', icon: MessageSquare, count: counters.community_alerts },
+    { key: 'messages', label: 'Direct Messages', icon: MessageSquare, count: counters.unread_messages },
+    { key: 'notifications', label: 'Notifications', icon: Bell, count: counters.notifications },
     { key: 'profile', label: 'Profile & Settings', icon: User },
   ];
 
-  const organizerNav = [
+  const organizerNav: NavItem[] = [
     { key: 'dashboard', label: 'Overview & Analytics', icon: LayoutDashboard },
     { key: 'events', label: 'Events Directory', icon: Calendar },
     { key: 'orders', label: 'Ticket Orders', icon: ShoppingCart },
@@ -117,12 +132,13 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
       {/* Navigation Items */}
       <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', padding: '8px 12px 4px' }}>
-          {!isOrganizer ? 'Attendee Dashboard' : 'Organizer Workspace'}
+          {!isOrganizer ? 'Attendee Navigation' : 'Organizer Workspace'}
         </div>
 
         {(!isOrganizer ? attendeeNav : organizerNav).map(item => {
           const IconC = item.icon;
           const isActive = activeView === item.key;
+          const hasCount = item.count !== undefined && item.count > 0;
           return (
             <button
               key={item.key}
@@ -145,6 +161,11 @@ export const UserSidebar: React.FC<UserSidebarProps> = ({
             >
               <IconC size={18} color={isActive ? '#60a5fa' : '#94a3b8'} />
               <span style={{ flex: 1 }}>{item.label}</span>
+              {hasCount && (
+                <span style={{ fontSize: '11px', fontWeight: 900, background: '#3b82f6', color: '#fff', padding: '2px 8px', borderRadius: '99px' }}>
+                  {item.count}
+                </span>
+              )}
             </button>
           );
         })}

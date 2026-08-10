@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\Attendee\AttendeeController;
+use App\Http\Controllers\Api\V1\Attendee\CommunityController;
+use App\Http\Controllers\Api\V1\Attendee\DirectMessageController;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\EnterpriseAiController;
 use App\Http\Controllers\Api\V1\KycController;
 use App\Http\Controllers\Api\V1\MarketplaceController;
 use App\Http\Controllers\Api\V1\MediaUploadController;
@@ -53,13 +54,41 @@ Route::prefix('v1')->group(function () {
 
     // ─── 3. ATTENDEE EXPERIENCE ──────────────────────────────────────────────
     Route::prefix('attendee')->middleware('auth:sanctum')->group(function () {
+        // Home & Realtime Counters
+        Route::get('/home', [AttendeeController::class, 'home']);
+        Route::get('/counters', [AttendeeController::class, 'counters']);
+
+        // Tickets & Passes
         Route::get('/tickets', [AttendeeController::class, 'tickets']);
+        Route::get('/tickets/{id}/receipt', [AttendeeController::class, 'ticketReceipt']);
+
+        // Saved Wishlist & Organizer Follow
         Route::get('/wishlist', [AttendeeController::class, 'wishlist']);
         Route::post('/wishlist', [AttendeeController::class, 'toggleWishlist']);
+        Route::post('/organizers/{organizerId}/follow', [AttendeeController::class, 'followOrganizer']);
+
+        // Community Feed & Discussions
+        Route::get('/community/feed', [CommunityController::class, 'feed']);
+        Route::post('/community/posts', [CommunityController::class, 'createPost']);
+        Route::post('/community/posts/{id}/like', [CommunityController::class, 'toggleLike']);
+        Route::get('/community/posts/{id}/comments', [CommunityController::class, 'comments']);
+        Route::post('/community/posts/{id}/comments', [CommunityController::class, 'addComment']);
         Route::get('/community', [AttendeeController::class, 'community']);
         Route::post('/community', [AttendeeController::class, 'postMessage']);
+
+        // Direct Messenger
+        Route::get('/messages/conversations', [DirectMessageController::class, 'conversations']);
+        Route::get('/messages/conversations/{id}', [DirectMessageController::class, 'messages']);
+        Route::post('/messages/send', [DirectMessageController::class, 'sendMessage']);
+
+        // Notification Center
         Route::get('/notifications', [AttendeeController::class, 'notifications']);
         Route::post('/notifications/{id}/read', [AttendeeController::class, 'markNotificationRead']);
+        Route::post('/notifications/read-all', [AttendeeController::class, 'markAllNotificationsRead']);
+        Route::delete('/notifications/{id}', [AttendeeController::class, 'deleteNotification']);
+
+        // Data Export
+        Route::get('/export-data', [AttendeeController::class, 'exportData']);
     });
 
     // ─── 4. ORGANIZER WORKSPACE (Role: Trusted Organizer) ────────────────────
