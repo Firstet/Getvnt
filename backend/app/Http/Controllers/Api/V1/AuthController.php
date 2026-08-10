@@ -170,4 +170,105 @@ class AuthController extends Controller
             'message' => 'Account deleted successfully.',
         ]);
     }
+
+    public function googleRedirect()
+    {
+        $clientId = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
+        $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
+        $redirectUri = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+
+        if (!$clientId || !$clientSecret) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Google OAuth client credentials have not been configured in Super Admin System Settings.',
+            ], 400);
+        }
+
+        config([
+            'services.google.client_id' => $clientId,
+            'services.google.client_secret' => $clientSecret,
+            'services.google.redirect' => $redirectUri,
+        ]);
+
+        $targetUrl = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'response_type' => 'code',
+            'scope' => 'openid profile email',
+            'access_type' => 'offline',
+            'prompt' => 'consent',
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'url' => $targetUrl,
+            'message' => 'Google OAuth authorization URL generated.',
+        ]);
+    }
+
+    public function googleCallback(Request $request)
+    {
+        $code = $request->get('code');
+        if (!$code) {
+            return response()->json(['success' => false, 'message' => 'Missing authorization code.'], 400);
+        }
+
+        $clientId = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
+        $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
+        $redirectUri = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+
+        try {
+            $tokenResponse = \Illuminate\Support\Facades\Http::post('https://oauth2.googleapis.com/token', [
+                'code' => $code,
+                'client_id' => $clientId,
+                'client_secret' => $clientSecret,
+                'redirect_uri' => $redirectUri,
+                'grant_type' => 'authorization_code',
+            ]);
+
+            if (!$tokenResponse->successful()) {
+                return response()->json(['success' => false, 'message' => 'Google token exchange failed.', 'error' => $tokenResponse->json()], 400);
+            }
+
+            $accessToken = $tokenResponse->json('access_token');
+            $userResponse = \Illuminate\Support\Facades\Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+
+            if (!$userResponse->successful()) {
+                return response()->json(['success' => false, 'message' => 'Failed to fetch Google user info.'], 400);
+            }
+
+            $googleUser = $userResponse->json();
+            $email = strtolower($googleUser['email'] ?? '');
+            $name = $googleUser['name'] ?? 'Google User';
+            $avatar = $googleUser['picture'] ?? null;
+
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'id' => (string) Str::uuid(),
+                    'name' => $name,
+                    'password' => Hash::make(Str::random(24)),
+                    'role' => 'attendee',
+                    'avatar_url' => $avatar,
+                    'email_verified_at' => now(),
+                    'is_active' => true,
+                ]
+            );
+
+            $token = $user->createToken('google_oauth_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'token' => $token,
+                'data' => [
+                    'token' => $token,
+                    'user' => $user,
+                    'role' => $user->role,
+                ],
+                'message' => 'Google login successful.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['success' => false, 'message' => 'Google Auth failed: ' . $e->getMessage()], 500);
+        }
+    }
 }
