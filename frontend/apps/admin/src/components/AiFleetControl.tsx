@@ -452,10 +452,14 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     try {
       const res = await fetch(`/api/v1/admin/ai/prompts/${id}/clone`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       });
       const data = await res.json();
-      if (data.success) {
+      if (res.ok && data.success) {
         showToast(`Prompt cloned successfully as "${data.data.title}"!`, 'success');
         onRefresh();
       } else {
@@ -471,11 +475,15 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     try {
       const res = await fetch('/api/v1/admin/ai/prompts/seed-default', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       });
       const data = await res.json();
-      if (data.success) {
-        showToast(data.message || 'Seeded 5 Enterprise System Prompts!', 'success');
+      if (res.ok && data.success) {
+        showToast(data.message || 'Seeded 27 Enterprise System Prompts!', 'success');
         onRefresh();
       } else {
         showToast(data.message || 'Seeding failed.', 'error');
@@ -490,7 +498,10 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
   const handleExportPromptsJSON = async () => {
     try {
       const res = await fetch('/api/v1/admin/ai/prompts/export', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: {
+          'Accept': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       });
       const data = await res.json();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
