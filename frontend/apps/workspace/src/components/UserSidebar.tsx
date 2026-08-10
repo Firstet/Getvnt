@@ -1,147 +1,218 @@
 import React from 'react';
 import {
-  House, Compass, Ticket, Heart, Users, Bell, Building2, Settings, Crown, LogOut
+  Home, Ticket, Heart, MessageSquare, Bell, User, Settings, Sparkles,
+  LayoutDashboard, Calendar, ShoppingCart, Users, Wallet, BarChart3,
+  Megaphone, Globe, Bot, ShieldCheck, LogOut, Award, Zap
 } from 'lucide-react';
-import { IconContainer } from '../../../../shared/src';
 
 interface UserSidebarProps {
-  activeTab: string;
-  onSelectTab: (tabId: string) => void;
+  role: 'attendee' | 'trusted_organizer' | 'organizer_pro' | 'super_admin';
+  verificationStatus: 'unverified' | 'pending' | 'approved' | 'rejected';
+  subscriptionPlan: 'starter' | 'pro' | 'enterprise';
+  verifiedBadge: boolean;
+  activeView: string;
+  onSelectView: (view: string) => void;
+  onOpenBecomeOrganizer: () => void;
   onLogout: () => void;
-  userName?: string;
-  userEmail?: string;
 }
 
 export const UserSidebar: React.FC<UserSidebarProps> = ({
-  activeTab,
-  onSelectTab,
+  role,
+  verificationStatus,
+  subscriptionPlan,
+  verifiedBadge,
+  activeView,
+  onSelectView,
+  onOpenBecomeOrganizer,
   onLogout,
-  userName = 'Valued Attendee',
-  userEmail = 'user@getvnt.com',
 }) => {
-  const menuGroups = [
-    {
-      category: 'DISCOVERY',
-      items: [
-        { id: 'dashboard',      icon: <IconContainer icon={House}    color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={26} size={14} />, label: 'Home' },
-        { id: 'explore_events', icon: <IconContainer icon={Compass}  color="#60A5FA" bg="rgba(96,165,250,0.12)" containerSize={26} size={14} />, label: 'Explore Events' },
-      ]
-    },
-    {
-      category: 'MY ACTIVITY',
-      items: [
-        { id: 'my_tickets',     icon: <IconContainer icon={Ticket}   color="#FBBF24" bg="rgba(245,158,11,0.12)" containerSize={26} size={14} />, label: 'My Tickets' },
-        { id: 'saved_events',   icon: <IconContainer icon={Heart}    color="#F472B6" bg="rgba(244,114,182,0.12)" containerSize={26} size={14} />, label: 'Wishlist' },
-        { id: 'following',      icon: <IconContainer icon={Users}    color="#A5B4FC" bg="rgba(165,180,252,0.12)" containerSize={26} size={14} />, label: 'Community' },
-        { id: 'messages',       icon: <IconContainer icon={Bell}     color="#34D399" bg="rgba(16,185,129,0.12)" containerSize={26} size={14} />, label: 'Messages' },
-        { id: 'notifications',  icon: <IconContainer icon={Bell}     color="#38BDF8" bg="rgba(56,189,248,0.12)" containerSize={26} size={14} />, label: 'Notifications' },
-      ]
-    },
-    {
-      category: 'ACCOUNT',
-      items: [
-        { id: 'profile',        icon: <IconContainer icon={Building2} color="#C084FC" bg="rgba(192,132,252,0.12)" containerSize={26} size={14} />, label: 'Profile' },
-        { id: 'settings',       icon: <IconContainer icon={Settings}  color="#94A3B8" bg="rgba(148,163,184,0.12)" containerSize={26} size={14} />, label: 'Settings' },
-      ]
-    },
-    {
-      category: 'GROWTH',
-      items: [
-        { id: 'onboarding',     icon: <IconContainer icon={Crown}     color="#FBBF24" bg="rgba(245,158,11,0.18)" containerSize={26} size={14} />, label: 'Become an Organizer' },
-      ]
-    }
+  const isOrganizer = role === 'trusted_organizer' || role === 'super_admin' || verificationStatus === 'approved';
+  const isPro = subscriptionPlan === 'pro' || subscriptionPlan === 'enterprise' || role === 'super_admin';
+
+  const attendeeNav = [
+    { key: 'home', label: 'Home', icon: Home },
+    { key: 'tickets', label: 'My Tickets & Passes', icon: Ticket },
+    { key: 'wishlist', label: 'Saved Wishlist', icon: Heart },
+    { key: 'community', label: 'Community', icon: MessageSquare },
+    { key: 'messages', label: 'Direct Messages', icon: MessageSquare },
+    { key: 'notifications', label: 'Notifications', icon: Bell },
+    { key: 'profile', label: 'Profile & Settings', icon: User },
+  ];
+
+  const organizerNav = [
+    { key: 'dashboard', label: 'Overview & Analytics', icon: LayoutDashboard },
+    { key: 'events', label: 'Events Directory', icon: Calendar },
+    { key: 'orders', label: 'Ticket Orders', icon: ShoppingCart },
+    { key: 'tickets_inventory', label: 'Tickets & QR Scanner', icon: Ticket },
+    { key: 'customers', label: 'Customers & CRM', icon: Users },
+    { key: 'wallet', label: 'Wallet & Payout OS', icon: Wallet },
+    { key: 'analytics', label: 'Sales Analytics', icon: BarChart3 },
+    { key: 'marketing', label: 'Marketing & Campaigns', icon: Megaphone },
+    { key: 'community', label: 'Community Hub', icon: MessageSquare },
+    { key: 'ai_assistant', label: 'AI Operations Assistant', icon: Bot },
+    { key: 'settings', label: 'Organization Profile', icon: Settings },
+  ];
+
+  const proNav = [
+    { key: 'website_builder', label: 'Pro Website Builder', icon: Globe, badge: 'PRO' },
+    { key: 'automation', label: 'Automation Rules', icon: Zap, badge: 'PRO' },
   ];
 
   return (
-    <aside style={{
-      width: 250,
-      minHeight: '100vh',
-      backgroundColor: '#090D16',
-      borderRight: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '20px 16px',
-      justifyContent: 'space-between'
-    }}>
-      <div>
-        <div style={{ padding: '0 8px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-[#38BDF8], #0284C7', display: 'grid', placeItems: 'center', fontWeight: 800, color: '#fff', fontSize: 16 }}>
-            V
-          </div>
-          <div>
-            <div style={{ color: '#F8FAFC', fontWeight: 700, fontSize: 15, letterSpacing: '-0.02em' }}>GETVNT</div>
-            <div style={{ color: '#38BDF8', fontSize: 11, fontWeight: 600 }}>Attendee OS</div>
+    <aside style={{ width: '280px', background: '#0f172a', borderRight: '1px solid #1e293b', padding: '24px 16px', display: 'flex', flexDirection: 'column', color: '#f8fafc' }}>
+      
+      {/* Brand Logo Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', paddingLeft: '8px' }}>
+        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1, #a855f7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, color: '#fff', fontSize: '20px' }}>
+          G
+        </div>
+        <div>
+          <h2 style={{ fontSize: '18px', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>GETVNT OS</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+            <span style={{ fontSize: '11px', color: isOrganizer ? '#34d399' : '#60a5fa', fontWeight: 700, textTransform: 'uppercase' }}>
+              {isOrganizer ? (isPro ? 'ORGANIZER PRO' : 'TRUSTED ORGANIZER') : 'ATTENDEE ACCOUNT'}
+            </span>
+            {verifiedBadge && <ShieldCheck size={12} color="#34d399" />}
           </div>
         </div>
+      </div>
 
-        {menuGroups.map((grp) => (
-          <div key={grp.category} style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#64748B', letterSpacing: '0.08em', padding: '0 8px 6px' }}>
-              {grp.category}
+      {/* Become Organizer CTA Banner for Attendee */}
+      {!isOrganizer && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15))',
+          border: '1px solid rgba(99, 102, 241, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          marginBottom: '20px'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 800, color: '#c084fc', textTransform: 'uppercase', marginBottom: '4px' }}>
+            <Sparkles size={14} /> Host & Sell Tickets
+          </div>
+          <p style={{ margin: '0 0 12px', fontSize: '12.5px', color: '#cbd5e1', lineHeight: '1.4' }}>
+            {verificationStatus === 'pending'
+              ? 'Your onboarding request is currently under review by Super Admin.'
+              : 'Verify your business identity to unlock Organizer Workspace.'}
+          </p>
+          <button
+            onClick={onOpenBecomeOrganizer}
+            disabled={verificationStatus === 'pending'}
+            style={{
+              width: '100%',
+              background: verificationStatus === 'pending' ? '#334155' : 'linear-gradient(135deg, #6366f1, #a855f7)',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: '13px',
+              padding: '10px',
+              borderRadius: '10px',
+              border: 'none',
+              cursor: verificationStatus === 'pending' ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {verificationStatus === 'pending' ? '⏳ Under Review...' : '🚀 Become Organizer Now'}
+          </button>
+        </div>
+      )}
+
+      {/* Navigation Items */}
+      <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', padding: '8px 12px 4px' }}>
+          {!isOrganizer ? 'Attendee Dashboard' : 'Organizer Workspace'}
+        </div>
+
+        {(!isOrganizer ? attendeeNav : organizerNav).map(item => {
+          const IconC = item.icon;
+          const isActive = activeView === item.key;
+          return (
+            <button
+              key={item.key}
+              onClick={() => onSelectView(item.key)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '10px',
+                background: isActive ? '#1e293b' : 'transparent',
+                color: isActive ? '#60a5fa' : '#94a3b8',
+                border: 'none',
+                fontSize: '13.5px',
+                fontWeight: isActive ? 700 : 500,
+                cursor: 'pointer',
+                textAlign: 'left'
+              }}
+            >
+              <IconC size={18} color={isActive ? '#60a5fa' : '#94a3b8'} />
+              <span style={{ flex: 1 }}>{item.label}</span>
+            </button>
+          );
+        })}
+
+        {/* Pro Navigation Items */}
+        {isOrganizer && (
+          <>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', padding: '16px 12px 4px' }}>
+              Organizer Pro Tools
             </div>
-            {grp.items.map((item) => {
-              const isActive = activeTab === item.id;
+            {proNav.map(item => {
+              const IconC = item.icon;
+              const isActive = activeView === item.key;
               return (
                 <button
-                  key={item.id}
-                  onClick={() => onSelectTab(item.id)}
+                  key={item.key}
+                  onClick={() => onSelectView(item.key)}
                   style={{
-                    width: '100%',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: 10,
-                    padding: '8px 10px',
-                    borderRadius: 8,
+                    gap: '12px',
+                    width: '100%',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    background: isActive ? '#1e293b' : 'transparent',
+                    color: isActive ? '#c084fc' : '#94a3b8',
                     border: 'none',
-                    backgroundColor: isActive ? 'rgba(56,189,248,0.12)' : 'transparent',
-                    color: isActive ? '#38BDF8' : '#94A3B8',
+                    fontSize: '13.5px',
+                    fontWeight: isActive ? 700 : 500,
                     cursor: 'pointer',
-                    fontSize: 13,
-                    fontWeight: isActive ? 600 : 500,
-                    textAlign: 'left',
-                    transition: 'all 0.15s ease',
-                    marginBottom: 2
+                    textAlign: 'left'
                   }}
                 >
-                  {item.icon}
-                  <span>{item.label}</span>
+                  <IconC size={18} color={isActive ? '#c084fc' : '#94a3b8'} />
+                  <span style={{ flex: 1 }}>{item.label}</span>
+                  <span style={{ fontSize: '9px', fontWeight: 900, background: 'linear-gradient(135deg, #7c3aed, #ec4899)', color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>
+                    {item.badge}
+                  </span>
                 </button>
               );
             })}
-          </div>
-        ))}
+          </>
+        )}
       </div>
 
-      <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 16 }}>
-        <div style={{ padding: '0 8px 12px' }}>
-          <div style={{ color: '#F8FAFC', fontSize: 13, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {userName}
-          </div>
-          <div style={{ color: '#64748B', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            {userEmail}
-          </div>
-        </div>
+      {/* Footer Logout */}
+      <div style={{ borderTop: '1px solid #1e293b', paddingTop: '16px', marginTop: '16px' }}>
         <button
           onClick={onLogout}
           style={{
-            width: '100%',
             display: 'flex',
             alignItems: 'center',
-            gap: 10,
-            padding: '8px 10px',
-            borderRadius: 8,
+            gap: '12px',
+            width: '100%',
+            padding: '10px 14px',
+            borderRadius: '10px',
+            background: 'transparent',
+            color: '#f87171',
             border: 'none',
-            backgroundColor: 'rgba(239,68,68,0.08)',
-            color: '#F87171',
-            cursor: 'pointer',
-            fontSize: 13,
-            fontWeight: 500
+            fontSize: '13.5px',
+            fontWeight: 600,
+            cursor: 'pointer'
           }}
         >
-          <LogOut size={15} />
-          <span>Sign Out</span>
+          <LogOut size={18} /> Log Out
         </button>
       </div>
+
     </aside>
   );
 };

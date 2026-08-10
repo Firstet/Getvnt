@@ -6,24 +6,23 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TicketType extends Model
+class LedgerEntry extends Model
 {
     use HasFactory, HasUuids;
 
     protected $guarded = [];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
+        'amount' => 'decimal:2',
     ];
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
 
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
+    }
+
+    public function order()
+    {
+        return $this->belongsTo(Order::class);
     }
 }

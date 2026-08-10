@@ -29,28 +29,23 @@ class Tenant extends Model
         return $this->hasMany(Event::class);
     }
 
-    public function wallet()
+    public function orders()
     {
-        return $this->hasOne(Wallet::class);
+        return $this->hasMany(Order::class);
     }
 
-    public function payouts()
+    public function ledgerEntries()
     {
-        return $this->hasMany(Payout::class);
+        return $this->hasMany(LedgerEntry::class);
     }
 
-    public function subscription()
+    public function payoutRequests()
     {
-        return $this->hasOne(Subscription::class, 'tenant_id')->latestOfMany();
+        return $this->hasMany(PayoutRequest::class);
     }
 
-    public function subscriptions()
+    public function organizerWebsite()
     {
-        return $this->hasMany(Subscription::class, 'tenant_id');
-    }
-
-    public function invoices()
-    {
-        return $this->hasMany(Invoice::class, 'tenant_id');
+        return $this->hasOne(OrganizerWebsite::class);
     }
 }

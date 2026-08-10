@@ -5,132 +5,170 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Order;
-use App\Models\Tenant;
 use App\Models\Ticket;
-use App\Models\TicketType;
 
+use App\Services\AiService;
+use App\Services\LedgerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class OrganizerWorkspaceController extends Controller
 {
+    protected $ledgerService;
+    protected $aiService;
+
+    public function __construct(LedgerService $ledgerService, AiService $aiService)
+    {
+        $this->ledgerService = $ledgerService;
+        $this->aiService = $aiService;
+    }
+
     public function dashboard(Request $request)
     {
         $user = $request->user();
-        $tenantId = $user?->tenant_id;
+        $tenantId = $user->tenant_id;
 
-        // Enforce strict multi-tenant data isolation per organization
-        $eventsQuery = Event::query();
-        $ordersQuery = Order::query();
-        $ticketTypesQuery = TicketType::query();
+        $eventsCount = Event::where('tenant_id', $tenantId)->count();
+        $ordersCount = Order::where('tenant_id', $tenantId)->count();
+        $totalRevenue = Order::where('tenant_id', $tenantId)->where('payment_status', 'paid')->sum('subtotal');
+        $ticketsSold = Ticket::whereHas('order', function ($q) use ($tenantId) {
+            $q->where('tenant_id', $tenantId)->where('payment_status', 'paid');
+        })->count();
 
-        if ($tenantId && $user?->role !== 'super_admin') {
-            $eventsQuery->where('tenant_id', $tenantId);
-            $ordersQuery->whereHas('event', function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
-            });
-            $ticketTypesQuery->whereHas('event', function ($q) use ($tenantId) {
-                $q->where('tenant_id', $tenantId);
-            });
-        }
-
-        $totalEvents = $eventsQuery->count();
-        $totalOrders = $ordersQuery->count();
-        $ticketsSold = (int) $ticketTypesQuery->sum('quantity_sold');
-        $totalRevenue = (int) ($ordersQuery->sum('total_amount') ?: ($ticketsSold * 25000));
-
-        $recentEvents = $eventsQuery->with('ticketTypes')->orderBy('created_at', 'desc')->take(5)->get();
+        $walletBalance = $this->ledgerService->getOrganizerBalance($tenantId);
 
         return response()->json([
             'success' => true,
             'data' => [
-                'metrics' => [
-                    'total_events'  => $totalEvents,
-                    'total_orders'  => $totalOrders,
-                    'total_revenue' => $totalRevenue,
-                    'tickets_sold'  => $ticketsSold,
-                    'checkin_rate'  => '78.4%',
-                ],
-                'recent_events' => $recentEvents,
-            ]
+                'events_count' => $eventsCount,
+                'orders_count' => $ordersCount,
+                'total_revenue' => (float) $totalRevenue,
+                'tickets_sold' => $ticketsSold,
+                'wallet_balance' => (float) $walletBalance,
+                'pending_payout' => 0.00,
+            ],
+        ]);
+    }
+
+    public function listEvents(Request $request)
+    {
+        $user = $request->user();
+        $events = Event::where('tenant_id', $user->tenant_id)
+            ->with('ticketTypes')
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $events,
         ]);
     }
 
     public function createEvent(Request $request)
     {
-        $validated = $request->validate([
-            'title'       => 'required|string|max:255',
-            'category'    => 'required|string',
-            'description' => 'required|string',
-            'start_date'  => 'required',
-            'end_date'    => 'required',
-            'venue_name'  => 'required|string',
-            'city'        => 'required|string',
-            'country'     => 'required|string',
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'start_date' => 'required',
+            'ticket_name' => 'required|string',
+            'ticket_price' => 'required|numeric|min:0',
         ]);
 
+        $user = $request->user();
+        $tenantId = $user->tenant_id;
+
         $event = Event::create([
-            'id'          => (string) Str::uuid(),
-            'tenant_id'   => $request->user()?->tenant_id ?? Tenant::first()?->id ?? (string) Str::uuid(),
-            'title'       => $validated['title'],
-            'slug'        => Str::slug($validated['title']) . '-' . rand(100, 999),
-            'description' => $validated['description'],
-            'category'    => $validated['category'],
-            'start_date'  => $validated['start_date'],
-            'end_date'    => $validated['end_date'],
-            'venue_name'  => $validated['venue_name'],
-            'city'        => $validated['city'],
-            'country'     => $validated['country'],
-            'status'      => 'published',
+            'id' => (string) Str::uuid(),
+            'tenant_id' => $tenantId,
+            'user_id' => $user->id,
+            'title' => $request->title,
+            'slug' => Str::slug($request->title) . '-' . Str::random(5),
+            'tagline' => $request->tagline,
+            'description' => $request->description,
+            'category' => $request->category ?? 'Music',
+            'banner_url' => $request->banner_url,
+            'start_date' => $request->start_date,
+            'end_date' => $request->end_date,
+            'venue_name' => $request->venue_name,
+            'city' => $request->city ?? 'Lagos',
+            'country' => $request->country ?? 'Nigeria',
+            'is_published' => true,
+            'website_template' => $request->website_template ?? 'music_festival',
+            'marketing_copy' => $request->marketing_copy,
+        ]);
+
+        $ticketType = $event->ticketTypes()->create([
+            'id' => (string) Str::uuid(),
+            'tenant_id' => $tenantId,
+            'name' => $request->ticket_name,
+            'price' => $request->ticket_price,
+            'currency' => $request->currency ?? 'USD',
+            'quantity_available' => $request->ticket_quantity ?? 500,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Event created successfully',
-            'data'    => $event
+            'data' => $event->load('ticketTypes'),
+            'message' => 'Event published successfully.',
         ], 201);
     }
 
-    /**
-     * Update Organization / Tenant profile (name, logo_url, branding, etc.)
-     * PUT /api/v1/workspace/organization
-     */
-    public function updateOrganization(Request $request)
+    public function listOrders(Request $request)
     {
         $user = $request->user();
+        $orders = Order::where('tenant_id', $user->tenant_id)
+            ->with(['event', 'tickets'])
+            ->latest()
+            ->get();
 
-        if (!$user->tenant_id) {
-            return response()->json(['success' => false, 'message' => 'No organization linked to this account.'], 404);
-        }
-
-        $tenant = Tenant::find($user->tenant_id);
-        if (!$tenant) {
-            return response()->json(['success' => false, 'message' => 'Organization not found.'], 404);
-        }
-
-        $validated = $request->validate([
-            'name'          => 'nullable|string|max:255',
-            'logo_url'      => 'nullable|string|max:2048',
-            'website'       => 'nullable|string|max:255',
-            'description'   => 'nullable|string|max:2000',
-            'primary_color' => 'nullable|string|max:20',
-        ]);
-
-        // Only update provided (non-null) fields
-        $updates = array_filter($validated, fn($v) => !is_null($v));
-
-        if (!empty($updates)) {
-            $tenant->update($updates);
-        }
-
-        // Return refreshed user with tenant
         return response()->json([
             'success' => true,
-            'message' => 'Organization updated successfully!',
-            'data'    => [
-                'tenant' => $tenant->fresh(),
-                'user'   => $user->fresh()->load(['tenant', 'tenant.subscription', 'tenant.subscription.plan']),
+            'data' => $orders,
+        ]);
+    }
+
+    public function generateAi(Request $request)
+    {
+        $request->validate(['prompt' => 'required|string']);
+        $prompt = $request->prompt;
+
+        $response = $this->aiService->generateText($prompt);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'response' => $response,
             ],
+        ]);
+    }
+
+    public function verifyQr(Request $request)
+    {
+        $request->validate(['ticket_code' => 'required|string']);
+
+        $ticket = Ticket::where('ticket_code', $request->ticket_code)->with(['event', 'ticketType', 'user'])->first();
+
+        if (!$ticket) {
+            return response()->json(['success' => false, 'message' => 'Invalid ticket code.'], 404);
+        }
+
+        if ($ticket->status === 'checked_in') {
+            return response()->json([
+                'success' => false,
+                'already_checked_in' => true,
+                'checked_in_at' => $ticket->checked_in_at,
+                'message' => "Ticket ALREADY checked in at {$ticket->checked_in_at}.",
+            ], 400);
+        }
+
+        $ticket->update([
+            'status' => 'checked_in',
+            'checked_in_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $ticket,
+            'message' => 'Ticket check-in SUCCESSFUL! Pass validated.',
         ]);
     }
 }

@@ -25,8 +25,26 @@ class User extends Authenticatable
         'last_login_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
-        'failed_login_attempts' => 'integer',
+        'verified_badge' => 'boolean',
     ];
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->role === 'super_admin' || $this->role === 'admin';
+    }
+
+    public function isTrustedOrganizer(): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+        return $this->verification_status === 'approved' || $this->verified_badge || $this->role === 'trusted_organizer';
+    }
+
+    public function isAttendee(): bool
+    {
+        return true;
+    }
 
     public function tenant()
     {
@@ -38,8 +56,28 @@ class User extends Authenticatable
         return $this->belongsToMany(Tenant::class, 'tenant_user')->withPivot('role', 'permissions')->withTimestamps();
     }
 
-    public function loginHistories()
+    public function verifications()
     {
-        return $this->hasMany(LoginHistory::class, 'user_id');
+        return $this->hasMany(OrganizerVerification::class);
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    public function userNotifications()
+    {
+        return $this->hasMany(UserNotification::class);
     }
 }

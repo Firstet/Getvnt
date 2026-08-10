@@ -15,9 +15,10 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('password');
             $table->string('avatar_url')->nullable();
-            $table->enum('role', ['super_admin', 'platform_staff', 'organizer_owner', 'organizer_staff', 'attendee'])->default('attendee');
+            $table->string('role')->default('attendee');
             $table->uuid('tenant_id')->nullable()->index();
             $table->boolean('is_active')->default(true);
+            $table->timestamp('email_verified_at')->nullable();
             $table->rememberToken();
             $table->timestamps();
 
@@ -28,7 +29,7 @@ return new class extends Migration
             $table->id();
             $table->uuid('tenant_id');
             $table->uuid('user_id');
-            $table->string('role')->default('organizer_staff');
+            $table->string('role')->default('staff');
             $table->json('permissions')->nullable();
             $table->timestamps();
 

@@ -6,24 +6,14 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TicketType extends Model
+class CmsLandingSection extends Model
 {
     use HasFactory, HasUuids;
 
     protected $guarded = [];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'is_active' => 'boolean',
+        'content' => 'array',
+        'is_enabled' => 'boolean',
     ];
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
-
-    public function tenant()
-    {
-        return $this->belongsTo(Tenant::class);
-    }
 }

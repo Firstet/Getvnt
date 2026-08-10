@@ -6,30 +6,15 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Ticket extends Model
+class UserNotification extends Model
 {
     use HasFactory, HasUuids;
 
     protected $guarded = [];
 
     protected $casts = [
-        'checked_in_at' => 'datetime',
+        'is_read' => 'boolean',
     ];
-
-    public function order()
-    {
-        return $this->belongsTo(Order::class);
-    }
-
-    public function event()
-    {
-        return $this->belongsTo(Event::class);
-    }
-
-    public function ticketType()
-    {
-        return $this->belongsTo(TicketType::class);
-    }
 
     public function user()
     {
