@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // 2. Seed Super Admin Integrations Center Data (Payment Gateways, AI Providers, Storage)
+        // 2. Seed Super Admin Data (Payment Gateways, AI Providers, CMS Sections, Websites)
+        $this->call(PlatformDataSeeder::class);
         if (class_exists(IntegrationsSeeder::class)) {
             $this->call(IntegrationsSeeder::class);
         }
