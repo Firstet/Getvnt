@@ -40,6 +40,14 @@ export function App() {
   const [scanQrCode, setScanQrCode] = useState('');
   const [scanResult, setScanResult] = useState<any>(null);
 
+  const getAuthToken = () => {
+    return localStorage.getItem('getvnt_auth_token') ||
+           localStorage.getItem('auth_token') ||
+           sessionStorage.getItem('getvnt_auth_token') ||
+           sessionStorage.getItem('auth_token') ||
+           localStorage.getItem('token');
+  };
+
   useEffect(() => {
     fetchUserMe();
     fetchCounters();
@@ -53,7 +61,7 @@ export function App() {
   }, []);
 
   const fetchUserMe = async (isBackgroundPoll = false) => {
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) {
       if (!isBackgroundPoll) setLoading(false);
       return;
@@ -98,7 +106,7 @@ export function App() {
   };
 
   const fetchCounters = async () => {
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
     if (!token) return;
     try {
       const res = await fetch('/api/v1/attendee/counters', {
@@ -133,7 +141,7 @@ export function App() {
 
   const handleCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
     try {
       const res = await fetch('/api/v1/workspace/events', {
         method: 'POST',
@@ -162,7 +170,7 @@ export function App() {
 
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault();
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
     try {
       const res = await fetch('/api/v1/workspace/payouts/request', {
         method: 'POST',
@@ -192,7 +200,7 @@ export function App() {
 
   const handleVerifyQr = async () => {
     if (!scanQrCode) return;
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
     try {
       const res = await fetch('/api/v1/workspace/qr/verify', {
         method: 'POST',
@@ -211,7 +219,9 @@ export function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('getvnt_auth_token');
     localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('getvnt_auth_token');
     sessionStorage.removeItem('auth_token');
     localStorage.removeItem('token');
     window.location.href = 'https://getvnt.com';

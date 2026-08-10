@@ -30,11 +30,19 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
 
   if (!isOpen) return null;
 
+  const getAuthToken = () => {
+    return localStorage.getItem('getvnt_auth_token') ||
+           localStorage.getItem('auth_token') ||
+           sessionStorage.getItem('getvnt_auth_token') ||
+           sessionStorage.getItem('auth_token') ||
+           localStorage.getItem('token');
+  };
+
   const handleSubmitOnboarding = async () => {
     setSubmitting(true);
     setErrorMessage(null);
 
-    const token = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token') || localStorage.getItem('token');
+    const token = getAuthToken();
 
     if (!token) {
       setSubmitting(false);
@@ -70,7 +78,7 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
         const errorText = data.message || `Onboarding failed with status code ${res.status}`;
         console.error('Kyc Onboarding Error:', data);
         setErrorMessage(errorText);
-        // If successful or pending verification created, execute redirect
+        // If pending verification created or success status, trigger redirect
         if (data.data || res.status === 201) {
           onSuccessRedirect();
         }
