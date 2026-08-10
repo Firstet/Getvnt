@@ -549,7 +549,7 @@ export function App() {
         {activeModule === 'websites' && <WebsiteBuilderControl websites={websites} />}
 
         {/* MODULE 14: AI Control Center */}
-        {activeModule === 'ai_fleet' && <AiFleetControl aiFleetData={aiFleetData} token={token} onRefresh={fetchAdminData} />}
+        {activeModule === 'ai_fleet' && <AiFleetControl aiFleetData={aiFleetData} token={token || getToken()} onRefresh={fetchAdminData} />}
 
         {/* MODULE 15: Broadcast Center */}
         {activeModule === 'broadcasts' && <BroadcastCenter broadcasts={broadcasts} token={token} onRefresh={fetchAdminData} />}

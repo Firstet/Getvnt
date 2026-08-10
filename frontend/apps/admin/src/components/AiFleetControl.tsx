@@ -81,6 +81,19 @@ const DEFAULT_FALLBACK_PROVIDERS: Provider[] = [
 ];
 
 export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
+  const getEffectiveToken = () => {
+    if (token && token.trim() !== '') return token;
+    return (
+      localStorage.getItem('getvnt_auth_token') ||
+      localStorage.getItem('auth_token') ||
+      sessionStorage.getItem('getvnt_auth_token') ||
+      sessionStorage.getItem('auth_token') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('access_token') ||
+      ''
+    );
+  };
+
   const rawList: Provider[] = aiFleetData?.providers ?? [];
   const providersList = rawList.length > 0 ? rawList : DEFAULT_FALLBACK_PROVIDERS;
 
@@ -187,7 +200,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         },
         body: JSON.stringify({
           id,
@@ -221,7 +234,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         },
         body: JSON.stringify({
           provider_code: newProv.slug || 'custom',
@@ -262,7 +275,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         method,
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         },
         body: JSON.stringify({
           name: payload.name,
@@ -300,7 +313,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       try {
         const res = await fetch(`/api/v1/admin/ai/providers/${id}`, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${getEffectiveToken()}` }
         });
         const data = await res.json();
         if (data.success) {
@@ -318,7 +331,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       try {
         const res = await fetch(`/api/v1/admin/ai/prompts/${id}`, {
           method: 'DELETE',
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${getEffectiveToken()}` }
         });
         const data = await res.json();
         if (data.success) {
@@ -341,7 +354,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         },
         body: JSON.stringify(newProv),
       });
@@ -368,7 +381,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         },
         body: JSON.stringify({ provider_code: providerCode }),
       });
@@ -430,7 +443,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
 
       const res = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getEffectiveToken()}` },
         body: JSON.stringify(promptForm),
       });
       const data = await res.json();
@@ -455,7 +468,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         }
       });
       const data = await res.json();
@@ -478,7 +491,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         }
       });
       const data = await res.json();
@@ -500,7 +513,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       const res = await fetch('/api/v1/admin/ai/prompts/export', {
         headers: {
           'Accept': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${getEffectiveToken()}`
         }
       });
       const data = await res.json();
@@ -522,7 +535,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     try {
       const res = await fetch('/api/v1/ai/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getEffectiveToken()}` },
         body: JSON.stringify({
           message: testUserInput || 'Draft a tech event announcement',
           system_prompt_override: testingPromptModal.prompt_text,
