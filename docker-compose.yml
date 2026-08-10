@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.frontend
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       PRIMARY_DOMAIN: ${PRIMARY_DOMAIN:-getvnt.com}
       WORKSPACE_DOMAIN: ${WORKSPACE_DOMAIN:-app.getvnt.com}
