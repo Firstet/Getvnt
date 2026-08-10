@@ -6,7 +6,7 @@ import {
   Clock, ShieldCheck, Crown, Compass, Tag, Layers, LogOut, Lock, AlertCircle,
   Rss, ExternalLink, Share2, BookOpen, CheckCircle, Smartphone, Download
 } from 'lucide-react';
-import { useResponsiveSidebar, AuthProvider, useAuth, PasswordField, SaaSAuthModal, getAppUrl, apiClient } from '../../../shared/src';
+import { useResponsiveSidebar, AuthProvider, useAuth, PasswordField, SaaSAuthModal, getAppUrl, apiClient, FloatingAiAssistant } from '../../../shared/src';
 import { useBrand } from '../../../shared/src/context/BrandContext';
 import GetvntLogo from './components/GetvntLogo';
 import { FooterPageViews } from './components/FooterPageViews';
@@ -658,6 +658,8 @@ function MarketplaceContent() {
         />
       )}
 
+      {/* Floating AI Assistant Chatbot */}
+      <FloatingAiAssistant role="attendee" />
     </div>
   );
 }
