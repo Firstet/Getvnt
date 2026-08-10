@@ -118,7 +118,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // ─── 5. SUPER ADMIN CONTROL CENTER (Role: Super Admin) ───────────────────
-    Route::prefix('admin')->middleware(['auth:sanctum', RequireSuperAdmin::class])->group(function () {
+    Route::prefix('admin')->middleware([RequireSuperAdmin::class])->group(function () {
         // Section 1: Overview
         Route::get('/overview', [PlatformAdminController::class, 'overview']);
         Route::get('/stats', [PlatformAdminController::class, 'overview']);
