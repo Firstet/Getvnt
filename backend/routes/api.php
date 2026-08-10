@@ -43,6 +43,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout']);
             Route::put('/profile', [AuthController::class, 'updateProfile']);
             Route::put('/change-password', [AuthController::class, 'changePassword']);
+            Route::delete('/account', [AuthController::class, 'deleteAccount']);
         });
     });
 

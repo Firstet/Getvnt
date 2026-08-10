@@ -112,14 +112,21 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|nullable|string',
+            'bio' => 'sometimes|nullable|string',
+            'country' => 'sometimes|nullable|string',
+            'language' => 'sometimes|nullable|string',
+            'timezone' => 'sometimes|nullable|string',
+            'avatar' => 'sometimes|nullable|string',
         ]);
 
-        $user->update($request->only(['name', 'phone']));
+        $user->update($request->only([
+            'name', 'phone', 'bio', 'country', 'language', 'timezone', 'avatar'
+        ]));
 
         return response()->json([
             'success' => true,
-            'data' => $user,
-            'message' => 'Profile updated.',
+            'data' => $user->fresh(),
+            'message' => 'Profile settings updated successfully.',
         ]);
     }
 
@@ -138,7 +145,16 @@ class AuthController extends Controller
 
         $user->update(['password' => Hash::make($request->new_password)]);
 
-        return response()->json(['success' => true, 'message' => 'Password updated.']);
+        return response()->json(['success' => true, 'message' => 'Password updated successfully.']);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        $user->tokens()->delete();
+        $user->delete();
+
+        return response()->json(['success' => true, 'message' => 'Account deleted successfully.']);
     }
 
     public function forgotPassword(Request $request)
