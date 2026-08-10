@@ -930,7 +930,7 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'message' => 'Impersonation session ended.']);
     }
 
-    protected function logAdminAction($user, string $action, string $targetType = null, string $targetId = null)
+    protected function logAdminAction($user, string $action, ?string $targetType = null, ?string $targetId = null)
     {
         AdminAuditLog::create([
             'id' => (string) Str::uuid(),
