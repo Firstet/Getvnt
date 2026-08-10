@@ -798,7 +798,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
               style={{ background: 'linear-gradient(135deg,#059669,#10b981)', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '10px', fontWeight: 800, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
             >
               <Database size={14} />
-              {seedingPrompts ? 'Seeding...' : '🌱 Seed 5 Enterprise Prompts'}
+              {seedingPrompts ? 'Seeding...' : '🌱 Seed All 27 Enterprise Prompts'}
             </button>
 
             <button
@@ -860,13 +860,13 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
           <div style={{ textAlign: 'center', padding: '40px', background: '#0f172a', borderRadius: '16px', border: '1px border #1e293b', color: '#64748b' }}>
             <Bot size={36} color="#475569" style={{ marginBottom: '12px' }} />
             <h4 style={{ color: '#94a3b8', margin: '0 0 8px' }}>No Prompts Found</h4>
-            <p style={{ fontSize: '13px', margin: '0 0 16px' }}>Click "🌱 Seed 5 Enterprise Prompts" to load standard system prompts or create a custom prompt.</p>
+            <p style={{ fontSize: '13px', margin: '0 0 16px' }}>Click "🌱 Seed All 27 Enterprise Prompts" to load standard system prompts or create a custom prompt.</p>
             <button
               type="button"
               onClick={handleSeedDefaultPrompts}
               style={{ background: 'linear-gradient(135deg,#059669,#10b981)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer', fontSize: '13px' }}
             >
-              Seed Enterprise Prompts
+              Seed All 27 Enterprise Prompts
             </button>
           </div>
         ) : (
