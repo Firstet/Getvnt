@@ -817,7 +817,7 @@ class PlatformAdminController extends Controller
         $baseUrl = $request->input('base_url');
 
         $dbProvider = AiProvider::where('slug', $providerCode)
-            ->orWhere('provider', $providerCode)
+            ->orWhere('name', 'LIKE', '%' . $providerCode . '%')
             ->orWhere('id', $request->input('id'))
             ->first();
 
