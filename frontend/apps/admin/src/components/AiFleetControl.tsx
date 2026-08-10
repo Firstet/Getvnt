@@ -311,6 +311,54 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     }
   };
 
+  const handleToggleProviderStatus = async (id: string) => {
+    const payload = formData[id];
+    if (!payload) return;
+
+    const newStatus = (payload.status === 'active' || !payload.status) ? 'inactive' : 'active';
+    updateField(id, 'status', newStatus);
+
+    try {
+      const isFallback = String(id).startsWith('prov-');
+      const url = isFallback ? '/api/v1/admin/ai/providers' : `/api/v1/admin/ai/providers/${id}`;
+      const method = isFallback ? 'POST' : 'PUT';
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          Authorization: `Bearer ${getEffectiveToken()}`
+        },
+        body: JSON.stringify({
+          name: payload.name,
+          slug: payload.slug || payload.provider || 'openai',
+          provider: payload.provider || payload.slug || 'openai',
+          api_key: payload.api_key,
+          default_model: payload.default_model,
+          base_url: payload.base_url,
+          status: newStatus,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (data.data) {
+          setFormData(prev => ({
+            ...prev,
+            [id]: { ...prev[id], ...data.data },
+            [data.data.id]: { ...data.data }
+          }));
+        }
+        showToast(`AI Provider "${payload.name}" is now ${newStatus.toUpperCase()}!`, 'success');
+        onRefresh();
+      } else {
+        showToast(data.message || 'Failed to update provider status.', 'error');
+      }
+    } catch (e: any) {
+      showToast('Status error: ' + e.message, 'error');
+    }
+  };
+
   const executeConfirmAction = async () => {
     if (!confirmModal) return;
     const { id, name, action } = confirmModal;
@@ -667,10 +715,10 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => updateField(idStr, 'status', item.status === 'active' ? 'disabled' : 'active')}
-                  style={{ background: item.status === 'active' ? '#052e16' : '#1e293b', color: item.status === 'active' ? '#34d399' : '#64748b', border: `1px solid ${item.status === 'active' ? '#34d399' : '#334155'}`, padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, cursor: 'pointer' }}
+                  onClick={() => handleToggleProviderStatus(idStr)}
+                  style={{ background: (item.status === 'active' || !item.status) ? '#052e16' : '#1e293b', color: (item.status === 'active' || !item.status) ? '#34d399' : '#94a3b8', border: `1px solid ${(item.status === 'active' || !item.status) ? '#34d399' : '#334155'}`, padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, cursor: 'pointer' }}
                 >
-                  {item.status === 'active' ? '✓ ACTIVE' : 'DISABLED'}
+                  {(item.status === 'active' || !item.status) ? '✓ ACTIVE' : 'INACTIVE'}
                 </button>
               </div>
 
@@ -799,16 +847,15 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
                   {isTesting ? '...' : 'Test'}
                 </button>
 
-                {!idStr.startsWith('prov-') && (
-                  <button
-                    type="button"
-                    onClick={() => setConfirmModal({ isOpen: true, id: idStr, name: prov.name, action: 'delete_provider' })}
-                    disabled={isDeleting}
-                    style={{ background: '#1e293b', border: '1px solid #7f1d1d', color: '#f87171', padding: '10px 12px', borderRadius: '8px', cursor: 'pointer' }}
-                  >
-                    <Trash2 size={13} />
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setConfirmModal({ isOpen: true, id: idStr, name: prov.name, action: 'delete_provider' })}
+                  disabled={isDeleting}
+                  title="Delete AI Provider"
+                  style={{ background: '#1e293b', border: '1px solid #7f1d1d', color: '#f87171', padding: '10px 12px', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  <Trash2 size={13} />
+                </button>
               </div>
             </div>
           );

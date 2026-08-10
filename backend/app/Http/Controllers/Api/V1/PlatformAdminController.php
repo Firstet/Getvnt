@@ -712,8 +712,26 @@ class PlatformAdminController extends Controller
 
     public function updateAiProvider(Request $request, string $id)
     {
-        $provider = AiProvider::findOrFail($id);
-        $provider->update($request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'priority', 'fallback_provider', 'temperature', 'status']));
+        $cleanId = str_replace('prov-', '', $id);
+        $provider = AiProvider::where('id', $id)
+            ->orWhere('slug', $id)
+            ->orWhere('slug', $cleanId)
+            ->first();
+
+        if (!$provider) {
+            $provider = AiProvider::create([
+                'id' => (string) Str::uuid(),
+                'name' => $request->name ?? ucfirst($cleanId),
+                'slug' => $cleanId,
+                'api_key' => $request->api_key,
+                'default_model' => $request->default_model ?? 'gpt-4o',
+                'base_url' => $request->base_url,
+                'available_models' => $request->available_models ?? null,
+                'status' => $request->status ?? 'active',
+            ]);
+        } else {
+            $provider->update($request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'available_models', 'priority', 'fallback_provider', 'temperature', 'status']));
+        }
 
         $this->logAdminAction($request->user(), 'update_ai_provider', 'ai_provider', $provider->id);
 
@@ -750,13 +768,20 @@ class PlatformAdminController extends Controller
 
     public function deleteAiProvider(Request $request, string $id)
     {
-        $provider = AiProvider::findOrFail($id);
-        $name = $provider->name;
-        $provider->delete();
+        $cleanId = str_replace('prov-', '', $id);
+        $provider = AiProvider::where('id', $id)
+            ->orWhere('slug', $id)
+            ->orWhere('slug', $cleanId)
+            ->first();
 
-        $this->logAdminAction($request->user(), 'delete_ai_provider', 'ai_provider', $id);
+        if ($provider) {
+            $name = $provider->name;
+            $provider->delete();
+            $this->logAdminAction($request->user(), 'delete_ai_provider', 'ai_provider', $id);
+            return response()->json(['success' => true, 'message' => "AI Provider {$name} deleted permanently."]);
+        }
 
-        return response()->json(['success' => true, 'message' => "AI Provider {$name} deleted permanently."]);
+        return response()->json(['success' => true, 'message' => "AI Provider removed."]);
     }
 
     public function updateAiFeatureModel(Request $request, string $id)
