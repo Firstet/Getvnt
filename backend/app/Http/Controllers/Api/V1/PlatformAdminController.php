@@ -768,6 +768,87 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'message' => 'Platform cache flushed successfully.']);
     }
 
+    public function activeSessions()
+    {
+        // Return active Personal Access Tokens (Sanctum)
+        $sessions = DB::table('personal_access_tokens')
+            ->join('users', 'users.id', '=', 'personal_access_tokens.tokenable_id')
+            ->select('personal_access_tokens.id', 'users.name as user_name', 'users.email',
+                'personal_access_tokens.last_used_at as last_active', 'personal_access_tokens.created_at')
+            ->orderByDesc('personal_access_tokens.last_used_at')
+            ->limit(100)
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $sessions]);
+    }
+
+    public function revokeSession($id)
+    {
+        DB::table('personal_access_tokens')->where('id', $id)->delete();
+        return response()->json(['success' => true, 'message' => 'Session revoked.']);
+    }
+
+    public function suspiciousLogins()
+    {
+        // Returns users with many failed logins (if tracked) — placeholder for now
+        $data = DB::table('admin_audit_logs')
+            ->where('action', 'failed_login')
+            ->select('target_id as email', 'ip_address', 'created_at')
+            ->orderByDesc('created_at')
+            ->limit(50)
+            ->get();
+
+        return response()->json(['success' => true, 'data' => $data]);
+    }
+
+    public function exportReport(Request $request, string $type)
+    {
+        $format = $request->get('format', 'csv');
+
+        $rows = match ($type) {
+            'users' => User::select('id', 'name', 'email', 'role', 'subscription_plan', 'created_at')->get()->toArray(),
+            'revenue' => Order::select('id', 'total_amount', 'platform_fee', 'status', 'created_at')->get()->toArray(),
+            'events' => Event::select('id', 'title', 'status', 'start_date', 'created_at')->get()->toArray(),
+            'organizers' => User::whereIn('role', ['trusted_organizer', 'organizer_pro'])->select('id', 'name', 'email', 'subscription_plan', 'created_at')->get()->toArray(),
+            default => [],
+        };
+
+        if ($format === 'csv') {
+            $headers = array_keys($rows[0] ?? ['no' => 'data']);
+            $csv = implode(',', $headers) . "\n";
+            foreach ($rows as $row) {
+                $csv .= implode(',', array_map(fn($v) => '"' . str_replace('"', '""', $v ?? '') . '"', array_values($row))) . "\n";
+            }
+            return response($csv, 200, [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=getvnt_{$type}_report.csv",
+            ]);
+        }
+
+        return response()->json(['success' => true, 'data' => $rows]);
+    }
+
+    public function updateSubscriptionPlan(Request $request, string $plan)
+    {
+        $validated = $request->validate(['price' => 'required|numeric|min:0']);
+
+        SystemSetting::updateOrCreate(
+            ['key' => "plan_price_{$plan}"],
+            ['value' => $validated['price'], 'description' => "Price for {$plan} subscription plan"]
+        );
+
+        $this->logAdminAction(auth()->user(), 'update_plan_price', 'subscription', $plan);
+
+        return response()->json(['success' => true, 'message' => "Price for {$plan} plan updated."]);
+    }
+
+    public function exitImpersonation(Request $request)
+    {
+        // The admin frontend stores their real token in a separate key before impersonating
+        // On exit, just return success — frontend handles token restoration
+        return response()->json(['success' => true, 'message' => 'Impersonation session ended.']);
+    }
+
     protected function logAdminAction($user, string $action, string $targetType = null, string $targetId = null)
     {
         AdminAuditLog::create([
@@ -782,3 +863,4 @@ class PlatformAdminController extends Controller
         ]);
     }
 }
+

@@ -187,9 +187,23 @@ Route::prefix('v1')->group(function () {
         Route::put('/system-settings', [PlatformAdminController::class, 'updateSystemSetting']);
         Route::get('/audit-logs', [PlatformAdminController::class, 'auditLogs']);
 
-        // Section 19 & 20: Reports & Developer Health
+        // Section 11: Subscriptions
+        Route::put('/subscriptions/{plan}', [PlatformAdminController::class, 'updateSubscriptionPlan']);
+
+        // Section 18: Security Control
+        Route::get('/security/sessions', [PlatformAdminController::class, 'activeSessions']);
+        Route::delete('/security/sessions/{id}', [PlatformAdminController::class, 'revokeSession']);
+        Route::get('/security/suspicious-logins', [PlatformAdminController::class, 'suspiciousLogins']);
+
+        // Section 19: Reports Export
+        Route::get('/reports/{type}', [PlatformAdminController::class, 'exportReport']);
+
+        // Section 19 & 20: Developer Health
         Route::get('/developer-health', [PlatformAdminController::class, 'developerHealth']);
         Route::post('/developer-health/flush-cache', [PlatformAdminController::class, 'flushCache']);
+
+        // Exit Impersonation
+        Route::post('/exit-impersonation', [PlatformAdminController::class, 'exitImpersonation']);
     });
 
     // ─── 6. MEDIA UPLOAD & STORAGE ───────────────────────────────────────────
