@@ -186,6 +186,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/ai/prompts', [PlatformAdminController::class, 'createAiPrompt']);
         Route::put('/ai/prompts/{id}', [PlatformAdminController::class, 'updateAiPrompt']);
         Route::post('/ai/test-connection', [PlatformAdminController::class, 'testAiConnection']);
+        Route::post('/ai/fetch-models', [PlatformAdminController::class, 'fetchAiModels']);
 
         // Section 15: Broadcast Notifications
         Route::get('/broadcasts', [PlatformAdminController::class, 'broadcasts']);
