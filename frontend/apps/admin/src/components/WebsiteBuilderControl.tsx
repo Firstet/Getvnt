@@ -5,7 +5,7 @@ interface Props { websites: any[]; }
 
 export function WebsiteBuilderControl({ websites }: Props) {
   const [search, setSearch] = useState('');
-  const filtered = websites.filter(w => w.organizer_name?.toLowerCase().includes(search.toLowerCase()) || w.subdomain?.toLowerCase().includes(search.toLowerCase()));
+  const filtered = websites.filter(w => (w.site_title || w.organizer_name || w.tenant?.name || '')?.toLowerCase().includes(search.toLowerCase()) || w.subdomain?.toLowerCase().includes(search.toLowerCase()));
   const cell = { padding: '14px 18px' };
 
   return (
@@ -25,7 +25,7 @@ export function WebsiteBuilderControl({ websites }: Props) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13.5px' }}>
           <thead>
             <tr style={{ background: '#1e293b', color: '#94a3b8' }}>
-              {['Organizer', 'Subdomain', 'Template', 'Status', 'Published', 'Action'].map(h => (
+              {['Organizer Website', 'Subdomain', 'Template', 'Status', 'Created', 'Action'].map(h => (
                 <th key={h} style={{ ...cell, fontWeight: 700, textAlign: 'left' }}>{h}</th>
               ))}
             </tr>
@@ -39,7 +39,8 @@ export function WebsiteBuilderControl({ websites }: Props) {
             {filtered.map(w => (
               <tr key={w.id} style={{ borderBottom: '1px solid #1e293b' }}>
                 <td style={cell}>
-                  <div style={{ fontWeight: 800, color: '#fff' }}>{w.organizer_name || w.organizer?.name}</div>
+                  <div style={{ fontWeight: 800, color: '#fff' }}>{w.site_title || w.organizer_name || w.tenant?.name || 'Organizer Site'}</div>
+                  {w.tenant?.name && <div style={{ fontSize: '11px', color: '#64748b' }}>{w.tenant.name}</div>}
                 </td>
                 <td style={{ ...cell, color: '#c084fc', fontFamily: 'monospace', fontSize: '12px' }}>
                   {w.subdomain}.getvnt.com

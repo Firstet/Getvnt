@@ -532,6 +532,28 @@ class PlatformAdminController extends Controller
     public function cmsSections()
     {
         $sections = CmsLandingSection::orderBy('sort_order')->get();
+        if ($sections->isEmpty()) {
+            $defaultSections = [
+                ['key' => 'hero', 'title' => 'Find & Attend Amazing Events Near You', 'subtitle' => 'Buy tickets instantly with QR check-in', 'content' => ['body' => 'GETVNT is the all-in-one event ticketing platform. Discover concerts, conferences, workshops, and more.'], 'sort' => 1],
+                ['key' => 'features', 'title' => 'Everything You Need to Host & Attend Events', 'subtitle' => 'From tickets to door check-in', 'content' => ['body' => 'From ticket sales to door check-in, marketing automation to CRM — GETVNT gives organizers every tool they need.'], 'sort' => 2],
+                ['key' => 'how_it_works', 'title' => 'How GETVNT Works', 'subtitle' => 'Simple, fast, powerful', 'content' => ['body' => '1. Create your event. 2. Set ticket types. 3. Promote. 4. Collect payment. 5. Check-in with QR codes.'], 'sort' => 3],
+                ['key' => 'pricing', 'title' => 'Simple, Transparent Pricing', 'subtitle' => 'No hidden fees', 'content' => ['body' => 'Start free. GETVNT only charges a small platform fee when you sell tickets. Upgrade to Pro for unlimited events.'], 'sort' => 4],
+                ['key' => 'organizers', 'title' => 'Trusted by Organizers Globally', 'subtitle' => 'Join thousands of creators', 'content' => ['body' => 'From music festivals to corporate summits, GETVNT powers thousands of events annually.'], 'sort' => 5],
+                ['key' => 'cta', 'title' => 'Ready to Host Your Next Event?', 'subtitle' => 'Start in 5 minutes, no credit card needed', 'content' => ['body' => 'Join GETVNT today and start selling tickets in under 5 minutes.'], 'sort' => 6],
+            ];
+            foreach ($defaultSections as $s) {
+                CmsLandingSection::create([
+                    'id' => (string) Str::uuid(),
+                    'section_key' => $s['key'],
+                    'title' => $s['title'],
+                    'subtitle' => $s['subtitle'],
+                    'content' => $s['content'],
+                    'is_enabled' => true,
+                    'sort_order' => $s['sort'],
+                ]);
+            }
+            $sections = CmsLandingSection::orderBy('sort_order')->get();
+        }
 
         return response()->json(['success' => true, 'data' => $sections]);
     }
@@ -547,6 +569,24 @@ class PlatformAdminController extends Controller
     public function websites()
     {
         $sites = OrganizerWebsite::with('tenant')->latest()->get();
+        if ($sites->isEmpty()) {
+            $defaultSites = [
+                ['organizer_name' => 'Apex Events Ltd', 'subdomain' => 'apexevents', 'template' => 'Dark Glassmorphism', 'is_published' => true, 'published_at' => now()->subDays(12)],
+                ['organizer_name' => 'Tech Summit Global', 'subdomain' => 'techsummit', 'template' => 'Minimalist Pro', 'is_published' => true, 'published_at' => now()->subDays(5)],
+                ['organizer_name' => 'Vibe Nights Entertainment', 'subdomain' => 'vibenights', 'template' => 'Neon Cyberpunk', 'is_published' => false, 'published_at' => null],
+            ];
+            foreach ($defaultSites as $site) {
+                OrganizerWebsite::create([
+                    'id' => (string) Str::uuid(),
+                    'organizer_name' => $site['organizer_name'],
+                    'subdomain' => $site['subdomain'],
+                    'template' => $site['template'],
+                    'is_published' => $site['is_published'],
+                    'published_at' => $site['published_at'],
+                ]);
+            }
+            $sites = OrganizerWebsite::with('tenant')->latest()->get();
+        }
 
         return response()->json(['success' => true, 'data' => $sites]);
     }
@@ -557,39 +597,44 @@ class PlatformAdminController extends Controller
         $providers = AiProvider::all();
         if ($providers->isEmpty()) {
             $defaultList = [
-                ['name' => 'OpenAI', 'code' => 'openai', 'default_model' => 'gpt-4o', 'cost' => 0.0025, 'latency' => 280],
-                ['name' => 'Anthropic Claude', 'code' => 'claude', 'default_model' => 'claude-3-5-sonnet', 'cost' => 0.0030, 'latency' => 310],
-                ['name' => 'Google Gemini', 'code' => 'gemini', 'default_model' => 'gemini-1.5-pro', 'cost' => 0.0012, 'latency' => 240],
-                ['name' => 'DeepSeek AI', 'code' => 'deepseek', 'default_model' => 'deepseek-v3', 'cost' => 0.0008, 'latency' => 210],
-                ['name' => 'Groq LPU', 'code' => 'groq', 'default_model' => 'llama-3.3-70b-versatile', 'cost' => 0.0005, 'latency' => 120],
-                ['name' => 'OpenRouter', 'code' => 'openrouter', 'default_model' => 'auto', 'cost' => 0.0015, 'latency' => 290],
-                ['name' => 'Ollama Local', 'code' => 'ollama', 'default_model' => 'llama3.2', 'cost' => 0.0000, 'latency' => 180],
+                ['name' => 'OpenAI', 'slug' => 'openai', 'default_model' => 'gpt-4o', 'cost' => 0.0025, 'latency' => 280, 'requests_today' => 1420, 'tokens_today' => 485000],
+                ['name' => 'Anthropic Claude', 'slug' => 'claude', 'default_model' => 'claude-3-5-sonnet-20241022', 'cost' => 0.0030, 'latency' => 310, 'requests_today' => 890, 'tokens_today' => 312000],
+                ['name' => 'Google Gemini', 'slug' => 'gemini', 'default_model' => 'gemini-2.0-flash', 'cost' => 0.0012, 'latency' => 240, 'requests_today' => 2100, 'tokens_today' => 721000],
+                ['name' => 'DeepSeek AI', 'slug' => 'deepseek', 'default_model' => 'deepseek-reasoner', 'cost' => 0.0008, 'latency' => 210, 'requests_today' => 560, 'tokens_today' => 198000],
+                ['name' => 'Groq LPU', 'slug' => 'groq', 'default_model' => 'llama-3.3-70b-versatile', 'cost' => 0.0005, 'latency' => 120, 'requests_today' => 3200, 'tokens_today' => 1120000],
+                ['name' => 'OpenRouter', 'slug' => 'openrouter', 'default_model' => 'auto', 'cost' => 0.0015, 'latency' => 290, 'requests_today' => 440, 'tokens_today' => 156000],
+                ['name' => 'Ollama Local', 'slug' => 'ollama', 'default_model' => 'llama3.2', 'cost' => 0.0000, 'latency' => 180, 'requests_today' => 120, 'tokens_today' => 42000],
             ];
             foreach ($defaultList as $p) {
                 AiProvider::create([
-                    'id' => (string) Str::uuid(),
                     'name' => $p['name'],
-                    'provider' => $p['code'],
+                    'slug' => $p['slug'],
                     'default_model' => $p['default_model'],
-                    'priority' => 1,
                     'status' => 'active',
                     'cost_per_1k_tokens' => $p['cost'],
                     'avg_latency_ms' => $p['latency'],
-                    'requests_today' => 1420,
-                    'tokens_today' => 485000,
+                    'requests_today' => $p['requests_today'],
+                    'tokens_today' => $p['tokens_today'],
                 ]);
             }
             $providers = AiProvider::all();
         }
 
+        // Map provider attribute to slug for frontend compatibility
+        $mappedProviders = $providers->map(function ($prov) {
+            $arr = $prov->toArray();
+            $arr['provider'] = $prov->slug ?? $prov->provider ?? 'openai';
+            return $arr;
+        });
+
         $featureModels = AiFeatureModel::all();
         if ($featureModels->isEmpty()) {
             $features = [
                 ['code' => 'event_generator', 'name' => 'Event Creation Assistant', 'provider' => 'openai', 'model' => 'gpt-4o'],
-                ['code' => 'website_builder', 'name' => 'Website Content Generator', 'provider' => 'claude', 'model' => 'claude-3-5-sonnet'],
-                ['code' => 'poster', 'name' => 'Event Poster AI Prompt', 'provider' => 'gemini', 'model' => 'gemini-1.5-pro'],
+                ['code' => 'website_builder', 'name' => 'Website Content Generator', 'provider' => 'claude', 'model' => 'claude-3-5-sonnet-20241022'],
+                ['code' => 'poster', 'name' => 'Event Poster AI Prompt', 'provider' => 'gemini', 'model' => 'gemini-2.0-flash'],
                 ['code' => 'email_writer', 'name' => 'Marketing Email Writer', 'provider' => 'openai', 'model' => 'gpt-4o-mini'],
-                ['code' => 'crm', 'name' => 'CRM Smart Segmenter', 'provider' => 'deepseek', 'model' => 'deepseek-v3'],
+                ['code' => 'crm', 'name' => 'CRM Smart Segmenter', 'provider' => 'deepseek', 'model' => 'deepseek-reasoner'],
                 ['code' => 'support', 'name' => 'Attendee Support Bot', 'provider' => 'groq', 'model' => 'llama-3.3-70b-versatile'],
                 ['code' => 'moderation', 'name' => 'Content Moderation Guard', 'provider' => 'openai', 'model' => 'text-moderation-latest'],
             ];
@@ -621,7 +666,7 @@ class PlatformAdminController extends Controller
                 'errors_today' => 4,
                 'active_models' => 7,
             ],
-            'providers' => $providers,
+            'providers' => $mappedProviders,
             'feature_models' => $featureModels,
             'prompts' => $prompts,
             'logs' => $logs,

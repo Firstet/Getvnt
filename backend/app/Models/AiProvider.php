@@ -9,13 +9,7 @@ class AiProvider extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'name', 'slug', 'logo', 'description', 'status', 'api_key',
-        'org_id', 'base_url', 'default_model', 'available_models',
-        'max_tokens', 'temperature', 'top_p', 'timeout_seconds',
-        'retry_attempts', 'daily_limit', 'monthly_budget',
-        'cost_per_1k_tokens', 'rate_limits', 'notes', 'sort_order'
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'available_models' => 'array',
