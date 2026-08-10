@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { CreditCard, Save, CheckCircle2, ShieldCheck, RefreshCw, Key, Globe, Eye, EyeOff } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, Save, CheckCircle2, ShieldCheck, RefreshCw, Key, Globe, Eye, EyeOff, Plus, Trash2, X } from 'lucide-react';
 
 interface Gateway {
   id: string;
@@ -20,16 +20,52 @@ interface Props {
   onRefresh: () => void;
 }
 
+const DEFAULT_FALLBACK_GATEWAYS: Gateway[] = [
+  { id: 'gw-paystack', provider: 'paystack', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-flutterwave', provider: 'flutterwave', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-stripe', provider: 'stripe', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-monnify', provider: 'monnify', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-remita', provider: 'remita', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-square', provider: 'square', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-paypal', provider: 'paypal', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+  { id: 'gw-banktransfer', provider: 'bank_transfer', environment: 'sandbox', is_enabled: true, currency: 'USD', public_key: '', secret_key: '' },
+];
+
 export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
+  const activeGateways = gateways && gateways.length > 0 ? gateways : DEFAULT_FALLBACK_GATEWAYS;
+
   const [formData, setFormData] = useState<Record<string, Gateway>>(() => {
     const map: Record<string, Gateway> = {};
-    gateways.forEach(g => { map[g.id] = { ...g }; });
+    activeGateways.forEach(g => { map[g.id] = { ...g }; });
     return map;
   });
 
   const [savingId, setSavingId] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showSecret, setShowSecret] = useState<Record<string, boolean>>({});
+
+  // Modal State for Adding New Gateway
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newGateway, setNewGateway] = useState({
+    provider: 'stripe',
+    custom_provider: '',
+    public_key: '',
+    secret_key: '',
+    webhook_secret: '',
+    merchant_id: '',
+    environment: 'sandbox',
+    is_enabled: true,
+  });
+  const [adding, setAdding] = useState(false);
+
+  // Sync state whenever gateways prop updates from parent API fetch
+  useEffect(() => {
+    const list = gateways && gateways.length > 0 ? gateways : DEFAULT_FALLBACK_GATEWAYS;
+    const map: Record<string, Gateway> = {};
+    list.forEach(g => { map[g.id] = { ...g }; });
+    setFormData(map);
+  }, [gateways]);
 
   const updateField = (id: string, field: keyof Gateway, value: any) => {
     setFormData(prev => ({
@@ -48,18 +84,24 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
 
     setSavingId(id);
     try {
-      const res = await fetch(`/api/v1/admin/payment-gateways/${id}`, {
-        method: 'PUT',
+      // If it's a fallback ID (starts with 'gw-'), use POST to create it first in DB
+      const isFallback = id.startsWith('gw-');
+      const url = isFallback ? '/api/v1/admin/payment-gateways' : `/api/v1/admin/payment-gateways/${id}`;
+      const method = isFallback ? 'POST' : 'PUT';
+
+      const res = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify({
+          provider: payload.provider,
           public_key: payload.public_key,
           secret_key: payload.secret_key,
           webhook_secret: payload.webhook_secret,
           merchant_id: payload.merchant_id,
-          callback_url: payload.callback_url,
+          callback_url: payload.callback_url || `https://api.getvnt.com/v1/payments/${payload.provider}/callback`,
           environment: payload.environment || 'sandbox',
           is_enabled: Boolean(payload.is_enabled),
           currency: payload.currency || 'USD',
@@ -80,39 +122,114 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
     }
   };
 
+  const handleDelete = async (id: string, providerName: string) => {
+    if (!confirm(`Are you sure you want to delete payment gateway "${providerName.toUpperCase()}"?`)) return;
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/v1/admin/payment-gateways/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (data.success) {
+        onRefresh();
+      } else {
+        alert(data.message || 'Failed to delete gateway.');
+      }
+    } catch (e: any) {
+      alert('Delete failed: ' + e.message);
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleCreateNewGateway = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const finalProvider = newGateway.provider === 'custom' ? newGateway.custom_provider : newGateway.provider;
+    if (!finalProvider) {
+      alert('Please select or enter a payment gateway provider name.');
+      return;
+    }
+
+    setAdding(true);
+    try {
+      const res = await fetch('/api/v1/admin/payment-gateways', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          provider: finalProvider,
+          public_key: newGateway.public_key,
+          secret_key: newGateway.secret_key,
+          webhook_secret: newGateway.webhook_secret,
+          merchant_id: newGateway.merchant_id,
+          callback_url: `https://api.getvnt.com/v1/payments/${finalProvider}/callback`,
+          environment: newGateway.environment,
+          is_enabled: newGateway.is_enabled,
+          currency: 'USD',
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIsAddModalOpen(false);
+        setNewGateway({ provider: 'stripe', custom_provider: '', public_key: '', secret_key: '', webhook_secret: '', merchant_id: '', environment: 'sandbox', is_enabled: true });
+        onRefresh();
+      } else {
+        alert(data.message || 'Failed to create payment gateway.');
+      }
+    } catch (e: any) {
+      alert('Creation error: ' + e.message);
+    } finally {
+      setAdding(false);
+    }
+  };
+
   return (
     <div>
+      {/* Top Action Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
         <div>
           <h2 style={{ fontSize: '24px', fontWeight: 900, margin: 0, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
             <CreditCard size={22} color="#c084fc" /> Payment Gateway Configuration
           </h2>
           <p style={{ margin: '6px 0 0', color: '#64748b', fontSize: '14px' }}>
-            Configure live and sandbox API credentials for all payment providers. Settings save directly to the database and override hardcoded backend values.
+            Add, edit, enable, or delete payment providers (Paystack, Flutterwave, Stripe, Monnify, Remita, Square, PayPal, Bank Transfer). Settings save directly to DB.
           </p>
         </div>
-        <button onClick={onRefresh} style={{ background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', padding: '10px 18px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-          <RefreshCw size={14} /> Refresh Data
-        </button>
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            style={{ background: 'linear-gradient(135deg,#3b82f6,#8b5cf6)', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}
+          >
+            <Plus size={16} /> + Add Payment Gateway
+          </button>
+          <button onClick={onRefresh} style={{ background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', padding: '10px 18px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+            <RefreshCw size={14} /> Refresh
+          </button>
+        </div>
       </div>
 
+      {/* Grid of Gateways */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-        {gateways.map(gw => {
+        {activeGateways.map(gw => {
           const item = formData[gw.id] || gw;
           const isSaving = savingId === gw.id;
           const isJustSaved = savedId === gw.id;
+          const isDeleting = deletingId === gw.id;
           const isSecretVisible = Boolean(showSecret[gw.id]);
 
           return (
             <div key={gw.id} style={{ background: '#0f172a', border: `1px solid ${item.is_enabled ? '#3b82f644' : '#1e293b'}`, borderRadius: '20px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               
-              {/* Header & Status Toggle */}
+              {/* Header & Controls */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #1e293b', paddingBottom: '14px' }}>
                 <div>
                   <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 900, color: '#fff', textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {gw.provider.replace('_', ' ')}
                   </h3>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>Provider ID: {gw.id}</span>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>ID: {gw.id}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <select
@@ -140,7 +257,7 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
                 {/* Public Key / ID */}
                 <div>
                   <label style={{ display: 'block', fontSize: '11px', color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Public Key / Client ID
+                    Public Key / Public Client ID
                   </label>
                   <input
                     type="text"
@@ -207,34 +324,175 @@ export function PaymentGatewayControl({ gateways, token, onRefresh }: Props) {
                 </div>
               </div>
 
-              {/* Save Button */}
-              <button
-                type="button"
-                onClick={() => handleSave(gw.id)}
-                disabled={isSaving}
-                style={{
-                  background: isJustSaved ? '#059669' : 'linear-gradient(135deg,#3b82f6,#8b5cf6)',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  fontWeight: 900,
-                  fontSize: '13px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  marginTop: '4px'
-                }}
-              >
-                <Save size={14} />
-                {isSaving ? 'Saving to Database...' : isJustSaved ? '✓ Credentials Saved to DB!' : `Save ${gw.provider.toUpperCase()} Settings`}
-              </button>
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+                <button
+                  type="button"
+                  onClick={() => handleSave(gw.id)}
+                  disabled={isSaving}
+                  style={{
+                    flex: 1,
+                    background: isJustSaved ? '#059669' : 'linear-gradient(135deg,#3b82f6,#8b5cf6)',
+                    color: '#fff',
+                    border: 'none',
+                    padding: '12px',
+                    borderRadius: '10px',
+                    fontWeight: 900,
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <Save size={14} />
+                  {isSaving ? 'Saving to Database...' : isJustSaved ? '✓ Credentials Saved!' : `Save ${gw.provider.toUpperCase()} Settings`}
+                </button>
+
+                {!gw.id.startsWith('gw-') && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(gw.id, gw.provider)}
+                    disabled={isDeleting}
+                    style={{
+                      background: '#1e293b',
+                      border: '1px solid #7f1d1d',
+                      color: '#f87171',
+                      padding: '12px',
+                      borderRadius: '10px',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <Trash2 size={14} />
+                    {isDeleting ? '...' : 'Delete'}
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
       </div>
+
+      {/* Add New Gateway Modal */}
+      {isAddModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: '20px' }}>
+          <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '24px', padding: '32px', width: '100%', maxWidth: '520px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Plus size={20} color="#a855f7" /> Add New Payment Gateway
+              </h3>
+              <button onClick={() => setIsAddModalOpen(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateNewGateway} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Select Provider</label>
+                <select
+                  value={newGateway.provider}
+                  onChange={e => setNewGateway(prev => ({ ...prev, provider: e.target.value }))}
+                  style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '14px' }}
+                >
+                  <option value="stripe">Stripe</option>
+                  <option value="paystack">Paystack</option>
+                  <option value="flutterwave">Flutterwave</option>
+                  <option value="monnify">Monnify</option>
+                  <option value="remita">Remita</option>
+                  <option value="square">Square</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="klarna">Klarna</option>
+                  <option value="razorpay">Razorpay</option>
+                  <option value="custom">Other / Custom Gateway...</option>
+                </select>
+              </div>
+
+              {newGateway.provider === 'custom' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Custom Provider Name</label>
+                  <input
+                    type="text"
+                    value={newGateway.custom_provider}
+                    onChange={e => setNewGateway(prev => ({ ...prev, custom_provider: e.target.value }))}
+                    placeholder="my_payment_provider"
+                    required
+                    style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '14px' }}
+                  />
+                </div>
+              )}
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Environment</label>
+                  <select
+                    value={newGateway.environment}
+                    onChange={e => setNewGateway(prev => ({ ...prev, environment: e.target.value }))}
+                    style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 12px', color: '#fff', fontSize: '13px' }}
+                  >
+                    <option value="sandbox">Sandbox (Testing)</option>
+                    <option value="live">Live Production</option>
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Initial Status</label>
+                  <button
+                    type="button"
+                    onClick={() => setNewGateway(prev => ({ ...prev, is_enabled: !prev.is_enabled }))}
+                    style={{ width: '100%', background: newGateway.is_enabled ? '#052e16' : '#1e293b', color: newGateway.is_enabled ? '#34d399' : '#64748b', border: `1px solid ${newGateway.is_enabled ? '#34d399' : '#334155'}`, padding: '9px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer', fontSize: '12px' }}
+                  >
+                    {newGateway.is_enabled ? '✓ Enabled' : 'Disabled'}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Public Key / Client ID</label>
+                <input
+                  type="text"
+                  value={newGateway.public_key}
+                  onChange={e => setNewGateway(prev => ({ ...prev, public_key: e.target.value }))}
+                  placeholder="pk_test_..."
+                  style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '13px', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' }}>Secret Key</label>
+                <input
+                  type="password"
+                  value={newGateway.secret_key}
+                  onChange={e => setNewGateway(prev => ({ ...prev, secret_key: e.target.value }))}
+                  placeholder="sk_test_..."
+                  style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff', fontSize: '13px', fontFamily: 'monospace' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  style={{ flex: 1, background: '#1e293b', color: '#94a3b8', border: '1px solid #334155', padding: '12px', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={adding}
+                  style={{ flex: 1, background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff', border: 'none', padding: '12px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer' }}
+                >
+                  {adding ? 'Adding Gateway...' : 'Save & Create Gateway'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

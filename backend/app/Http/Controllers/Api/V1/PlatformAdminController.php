@@ -419,6 +419,42 @@ class PlatformAdminController extends Controller
         return response()->json(['success' => true, 'data' => $config, 'message' => "Payment gateway {$config->provider} configuration saved."]);
     }
 
+    public function createPaymentConfig(Request $request)
+    {
+        $request->validate([
+            'provider' => 'required|string',
+        ]);
+
+        $config = PaymentGatewayConfig::create([
+            'id' => (string) Str::uuid(),
+            'provider' => strtolower(trim($request->provider)),
+            'public_key' => $request->public_key ?? null,
+            'secret_key' => $request->secret_key ?? null,
+            'webhook_secret' => $request->webhook_secret ?? null,
+            'merchant_id' => $request->merchant_id ?? null,
+            'callback_url' => $request->callback_url ?? null,
+            'environment' => $request->environment ?? 'sandbox',
+            'is_enabled' => $request->has('is_enabled') ? (bool) $request->is_enabled : true,
+            'currency' => $request->currency ?? 'USD',
+            'status' => 'active',
+        ]);
+
+        $this->logAdminAction($request->user(), 'create_payment_config', 'gateway', $config->id);
+
+        return response()->json(['success' => true, 'data' => $config, 'message' => "Payment gateway {$config->provider} created successfully."]);
+    }
+
+    public function deletePaymentConfig(Request $request, string $id)
+    {
+        $config = PaymentGatewayConfig::findOrFail($id);
+        $providerName = $config->provider;
+        $config->delete();
+
+        $this->logAdminAction($request->user(), 'delete_payment_config', 'gateway', $id);
+
+        return response()->json(['success' => true, 'message' => "Payment gateway {$providerName} deleted permanently."]);
+    }
+
     public function webhooks()
     {
         $webhooks = PaymentWebhook::latest()->get();

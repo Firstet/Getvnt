@@ -149,7 +149,9 @@ Route::prefix('v1')->group(function () {
         // Section 7: Payment Gateways Configuration, Webhooks & Refund Center
         Route::get('/payment-gateways', [PlatformAdminController::class, 'paymentConfigs']);
         Route::get('/gateways', [PlatformAdminController::class, 'paymentConfigs']);
+        Route::post('/payment-gateways', [PlatformAdminController::class, 'createPaymentConfig']);
         Route::put('/payment-gateways/{id}', [PlatformAdminController::class, 'updatePaymentConfig']);
+        Route::delete('/payment-gateways/{id}', [PlatformAdminController::class, 'deletePaymentConfig']);
         Route::put('/gateways/rules/{id}', [PlatformAdminController::class, 'updateFeeRules']);
         Route::get('/webhooks', [PlatformAdminController::class, 'webhooks']);
         Route::post('/webhooks/{id}/replay', [PlatformAdminController::class, 'replayWebhook']);
