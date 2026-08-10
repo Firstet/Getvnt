@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sliders, Save } from 'lucide-react';
 
 interface Props { feeRules: any; token: string; onRefresh: () => void; }
@@ -10,6 +10,15 @@ export function PlatformFees({ feeRules, token, onRefresh }: Props) {
   const [minPayout, setMinPayout] = useState(feeRules?.min_payout_amount ?? '500');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (feeRules) {
+      if (feeRules.platform_fee !== undefined) setPlatformFee(String(feeRules.platform_fee));
+      if (feeRules.processing_fee !== undefined) setProcessingFee(String(feeRules.processing_fee));
+      if (feeRules.fixed_fee !== undefined) setFixedFee(String(feeRules.fixed_fee));
+      if (feeRules.min_payout_amount !== undefined) setMinPayout(String(feeRules.min_payout_amount));
+    }
+  }, [feeRules]);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

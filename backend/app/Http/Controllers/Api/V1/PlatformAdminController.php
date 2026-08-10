@@ -934,8 +934,8 @@ class PlatformAdminController extends Controller
     {
         AdminAuditLog::create([
             'id' => (string) Str::uuid(),
-            'user_id' => $user->id,
-            'user_email' => $user->email,
+            'user_id' => $user?->id ?? 'system',
+            'user_email' => $user?->email ?? 'system@getvnt.com',
             'action' => $action,
             'target_type' => $targetType,
             'target_id' => $targetId,
