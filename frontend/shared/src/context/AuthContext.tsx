@@ -79,8 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const urlToken = urlParams.get('token');
-      if (urlToken) {
+      if (urlToken && urlToken !== 'undefined' && urlToken !== 'null') {
         localStorage.setItem('getvnt_auth_token', urlToken);
+        localStorage.setItem('auth_token', urlToken);
         urlParams.delete('token');
         urlParams.delete('email');
         const newSearch = urlParams.toString();
@@ -91,9 +92,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       const impersonateToken = urlParams.get('impersonate_token');
-      if (impersonateToken) {
+      if (impersonateToken && impersonateToken !== 'undefined' && impersonateToken !== 'null') {
         const orgName = urlParams.get('org') || 'Organizer Workspace';
         localStorage.setItem('getvnt_auth_token', impersonateToken);
+        localStorage.setItem('auth_token', impersonateToken);
         localStorage.setItem('getvnt_impersonating', 'true');
         localStorage.setItem('getvnt_impersonated_org', orgName);
 
@@ -107,7 +109,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { token: impersonateToken, isImp: true, org: orgName };
       }
     }
-    const savedToken = localStorage.getItem('getvnt_auth_token') || localStorage.getItem('getvnt_token');
+    const t1 = localStorage.getItem('getvnt_auth_token');
+    const t2 = localStorage.getItem('auth_token');
+    const savedToken = (t1 && t1 !== 'undefined' && t1 !== 'null') ? t1 : (t2 && t2 !== 'undefined' && t2 !== 'null') ? t2 : null;
     const isImp = localStorage.getItem('getvnt_impersonating') === 'true';
     const org = localStorage.getItem('getvnt_impersonated_org');
     return { token: savedToken, isImp, org };
@@ -132,7 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const API_BASE = getApiBase();
 
   useEffect(() => {
-    if (token) {
+    if (token && token !== 'undefined' && token !== 'null') {
       fetchCurrentUser(token);
     } else {
       setLoading(false);
@@ -149,7 +153,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       const json = await res.json();
       if (json.success) {
-        setUser(json.data);
+        setUser(json.data.user || json.data);
       } else {
         logout();
       }
@@ -168,11 +172,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     const json = await res.json();
     if (json.success) {
-      setToken(json.data.token);
-      setUser(json.data.user);
+      const tokenVal = json.token || json.data?.token;
+      if (tokenVal) {
+        setToken(tokenVal);
+        localStorage.setItem('getvnt_auth_token', tokenVal);
+        localStorage.setItem('auth_token', tokenVal);
+      }
+      setUser(json.data.user || json.data);
       setIsImpersonating(false);
       setImpersonatedOrg(null);
-      localStorage.setItem('getvnt_auth_token', json.data.token);
       localStorage.removeItem('getvnt_impersonating');
       localStorage.removeItem('getvnt_impersonated_org');
     }
@@ -187,10 +195,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     const json = await res.json();
     if (json.success) {
-      setToken(json.data.token);
-      setUser(json.data.user);
+      const tokenVal = json.token || json.data?.token;
+      if (tokenVal) {
+        setToken(tokenVal);
+        localStorage.setItem('getvnt_auth_token', tokenVal);
+        localStorage.setItem('auth_token', tokenVal);
+      }
+      setUser(json.data.user || json.data);
       setIsImpersonating(false);
-      localStorage.setItem('getvnt_auth_token', json.data.token);
     }
     return json;
   };
@@ -203,16 +215,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
     const json = await res.json();
     if (json.success) {
-      setToken(json.data.token);
-      setUser(json.data.user);
+      const tokenVal = json.token || json.data?.token;
+      if (tokenVal) {
+        setToken(tokenVal);
+        localStorage.setItem('getvnt_auth_token', tokenVal);
+        localStorage.setItem('auth_token', tokenVal);
+      }
+      setUser(json.data.user || json.data);
       setIsImpersonating(false);
-      localStorage.setItem('getvnt_auth_token', json.data.token);
     }
     return json;
   };
 
   const logout = async () => {
-    if (token) {
+    if (token && token !== 'undefined') {
       try {
         await fetch(`${API_BASE}/auth/logout`, {
           method: 'POST',
@@ -225,6 +241,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsImpersonating(false);
     setImpersonatedOrg(null);
     localStorage.removeItem('getvnt_auth_token');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('getvnt_token');
     localStorage.removeItem('getvnt_impersonating');
     localStorage.removeItem('getvnt_impersonated_org');
@@ -232,6 +249,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const stopImpersonation = () => {
     localStorage.removeItem('getvnt_auth_token');
+    localStorage.removeItem('auth_token');
     localStorage.removeItem('getvnt_token');
     localStorage.removeItem('getvnt_impersonating');
     localStorage.removeItem('getvnt_impersonated_org');

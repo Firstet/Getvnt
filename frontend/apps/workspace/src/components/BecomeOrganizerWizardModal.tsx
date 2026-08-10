@@ -31,11 +31,14 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
   if (!isOpen) return null;
 
   const getAuthToken = () => {
-    return localStorage.getItem('getvnt_auth_token') ||
-           localStorage.getItem('auth_token') ||
-           sessionStorage.getItem('getvnt_auth_token') ||
-           sessionStorage.getItem('auth_token') ||
-           localStorage.getItem('token');
+    const keys = ['getvnt_auth_token', 'auth_token', 'token', 'getvnt_token'];
+    for (const key of keys) {
+      const val = localStorage.getItem(key) || sessionStorage.getItem(key);
+      if (val && val !== 'undefined' && val !== 'null' && val.trim() !== '') {
+        return val;
+      }
+    }
+    return null;
   };
 
   const handleSubmitOnboarding = async () => {
@@ -46,7 +49,7 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
 
     if (!token) {
       setSubmitting(false);
-      setErrorMessage('Authentication token missing. Please log in to complete organizer onboarding.');
+      setErrorMessage('Authentication session expired or token missing. Please log in again to complete organizer onboarding.');
       return;
     }
 
@@ -78,7 +81,7 @@ export const BecomeOrganizerWizardModal: React.FC<BecomeOrganizerWizardModalProp
         const errorText = data.message || `Onboarding failed with status code ${res.status}`;
         console.error('Kyc Onboarding Error:', data);
         setErrorMessage(errorText);
-        // If pending verification created or success status, trigger redirect
+        // If pending verification created or status 201, execute redirect
         if (data.data || res.status === 201) {
           onSuccessRedirect();
         }

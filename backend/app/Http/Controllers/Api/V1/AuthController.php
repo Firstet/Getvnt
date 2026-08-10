@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api/V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -36,6 +36,7 @@ class AuthController extends Controller
             'success' => true,
             'token' => $token,
             'data' => [
+                'token' => $token,
                 'user' => $user,
                 'role' => $user->role,
                 'verification_status' => $user->verification_status,
@@ -67,6 +68,7 @@ class AuthController extends Controller
             'success' => true,
             'token' => $token,
             'data' => [
+                'token' => $token,
                 'user' => $user->load('tenant'),
                 'role' => $user->role,
                 'verification_status' => $user->verification_status,
@@ -109,14 +111,15 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
+
         $request->validate([
             'name' => 'sometimes|string|max:255',
-            'phone' => 'sometimes|nullable|string',
-            'bio' => 'sometimes|nullable|string',
-            'country' => 'sometimes|nullable|string',
-            'language' => 'sometimes|nullable|string',
-            'timezone' => 'sometimes|nullable|string',
-            'avatar_url' => 'sometimes|nullable|string',
+            'phone' => 'nullable|string',
+            'bio' => 'nullable|string',
+            'country' => 'nullable|string',
+            'language' => 'nullable|string',
+            'timezone' => 'nullable|string',
+            'avatar_url' => 'nullable|string',
         ]);
 
         $user->update($request->only([
@@ -125,7 +128,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $user->fresh(),
+            'data' => $user,
             'message' => 'Profile updated successfully.',
         ]);
     }
@@ -133,19 +136,27 @@ class AuthController extends Controller
     public function changePassword(Request $request)
     {
         $request->validate([
-            'current_password' => 'required',
-            'new_password' => 'required|min:8',
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8',
         ]);
 
         $user = $request->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Current password incorrect.'], 400);
+            return response()->json([
+                'success' => false,
+                'message' => 'Current password is incorrect.',
+            ], 422);
         }
 
-        $user->update(['password' => Hash::make($request->new_password)]);
+        $user->update([
+            'password' => Hash::make($request->new_password),
+        ]);
 
-        return response()->json(['success' => true, 'message' => 'Password updated successfully.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Password changed successfully.',
+        ]);
     }
 
     public function deleteAccount(Request $request)
@@ -154,36 +165,9 @@ class AuthController extends Controller
         $user->tokens()->delete();
         $user->delete();
 
-        return response()->json(['success' => true, 'message' => 'Account deleted successfully.']);
-    }
-
-    public function forgotPassword(Request $request)
-    {
-        return response()->json(['success' => true, 'message' => 'Password reset email dispatched.']);
-    }
-
-    public function resetPassword(Request $request)
-    {
-        return response()->json(['success' => true, 'message' => 'Password reset successfully.']);
-    }
-
-    public function verifyEmail(Request $request)
-    {
-        return response()->json(['success' => true, 'message' => 'Email verified.']);
-    }
-
-    public function verifyPhone(Request $request)
-    {
-        return response()->json(['success' => true, 'message' => 'Phone verified.']);
-    }
-
-    public function googleRedirect()
-    {
-        return response()->json(['success' => true, 'url' => 'https://accounts.google.com/o/oauth2/v2/auth']);
-    }
-
-    public function googleCallback()
-    {
-        return response()->json(['success' => true, 'message' => 'Google OAuth callback processed.']);
+        return response()->json([
+            'success' => true,
+            'message' => 'Account deleted successfully.',
+        ]);
     }
 }
