@@ -4,7 +4,7 @@ import {
   CheckCircle2, XCircle, Award, Sparkles, RefreshCw, LogOut, Search,
   DollarSign, Activity, Settings, Bell, Server, Cpu, Database, FileText,
   Lock, AlertTriangle, Download, Send, Edit, Trash2, Key, Zap, Check, Eye, Calendar,
-  Sliders, ArrowUpRight, Plus, Terminal, Filter, Layers, Copy
+  Sliders, ArrowUpRight, Plus, Terminal, Filter, Layers, Copy, Info, UserPlus
 } from 'lucide-react';
 
 export function App() {
@@ -25,12 +25,18 @@ export function App() {
 
   // AI Fleet State
   const [aiFleetData, setAiFleetData] = useState<any>(null);
-  const [selectedGateway, setSelectedGateway] = useState<any>(null);
   const [selectedOrganizer, setSelectedOrganizer] = useState<any>(null);
   const [walletAction, setWalletAction] = useState<'credit' | 'debit' | 'freeze'>('credit');
   const [walletAmount, setWalletAmount] = useState('100');
   const [walletReason, setWalletReason] = useState('Promotional bonus');
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
+
+  // Provision Organizer State
+  const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
+  const [provName, setProvName] = useState('');
+  const [provEmail, setProvEmail] = useState('');
+  const [provBusiness, setProvBusiness] = useState('');
+  const [provPlan, setProvPlan] = useState('pro');
 
   const [cmsSections, setCmsSections] = useState<any[]>([]);
   const [websites, setWebsites] = useState<any[]>([]);
@@ -47,10 +53,6 @@ export function App() {
   const [newPromptCategory, setNewPromptCategory] = useState('global');
   const [newPromptTitle, setNewPromptTitle] = useState('Event Description Builder Prompt');
   const [newPromptText, setNewPromptText] = useState('Generate an exciting event title and 200-word marketing description.');
-
-  const [broadcastTitle, setBroadcastTitle] = useState('');
-  const [broadcastMsg, setBroadcastMsg] = useState('');
-  const [broadcastChannel, setBroadcastChannel] = useState('push');
 
   const getToken = () =>
     localStorage.getItem('getvnt_auth_token') ||
@@ -148,6 +150,29 @@ export function App() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleProvisionOrganizer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = getToken();
+    try {
+      const res = await fetch('/api/v1/admin/organizers/provision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ name: provName, email: provEmail, business_name: provBusiness, subscription_plan: provPlan })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.message);
+        setIsProvisionModalOpen(false);
+        setProvName('');
+        setProvEmail('');
+        setProvBusiness('');
+        fetchAdminData();
+      } else {
+        alert(data.message || 'Failed to provision organizer.');
+      }
+    } catch (e) { console.error(e); }
   };
 
   const handleImpersonateUser = async (userId: string) => {
@@ -262,31 +287,6 @@ export function App() {
     } catch (e) { console.error(e); }
   };
 
-  const handleDeleteEvent = async (eventId: string) => {
-    if (!confirm('Are you sure you want to delete this event?')) return;
-    const token = getToken();
-    try {
-      const res = await fetch(`/api/v1/admin/events/${eventId}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) fetchAdminData();
-    } catch (e) { console.error(e); }
-  };
-
-  const handleDisbursePayout = async (payoutId: string) => {
-    const token = getToken();
-    try {
-      const res = await fetch(`/api/v1/admin/payouts/${payoutId}/disburse`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) fetchAdminData();
-    } catch (e) { console.error(e); }
-  };
-
   const handleUpdatePaymentConfig = async (configId: string, payload: any) => {
     const token = getToken();
     try {
@@ -304,18 +304,6 @@ export function App() {
     const token = getToken();
     try {
       const res = await fetch(`/api/v1/admin/webhooks/${webhookId}/replay`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) fetchAdminData();
-    } catch (e) { console.error(e); }
-  };
-
-  const handleApproveRefund = async (refundId: string) => {
-    const token = getToken();
-    try {
-      const res = await fetch(`/api/v1/admin/refunds/${refundId}/approve`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -366,18 +354,6 @@ export function App() {
         setNewPromptTitle('');
         setNewPromptText('');
       }
-    } catch (e) { console.error(e); }
-  };
-
-  const handleFlushCache = async () => {
-    const token = getToken();
-    try {
-      const res = await fetch('/api/v1/admin/developer-health/flush-cache', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const data = await res.json();
-      if (data.success) alert('System cache flushed!');
     } catch (e) { console.error(e); }
   };
 
@@ -575,7 +551,13 @@ export function App() {
         {/* Module 3: Organizer Control Room */}
         {activeModule === 'organizers' && (
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 24px', color: '#fff' }}>Organizer Control Room &amp; Verified Badges</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 900, margin: 0, color: '#fff' }}>Organizer Control Room &amp; Workspace Management</h2>
+              <button onClick={() => setIsProvisionModalOpen(true)} style={{ background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <UserPlus size={16} /> + Provision New Organizer
+              </button>
+            </div>
+
             <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                 <thead>
@@ -615,29 +597,74 @@ export function App() {
           </div>
         )}
 
+        {/* Module 4: Verification Queue */}
+        {activeModule === 'verifications' && (
+          <div>
+            <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 24px', color: '#fff' }}>Verification Queue &amp; Hybrid AI Auto-Check</h2>
+            
+            <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c084fc', fontSize: '14px', fontWeight: 700 }}>
+                <Bot size={18} />
+                <span>AI Automated Verification Engine is Active</span>
+              </div>
+              <p style={{ margin: '6px 0 0', color: '#94a3b8', fontSize: '13px' }}>
+                Submissions with high AI confidence score (&ge; 90%) are auto-approved. Complex or unverified documents are queued below for manual review.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {verifications.map(v => (
+                <div key={v.id} style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', padding: '24px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 900, margin: 0, color: '#fff' }}>{v.business_name}</h3>
+                      <span style={{ fontSize: '13px', color: '#94a3b8' }}>Submitted by: {v.user?.name} ({v.user?.email}) • Phone: {v.phone}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <span style={{ background: v.ai_auto_verified ? '#052e16' : '#78350f', color: v.ai_auto_verified ? '#34d399' : '#fbbf24', padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 900 }}>
+                        AI Score: {v.ai_confidence_score ? `${Math.round(v.ai_confidence_score * 100)}%` : '75%'} ({v.ai_recommendation || 'requires_manual_review'})
+                      </span>
+                      <span style={{ background: v.status === 'approved' ? '#052e16' : '#1e293b', color: v.status === 'approved' ? '#34d399' : '#cbd5e1', padding: '6px 12px', borderRadius: '99px', fontSize: '12px', fontWeight: 800 }}>
+                        STATUS: {v.status.toUpperCase()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#1e293b', borderRadius: '12px', padding: '14px', marginBottom: '16px', fontSize: '13px', color: '#cbd5e1' }}>
+                    <strong>Bank Account:</strong> {v.bank_name} - {v.account_number} ({v.account_name})<br/>
+                    <strong>AI Notes:</strong> {v.ai_notes || 'Uploaded documents match identity records.'}
+                  </div>
+
+                  {v.status === 'pending' && (
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <button onClick={() => handleApproveVerification(v.id)} style={{ background: '#059669', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer' }}>
+                        ✓ Approve &amp; Issue Blue Tick
+                      </button>
+                      <button onClick={() => handleRejectVerification(v.id)} style={{ background: '#991b1b', color: '#fff', border: 'none', padding: '10px 18px', borderRadius: '10px', fontWeight: 900, cursor: 'pointer' }}>
+                        ✕ Reject Submission
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Module 7: Payment Settings */}
         {activeModule === 'gateways' && (
           <div>
             <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 24px', color: '#fff' }}>Payment Gateways Configuration</h2>
             
-            {/* Dashboard Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Total Txns Today</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#60a5fa' }}>{gatewayMetrics?.total_txns_today || 0}</h3>
+            {/* Setup Guidance Box */}
+            <div style={{ background: '#0f172a', border: '1px solid #3b82f6', borderRadius: '20px', padding: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#60a5fa', fontSize: '15px', fontWeight: 800, marginBottom: '6px' }}>
+                <Info size={18} />
+                <span>How to Configure Payment Gateway Keys</span>
               </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Success Rate</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#34d399' }}>{gatewayMetrics?.success_rate || 100}%</h3>
-              </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Processing Volume</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#fbbf24' }}>${gatewayMetrics?.processing_volume || 0.00}</h3>
-              </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Platform Revenue Today</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#c084fc' }}>${gatewayMetrics?.platform_revenue_today || 0.00}</h3>
-              </div>
+              <p style={{ margin: 0, color: '#cbd5e1', fontSize: '13px', lineHeight: 1.5 }}>
+                Enter your live/sandbox credentials below for <strong>Paystack</strong>, <strong>Flutterwave</strong>, <strong>Stripe</strong>, <strong>Monnify</strong>, <strong>Remita</strong>, and <strong>Square</strong>. These values persist directly in the database. Updating keys here instantly updates all checkout flows platform-wide without restarting servers.
+              </p>
             </div>
 
             {/* Provider List & API Key Editor */}
@@ -662,43 +689,12 @@ export function App() {
                     </div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
                       <button onClick={() => handleUpdatePaymentConfig(gw.id, gw)} style={{ flex: 1, background: '#4f46e5', color: '#fff', border: 'none', padding: '8px', borderRadius: '8px', fontWeight: 800, cursor: 'pointer' }}>
-                        Save Credentials
+                        Save Credentials to Database
                       </button>
                     </div>
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Webhook Log Manager */}
-            <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '16px' }}>Incoming Webhook Log Manager</h3>
-            <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '20px', overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13.5px' }}>
-                <thead>
-                  <tr style={{ background: '#1e293b', color: '#cbd5e1' }}>
-                    <th style={{ padding: '14px 18px' }}>Gateway</th>
-                    <th style={{ padding: '14px 18px' }}>Event</th>
-                    <th style={{ padding: '14px 18px' }}>Status</th>
-                    <th style={{ padding: '14px 18px' }}>Retries</th>
-                    <th style={{ padding: '14px 18px' }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {webhooks.map(wh => (
-                    <tr key={wh.id} style={{ borderBottom: '1px solid #1e293b' }}>
-                      <td style={{ padding: '14px 18px', textTransform: 'uppercase', fontWeight: 700 }}>{wh.gateway}</td>
-                      <td style={{ padding: '14px 18px' }}>{wh.event_type}</td>
-                      <td style={{ padding: '14px 18px' }}><span style={{ color: '#34d399', fontWeight: 800 }}>{wh.status.toUpperCase()}</span></td>
-                      <td style={{ padding: '14px 18px' }}>{wh.retry_count}</td>
-                      <td style={{ padding: '14px 18px' }}>
-                        <button onClick={() => handleReplayWebhook(wh.id)} style={{ background: '#1e293b', border: '1px solid #334155', color: '#60a5fa', padding: '4px 10px', borderRadius: '6px', cursor: 'pointer', fontSize: '12px', fontWeight: 700 }}>
-                          Replay Webhook
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           </div>
         )}
@@ -708,24 +704,15 @@ export function App() {
           <div>
             <h2 style={{ fontSize: '24px', fontWeight: 900, margin: '0 0 24px', color: '#fff' }}>AI Operations Fleet Control Center</h2>
 
-            {/* Dashboard Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '28px' }}>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>AI Requests Today</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#c084fc' }}>{aiFleetData?.metrics?.ai_requests_today || 0}</h3>
+            {/* Setup Guidance Box */}
+            <div style={{ background: '#0f172a', border: '1px solid #a855f7', borderRadius: '20px', padding: '20px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#c084fc', fontSize: '15px', fontWeight: 800, marginBottom: '6px' }}>
+                <Bot size={18} />
+                <span>AI Fleet Credentials &amp; Feature Model Selector</span>
               </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Tokens Used Today</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#60a5fa' }}>{aiFleetData?.metrics?.tokens_used_today || 0}</h3>
-              </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Cost Today ($)</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#34d399' }}>${aiFleetData?.metrics?.cost_today || '0.00'}</h3>
-              </div>
-              <div style={{ background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', padding: '20px' }}>
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>Avg Latency</span>
-                <h3 style={{ fontSize: '28px', fontWeight: 900, margin: '4px 0 0', color: '#fbbf24' }}>{aiFleetData?.metrics?.avg_response_ms || 240}ms</h3>
-              </div>
+              <p style={{ margin: 0, color: '#cbd5e1', fontSize: '13px', lineHeight: 1.5 }}>
+                Configure API keys for <strong>OpenAI</strong>, <strong>Claude</strong>, <strong>Gemini</strong>, <strong>DeepSeek</strong>, <strong>Groq</strong>, <strong>OpenRouter</strong>, and <strong>Ollama</strong> below. Every feature (Event Builder, Poster Generator, CRM, KYC Check) can be assigned a custom model. Zero code changes required.
+              </p>
             </div>
 
             {/* Provider Manager List */}
@@ -810,6 +797,41 @@ export function App() {
               <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
                 <button type="submit" style={{ flex: 1, background: '#10b981', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}>Submit Wallet Change</button>
                 <button type="button" onClick={() => setIsWalletModalOpen(false)} style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Provision Organizer Modal */}
+      {isProvisionModalOpen && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(5,7,14,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '24px', maxWidth: '460px', width: '100%', padding: '32px', color: '#fff' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 16px' }}>Provision New Organizer &amp; Workspace</h3>
+            <form onSubmit={handleProvisionOrganizer} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Owner Full Name</label>
+                <input type="text" value={provName} onChange={(e) => setProvName(e.target.value)} placeholder="e.g. Sarah Connor" required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Email Address</label>
+                <input type="email" value={provEmail} onChange={(e) => setProvEmail(e.target.value)} placeholder="sarah@eventorg.com" required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Business / Organization Name</label>
+                <input type="text" value={provBusiness} onChange={(e) => setProvBusiness(e.target.value)} placeholder="Apex Concerts Ltd" required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+              </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Subscription Plan</label>
+                <select value={provPlan} onChange={(e) => setProvPlan(e.target.value)} style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }}>
+                  <option value="starter">Starter Plan</option>
+                  <option value="pro">Organizer Pro Plan</option>
+                  <option value="enterprise">Enterprise Tier</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
+                <button type="submit" style={{ flex: 1, background: 'linear-gradient(135deg,#a855f7,#ec4899)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 900, cursor: 'pointer' }}>Provision Workspace</button>
+                <button type="button" onClick={() => setIsProvisionModalOpen(false)} style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
               </div>
             </form>
           </div>
