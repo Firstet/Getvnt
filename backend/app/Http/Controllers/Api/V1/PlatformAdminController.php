@@ -638,6 +638,7 @@ class PlatformAdminController extends Controller
                 ['name' => 'Google Gemini', 'slug' => 'gemini', 'default_model' => 'gemini-2.0-flash', 'cost' => 0.0012, 'latency' => 240, 'requests_today' => 2100, 'tokens_today' => 721000],
                 ['name' => 'DeepSeek AI', 'slug' => 'deepseek', 'default_model' => 'deepseek-reasoner', 'cost' => 0.0008, 'latency' => 210, 'requests_today' => 560, 'tokens_today' => 198000],
                 ['name' => 'Groq LPU', 'slug' => 'groq', 'default_model' => 'llama-3.3-70b-versatile', 'cost' => 0.0005, 'latency' => 120, 'requests_today' => 3200, 'tokens_today' => 1120000],
+                ['name' => 'NVIDIA NIM', 'slug' => 'nvidia', 'default_model' => 'meta/llama-3.3-70b-instruct', 'cost' => 0.0010, 'latency' => 140, 'requests_today' => 620, 'tokens_today' => 245000],
                 ['name' => 'OpenRouter', 'slug' => 'openrouter', 'default_model' => 'auto', 'cost' => 0.0015, 'latency' => 290, 'requests_today' => 440, 'tokens_today' => 156000],
                 ['name' => 'Ollama Local', 'slug' => 'ollama', 'default_model' => 'llama3.2', 'cost' => 0.0000, 'latency' => 180, 'requests_today' => 120, 'tokens_today' => 42000],
             ];
