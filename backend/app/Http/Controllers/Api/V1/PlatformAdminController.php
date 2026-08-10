@@ -810,6 +810,85 @@ class PlatformAdminController extends Controller
         ]);
     }
 
+    public function fetchAiModels(Request $request)
+    {
+        $providerCode = strtolower($request->input('provider_code', 'openai'));
+        $apiKey = $request->input('api_key');
+        $baseUrl = $request->input('base_url');
+
+        $dbProvider = AiProvider::where('slug', $providerCode)
+            ->orWhere('provider', $providerCode)
+            ->orWhere('id', $request->input('id'))
+            ->first();
+
+        if ($dbProvider) {
+            if (!$apiKey) $apiKey = $dbProvider->api_key;
+            if (!$baseUrl) $baseUrl = $dbProvider->base_url;
+        }
+
+        $models = [];
+
+        if (in_array($providerCode, ['anthropic', 'claude'])) {
+            $models = ['claude-3-5-sonnet-20241022', 'claude-3-5-haiku-20241022', 'claude-3-opus-20240229', 'claude-3-sonnet-20240229', 'claude-3-haiku-20240307'];
+        } elseif (in_array($providerCode, ['google', 'gemini'])) {
+            $models = ['gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp', 'gemini-1.0-pro', 'text-embedding-004'];
+        } else {
+            $endpoint = rtrim($baseUrl ?: 'https://api.openai.com/v1', '/');
+            if (!str_contains($endpoint, '/models')) {
+                $endpoint .= '/models';
+            }
+
+            try {
+                $http = \Illuminate\Support\Facades\Http::withoutVerifying()->timeout(8);
+                if (!empty($apiKey)) {
+                    $http = $http->withHeaders(['Authorization' => 'Bearer ' . $apiKey]);
+                }
+
+                $res = $http->get($endpoint);
+                if ($res->successful()) {
+                    $json = $res->json();
+                    $rawList = $json['data'] ?? $json['models'] ?? [];
+                    foreach ($rawList as $item) {
+                        if (is_array($item) && isset($item['id'])) {
+                            $models[] = $item['id'];
+                        } elseif (is_array($item) && isset($item['name'])) {
+                            $models[] = $item['name'];
+                        } elseif (is_string($item)) {
+                            $models[] = $item;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning("Auto model fetch failed for {$providerCode}: " . $e->getMessage());
+            }
+
+            if (empty($models)) {
+                $defaultModelMap = [
+                    'openai' => ['gpt-4o', 'gpt-4o-mini', 'o1-preview', 'o1-mini', 'gpt-4-turbo', 'gpt-3.5-turbo'],
+                    'deepseek' => ['deepseek-chat', 'deepseek-reasoner', 'deepseek-coder'],
+                    'groq' => ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768', 'gemma2-9b-it'],
+                    'openrouter' => ['auto', 'openai/gpt-4o', 'anthropic/claude-3.5-sonnet', 'deepseek/deepseek-r1', 'meta-llama/llama-3.3-70b-instruct'],
+                    'ollama' => ['llama3:8b', 'llama3.3:latest', 'mistral:latest', 'phi3:latest', 'codellama:latest', 'deepseek-r1:8b'],
+                ];
+                $models = $defaultModelMap[$providerCode] ?? ['default-model', 'gpt-4o-mini'];
+            }
+        }
+
+        if ($dbProvider) {
+            $dbProvider->update(['available_models' => array_values(array_unique($models))]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'provider_code' => $providerCode,
+            'count' => count($models),
+            'data' => [
+                'models' => array_values(array_unique($models)),
+            ],
+            'message' => "Successfully auto-loaded " . count($models) . " models for {$providerCode}."
+        ]);
+    }
+
     public function broadcasts()
     {
         $broadcasts = BroadcastNotification::latest()->get();
