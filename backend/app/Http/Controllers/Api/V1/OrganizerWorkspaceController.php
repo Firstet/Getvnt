@@ -69,8 +69,6 @@ class OrganizerWorkspaceController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'start_date' => 'required',
-            'ticket_name' => 'required|string',
-            'ticket_price' => 'required|numeric|min:0',
         ]);
 
         $user = $request->user();
@@ -96,19 +94,36 @@ class OrganizerWorkspaceController extends Controller
             'marketing_copy' => $request->marketing_copy,
         ]);
 
-        $ticketType = $event->ticketTypes()->create([
-            'id' => (string) Str::uuid(),
-            'tenant_id' => $tenantId,
-            'name' => $request->ticket_name,
-            'price' => $request->ticket_price,
-            'currency' => $request->currency ?? 'USD',
-            'quantity_available' => $request->ticket_quantity ?? 500,
-        ]);
+        // Multi-tier ticket creation support
+        if ($request->has('ticket_types') && is_array($request->ticket_types) && count($request->ticket_types) > 0) {
+            foreach ($request->ticket_types as $tier) {
+                if (!empty($tier['name'])) {
+                    $event->ticketTypes()->create([
+                        'id' => (string) Str::uuid(),
+                        'tenant_id' => $tenantId,
+                        'name' => $tier['name'],
+                        'price' => floatval($tier['price'] ?? 0),
+                        'currency' => $tier['currency'] ?? ($request->currency ?? 'USD'),
+                        'quantity_available' => intval($tier['quantity_available'] ?? $tier['quantity'] ?? 100),
+                    ]);
+                }
+            }
+        } else {
+            // Fallback single ticket creation
+            $event->ticketTypes()->create([
+                'id' => (string) Str::uuid(),
+                'tenant_id' => $tenantId,
+                'name' => $request->ticket_name ?? 'General Admission Pass',
+                'price' => floatval($request->ticket_price ?? 0),
+                'currency' => $request->currency ?? 'USD',
+                'quantity_available' => intval($request->ticket_quantity ?? 500),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
             'data' => $event->load('ticketTypes'),
-            'message' => 'Event published successfully.',
+            'message' => 'Event published successfully with ticket tiers.',
         ], 201);
     }
 
