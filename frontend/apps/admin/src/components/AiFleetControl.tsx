@@ -96,12 +96,14 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
   };
 
   const rawList: Provider[] = aiFleetData?.providers ?? [];
-  const providersList = rawList.length > 0 ? rawList : DEFAULT_FALLBACK_PROVIDERS;
+  const isLoaded = Boolean(aiFleetData);
+  const providersList = isLoaded ? rawList : DEFAULT_FALLBACK_PROVIDERS;
 
   const [formData, setFormData] = useState<Record<string, Provider>>(() => {
     const map: Record<string, Provider> = {};
     providersList.forEach((p: Provider) => {
-      map[String(p.id)] = { ...p };
+      const key = p.slug || p.provider || String(p.id);
+      map[key] = { ...p };
     });
     return map;
   });
@@ -172,10 +174,11 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
 
   // Sync formData whenever aiFleetData changes
   useEffect(() => {
-    const list = aiFleetData?.providers && aiFleetData.providers.length > 0 ? aiFleetData.providers : DEFAULT_FALLBACK_PROVIDERS;
+    if (!aiFleetData?.providers) return;
     const map: Record<string, Provider> = {};
-    list.forEach((p: Provider) => {
-      map[String(p.id)] = { ...p };
+    aiFleetData.providers.forEach((p: Provider) => {
+      const key = p.slug || p.provider || String(p.id);
+      map[key] = { ...p };
     });
     setFormData(map);
   }, [aiFleetData]);
@@ -269,7 +272,8 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     setSavingId(id);
     try {
       const isFallback = String(id).startsWith('prov-');
-      const url = isFallback ? '/api/v1/admin/ai/providers' : `/api/v1/admin/ai/providers/${id}`;
+      const dbKey = payload.id && !String(payload.id).startsWith('prov-') ? payload.id : (payload.slug || payload.provider || id);
+      const url = isFallback ? '/api/v1/admin/ai/providers' : `/api/v1/admin/ai/providers/${dbKey}`;
       const method = isFallback ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
@@ -290,13 +294,6 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       });
       const data = await res.json();
       if (data.success) {
-        if (data.data) {
-          setFormData(prev => ({
-            ...prev,
-            [id]: { ...prev[id], ...data.data },
-            [data.data.id]: { ...data.data }
-          }));
-        }
         setSavedId(id);
         setTimeout(() => setSavedId(null), 3000);
         showToast(`AI Provider "${payload.name}" saved to database successfully!`, 'success');
@@ -315,12 +312,14 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     const payload = formData[id];
     if (!payload) return;
 
-    const newStatus = (payload.status === 'active' || !payload.status) ? 'inactive' : 'active';
+    const currentStatus = payload.status ?? 'active';
+    const newStatus = (currentStatus === 'inactive' || currentStatus === 'disabled') ? 'active' : 'inactive';
     updateField(id, 'status', newStatus);
 
     try {
       const isFallback = String(id).startsWith('prov-');
-      const url = isFallback ? '/api/v1/admin/ai/providers' : `/api/v1/admin/ai/providers/${id}`;
+      const dbKey = payload.id && !String(payload.id).startsWith('prov-') ? payload.id : (payload.slug || payload.provider || id);
+      const url = isFallback ? '/api/v1/admin/ai/providers' : `/api/v1/admin/ai/providers/${dbKey}`;
       const method = isFallback ? 'POST' : 'PUT';
 
       const res = await fetch(url, {
@@ -342,13 +341,6 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        if (data.data) {
-          setFormData(prev => ({
-            ...prev,
-            [id]: { ...prev[id], ...data.data },
-            [data.data.id]: { ...data.data }
-          }));
-        }
         showToast(`AI Provider "${payload.name}" is now ${newStatus.toUpperCase()}!`, 'success');
         onRefresh();
       } else {
@@ -690,22 +682,25 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '18px', marginBottom: '40px' }}>
         {providersList.map(prov => {
           const idStr = String(prov.id);
-          const item = formData[idStr] || prov;
-          const isSaving = savingId === idStr;
-          const isJustSaved = savedId === idStr;
-          const isDeleting = deletingId === idStr;
-          const isTesting = testingId === idStr;
-          const isLoadingModels = loadingModelsId === idStr;
-          const keyVisible = Boolean(showKey[idStr]);
-          const isCustomModel = Boolean(customModelInput[idStr]);
+          const providerKey = prov.slug || prov.provider || idStr;
+          const item = formData[providerKey] || formData[idStr] || prov;
+          const isSaving = savingId === providerKey || savingId === idStr;
+          const isJustSaved = savedId === providerKey || savedId === idStr;
+          const isDeleting = deletingId === providerKey || deletingId === idStr;
+          const isTesting = testingId === providerKey || testingId === idStr;
+          const isLoadingModels = loadingModelsId === providerKey || loadingModelsId === idStr;
+          const keyVisible = Boolean(showKey[providerKey] || showKey[idStr]);
+          const isCustomModel = Boolean(customModelInput[providerKey] || customModelInput[idStr]);
           const code = prov.slug || prov.provider || 'openai';
 
           const availableModelsList = item.available_models && item.available_models.length > 0
             ? item.available_models
             : (prov.available_models && prov.available_models.length > 0 ? prov.available_models : [item.default_model || 'default-model']);
 
+          const isItemActive = item.status === 'active' || item.status === 'enabled';
+
           return (
-            <div key={idStr} style={{ background: '#0f172a', border: `1px solid ${item.status === 'active' ? '#a855f744' : '#1e293b'}`, borderRadius: '20px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div key={providerKey} style={{ background: '#0f172a', border: `1px solid ${isItemActive ? '#a855f744' : '#1e293b'}`, borderRadius: '20px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
               
               {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -715,10 +710,10 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => handleToggleProviderStatus(idStr)}
-                  style={{ background: (item.status === 'active' || !item.status) ? '#052e16' : '#1e293b', color: (item.status === 'active' || !item.status) ? '#34d399' : '#94a3b8', border: `1px solid ${(item.status === 'active' || !item.status) ? '#34d399' : '#334155'}`, padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, cursor: 'pointer' }}
+                  onClick={() => handleToggleProviderStatus(providerKey)}
+                  style={{ background: isItemActive ? '#052e16' : '#1e293b', color: isItemActive ? '#34d399' : '#94a3b8', border: `1px solid ${isItemActive ? '#34d399' : '#334155'}`, padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, cursor: 'pointer' }}
                 >
-                  {(item.status === 'active' || !item.status) ? '✓ ACTIVE' : 'INACTIVE'}
+                  {isItemActive ? '✓ ACTIVE' : 'INACTIVE'}
                 </button>
               </div>
 
@@ -815,13 +810,13 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
               <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                 <button
                   type="button"
-                  onClick={() => handleSaveProvider(idStr)}
+                  onClick={() => handleSaveProvider(providerKey)}
                   disabled={isSaving}
                   style={{
                     flex: 1,
-                    background: isJustSaved ? '#059669' : 'linear-gradient(135deg,#a855f7,#ec4899)',
+                    background: isJustSaved ? '#052e16' : 'linear-gradient(135deg,#9333ea,#c084fc)',
+                    border: isJustSaved ? '1px solid #34d399' : 'none',
                     color: '#fff',
-                    border: 'none',
                     padding: '10px',
                     borderRadius: '8px',
                     fontWeight: 800,
@@ -839,7 +834,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
 
                 <button
                   type="button"
-                  onClick={() => handleTestConnection(idStr, code)}
+                  onClick={() => handleTestConnection(providerKey, code)}
                   disabled={isTesting}
                   style={{ background: '#1e293b', border: '1px solid #334155', color: '#c084fc', padding: '10px 12px', borderRadius: '8px', fontWeight: 700, fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}
                 >
@@ -849,7 +844,7 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
 
                 <button
                   type="button"
-                  onClick={() => setConfirmModal({ isOpen: true, id: idStr, name: prov.name, action: 'delete_provider' })}
+                  onClick={() => setConfirmModal({ isOpen: true, id: providerKey, name: prov.name, action: 'delete_provider' })}
                   disabled={isDeleting}
                   title="Delete AI Provider"
                   style={{ background: '#1e293b', border: '1px solid #7f1d1d', color: '#f87171', padding: '10px 12px', borderRadius: '8px', cursor: 'pointer' }}
