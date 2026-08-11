@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Key, Globe, Save, CheckCircle2, Lock, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, Key, Globe, Save, CheckCircle2, Eye, EyeOff, AlertTriangle, ExternalLink, Copy } from 'lucide-react';
 
 interface Props {
   token: string;
@@ -80,14 +80,57 @@ export function OAuthProvidersControl({ token, onRefresh }: Props) {
     }
   };
 
+  const [copied, setCopied] = useState(false);
+
+  const copyRedirectUri = () => {
+    navigator.clipboard.writeText(form.google_redirect_uri);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const googleConfigured = !!(form.google_client_id && form.google_client_secret);
+
   return (
     <div style={{ marginTop: '32px' }}>
       <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 8px', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <ShieldCheck size={20} color="#34d399" /> Social & Google OAuth Credentials
       </h3>
       <p style={{ margin: '0 0 20px', color: '#64748b', fontSize: '13px' }}>
-        Configure Google Client ID (Authenticator ID), Client Secret, and Callback API endpoint. Saved keys override hardcoded backend values dynamically.
+        Configure Google Client ID, Client Secret, and Callback URL. Saved keys override backend .env values dynamically.
       </p>
+
+      {/* ── Setup Status Banner ── */}
+      {!googleConfigured ? (
+        <div style={{ background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)', borderRadius: '16px', padding: '20px 24px', marginBottom: '24px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#FCD34D', fontWeight: 800, fontSize: '14px' }}>
+            <AlertTriangle size={18} /> Google OAuth Not Configured
+          </div>
+          <p style={{ color: '#94A3B8', fontSize: '13px', margin: 0, lineHeight: 1.6 }}>
+            "Continue with Google" is disabled until you add your credentials below. Follow these steps:
+          </p>
+          <ol style={{ color: '#CBD5E1', fontSize: '13px', margin: 0, paddingLeft: '20px', lineHeight: 2 }}>
+            <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noreferrer" style={{ color: '#60A5FA', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>Google Cloud Console <ExternalLink size={11} /></a></li>
+            <li>Create a project → <strong>APIs & Services → Credentials → Create OAuth 2.0 Client ID</strong></li>
+            <li>Application type: <code style={{ background: '#1e293b', padding: '1px 6px', borderRadius: '4px' }}>Web application</code></li>
+            <li>Add Authorized Redirect URI (copy button below)</li>
+            <li>Paste the Client ID and Client Secret in the fields below → Save</li>
+          </ol>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#0f172a', border: '1px solid #334155', borderRadius: '10px', padding: '10px 14px' }}>
+            <code style={{ flex: 1, color: '#94A3B8', fontSize: '12px', wordBreak: 'break-all' }}>{form.google_redirect_uri}</code>
+            <button
+              type="button"
+              onClick={copyRedirectUri}
+              style={{ background: copied ? '#059669' : '#1e293b', border: 'none', color: copied ? '#fff' : '#60A5FA', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', whiteSpace: 'nowrap' }}
+            >
+              <Copy size={11} /> {copied ? 'Copied!' : 'Copy Redirect URI'}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)', borderRadius: '14px', padding: '14px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px', color: '#34D399', fontWeight: 700, fontSize: '13px' }}>
+          <CheckCircle2 size={16} /> Google OAuth is configured and active — "Continue with Google" is live.
+        </div>
+      )}
 
       <form onSubmit={handleSave}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
