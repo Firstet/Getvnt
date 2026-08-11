@@ -688,16 +688,28 @@ class PlatformAdminController extends Controller
     public function updateAiProvider(Request $request, string $id)
     {
         $cleanId = str_replace('prov-', '', $id);
+        $aliases = [
+            'anthropic' => 'claude', 'claude' => 'claude',
+            'google' => 'google', 'gemini' => 'google',
+            'local' => 'ollama', 'ollama' => 'ollama',
+        ];
+        $targetSlugs = array_unique([$id, $cleanId, $aliases[$cleanId] ?? $cleanId]);
+
         $provider = AiProvider::where('id', $id)
-            ->orWhere('slug', $id)
-            ->orWhere('slug', $cleanId)
+            ->orWhereIn('slug', $targetSlugs)
             ->first();
 
+        $data = $request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'available_models', 'priority', 'fallback_provider', 'temperature', 'status']);
+        if (isset($data['slug'])) {
+            $data['slug'] = $aliases[$data['slug']] ?? $data['slug'];
+        }
+
         if (!$provider) {
+            $slug = $aliases[$cleanId] ?? $cleanId;
             $provider = AiProvider::create([
                 'id' => (string) Str::uuid(),
-                'name' => $request->name ?? ucfirst($cleanId),
-                'slug' => $cleanId,
+                'name' => $request->name ?? ucfirst($slug),
+                'slug' => $slug,
                 'api_key' => $request->api_key,
                 'default_model' => $request->default_model ?? 'gpt-4o',
                 'base_url' => $request->base_url,
@@ -705,7 +717,7 @@ class PlatformAdminController extends Controller
                 'status' => $request->status ?? 'active',
             ]);
         } else {
-            $provider->update($request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'available_models', 'priority', 'fallback_provider', 'temperature', 'status']));
+            $provider->update($data);
         }
 
         $this->logAdminAction($request->user(), 'update_ai_provider', 'ai_provider', $provider->id);
@@ -719,7 +731,13 @@ class PlatformAdminController extends Controller
             'name' => 'required|string',
         ]);
 
-        $slug = $request->slug ?? Str::slug($request->name);
+        $rawSlug = $request->slug ?? Str::slug($request->name);
+        $aliases = [
+            'anthropic' => 'claude', 'claude' => 'claude',
+            'google' => 'google', 'gemini' => 'google',
+            'local' => 'ollama', 'ollama' => 'ollama',
+        ];
+        $slug = $aliases[$rawSlug] ?? $rawSlug;
 
         $provider = AiProvider::updateOrCreate(
             ['slug' => $slug],
@@ -744,16 +762,23 @@ class PlatformAdminController extends Controller
     public function deleteAiProvider(Request $request, string $id)
     {
         $cleanId = str_replace('prov-', '', $id);
-        $provider = AiProvider::where('id', $id)
-            ->orWhere('slug', $id)
-            ->orWhere('slug', $cleanId)
-            ->first();
+        $aliases = [
+            'anthropic' => 'claude', 'claude' => 'claude',
+            'google' => 'google', 'gemini' => 'google',
+            'local' => 'ollama', 'ollama' => 'ollama',
+        ];
+        $targetSlugs = array_unique([$id, $cleanId, $aliases[$cleanId] ?? $cleanId]);
 
-        if ($provider) {
-            $name = $provider->name;
-            $provider->delete();
+        $providers = AiProvider::where('id', $id)
+            ->orWhereIn('slug', $targetSlugs)
+            ->get();
+
+        if ($providers->isNotEmpty()) {
+            foreach ($providers as $p) {
+                $p->delete();
+            }
             $this->logAdminAction($request->user(), 'delete_ai_provider', 'ai_provider', $id);
-            return response()->json(['success' => true, 'message' => "AI Provider {$name} deleted permanently."]);
+            return response()->json(['success' => true, 'message' => "AI Provider deleted permanently."]);
         }
 
         return response()->json(['success' => true, 'message' => "AI Provider removed."]);

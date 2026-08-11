@@ -265,8 +265,29 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
     }
   };
 
+  const getPayload = (id: string): Provider | undefined => {
+    if (formData[id]) return formData[id];
+    const aliases: Record<string, string[]> = {
+      anthropic: ['claude', 'anthropic', 'prov-anthropic', 'prov-claude'],
+      claude: ['claude', 'anthropic', 'prov-anthropic', 'prov-claude'],
+      google: ['google', 'gemini', 'prov-google', 'prov-gemini'],
+      gemini: ['google', 'gemini', 'prov-google', 'prov-gemini'],
+      ollama: ['ollama', 'local', 'prov-ollama', 'prov-local'],
+    };
+
+    const keysToTry = aliases[id] || [id];
+    for (const k of keysToTry) {
+      if (formData[k]) return formData[k];
+    }
+
+    return providersList.find(p => {
+      const pKey = p.slug || p.provider || String(p.id);
+      return keysToTry.includes(pKey) || keysToTry.includes(String(p.id));
+    });
+  };
+
   const handleSaveProvider = async (id: string) => {
-    const payload = formData[id];
+    const payload = getPayload(id);
     if (!payload) return;
 
     setSavingId(id);
@@ -309,12 +330,20 @@ export function AiFleetControl({ aiFleetData, token, onRefresh }: Props) {
   };
 
   const handleToggleProviderStatus = async (id: string) => {
-    const payload = formData[id];
-    if (!payload) return;
+    const payload = getPayload(id);
+    if (!payload) {
+      console.warn('Payload not found for provider toggle:', id);
+      return;
+    }
 
     const currentStatus = payload.status ?? 'active';
     const newStatus = (currentStatus === 'inactive' || currentStatus === 'disabled') ? 'active' : 'inactive';
+    
+    // Update local state across all alias keys
     updateField(id, 'status', newStatus);
+    if (payload.slug) updateField(payload.slug, 'status', newStatus);
+    if (payload.provider) updateField(payload.provider, 'status', newStatus);
+    if (payload.id) updateField(String(payload.id), 'status', newStatus);
 
     try {
       const isFallback = String(id).startsWith('prov-');
