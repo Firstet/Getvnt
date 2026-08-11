@@ -25,8 +25,13 @@ export function App() {
   const [wallet, setWallet] = useState<any>(null);
   const [payouts, setPayouts] = useState<any[]>([]);
 
-  // Event Creation Form State
+  // Event Creation Form State & Multi-Tier Builder
   const [eventTitle, setEventTitle] = useState('Afrobeat Festival Lagos 2026');
+  const [ticketTiers, setTicketTiers] = useState<Array<{ name: string; price: number; quantity: number }>>([
+    { name: 'Early Bird Pass', price: 75, quantity: 200 },
+    { name: 'General Admission', price: 120, quantity: 500 },
+    { name: 'VIP Fast-Track Pass', price: 250, quantity: 100 },
+  ]);
   const [ticketName, setTicketName] = useState('VIP Fast-Track Pass');
   const [ticketPrice, setTicketPrice] = useState('150');
   const [ticketQuantity, setTicketQuantity] = useState('500');
@@ -46,7 +51,12 @@ export function App() {
       const draft = e.detail;
       if (draft) {
         if (draft.title) setEventTitle(draft.title);
-        if (draft.ticket_types && draft.ticket_types[0]) {
+        if (draft.ticket_types && draft.ticket_types.length > 0) {
+          setTicketTiers(draft.ticket_types.map((t: any) => ({
+            name: t.name,
+            price: Number(t.price) || 0,
+            quantity: Number(t.quantity || t.quantity_available) || 100
+          })));
           setTicketName(draft.ticket_types[0].name);
           setTicketPrice(String(draft.ticket_types[0].price));
         }
@@ -170,9 +180,10 @@ export function App() {
         body: JSON.stringify({
           title: eventTitle,
           start_date: '2026-11-20 16:00:00',
-          ticket_name: ticketName,
-          ticket_price: parseFloat(ticketPrice),
-          ticket_quantity: parseInt(ticketQuantity),
+          ticket_types: ticketTiers,
+          ticket_name: ticketTiers[0]?.name || ticketName,
+          ticket_price: ticketTiers[0]?.price || parseFloat(ticketPrice),
+          ticket_quantity: ticketTiers[0]?.quantity || parseInt(ticketQuantity),
         })
       });
       const data = await res.json();
@@ -552,29 +563,92 @@ export function App() {
       {/* Create Event Modal */}
       {isCreateEventOpen && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(5,7,14,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-          <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '24px', maxWidth: '520px', width: '100%', padding: '32px', color: '#fff' }}>
-            <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 16px' }}>Create New Event</h3>
-            <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '24px', maxWidth: '600px', width: '100%', padding: '32px', color: '#fff', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: 900, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Plus size={20} color="#6366f1" /> Create New Enterprise Event
+            </h3>
+            <form onSubmit={handleCreateEvent} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 700 }}>Event Title</label>
-                <input type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+                <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px', fontWeight: 700 }}>Event Title</label>
+                <input type="text" value={eventTitle} onChange={(e) => setEventTitle(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '10px', padding: '12px 16px', color: '#fff', fontSize: '14px' }} />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 700 }}>Ticket Name</label>
-                  <input type="text" value={ticketName} onChange={(e) => setTicketName(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+
+              {/* Multi-Tier Ticket Pricing Builder */}
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <label style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 800 }}>Ticket Pricing Tiers</label>
+                  <button
+                    type="button"
+                    onClick={() => setTicketTiers([...ticketTiers, { name: 'VIP Lounge Pass', price: 200, quantity: 50 }])}
+                    style={{ background: 'rgba(99, 102, 241, 0.15)', border: '1px solid #6366f1', color: '#818cf8', borderRadius: '8px', padding: '4px 12px', fontSize: '11px', fontWeight: 800, cursor: 'pointer' }}
+                  >
+                    + Add Ticket Tier
+                  </button>
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 700 }}>Price ($)</label>
-                  <input type="number" value={ticketPrice} onChange={(e) => setTicketPrice(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '220px', overflowY: 'auto' }}>
+                  {ticketTiers.map((tier, idx) => (
+                    <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 32px', gap: '8px', alignItems: 'center', background: '#1e293b', border: '1px solid #334155', padding: '10px 12px', borderRadius: '10px' }}>
+                      <input
+                        type="text"
+                        placeholder="Tier Name (e.g. Early Bird)"
+                        value={tier.name}
+                        onChange={(e) => {
+                          const updated = [...ticketTiers];
+                          updated[idx].name = e.target.value;
+                          setTicketTiers(updated);
+                        }}
+                        required
+                        style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 10px', color: '#fff', fontSize: '12px' }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Price ($)"
+                        value={tier.price}
+                        onChange={(e) => {
+                          const updated = [...ticketTiers];
+                          updated[idx].price = parseFloat(e.target.value) || 0;
+                          setTicketTiers(updated);
+                        }}
+                        required
+                        style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 10px', color: '#fff', fontSize: '12px' }}
+                      />
+                      <input
+                        type="number"
+                        placeholder="Quantity"
+                        value={tier.quantity}
+                        onChange={(e) => {
+                          const updated = [...ticketTiers];
+                          updated[idx].quantity = parseInt(e.target.value) || 0;
+                          setTicketTiers(updated);
+                        }}
+                        required
+                        style={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '6px', padding: '8px 10px', color: '#fff', fontSize: '12px' }}
+                      />
+                      {ticketTiers.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setTicketTiers(ticketTiers.filter((_, i) => i !== idx))}
+                          style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '16px', fontWeight: 900 }}
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px', fontWeight: 700 }}>Stock Quantity</label>
-                  <input type="number" value={ticketQuantity} onChange={(e) => setTicketQuantity(e.target.value)} required style={{ width: '100%', background: '#1e293b', border: '1px solid #334155', borderRadius: '8px', padding: '10px 14px', color: '#fff' }} />
+
+                {/* Live Revenue Potential Calculation */}
+                <div style={{ marginTop: '12px', background: 'rgba(52,211,153,0.1)', border: '1px solid #34d399', borderRadius: '10px', padding: '10px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '12px', color: '#34d399', fontWeight: 800 }}>Total Revenue Forecast:</span>
+                  <strong style={{ fontSize: '15px', color: '#34d399' }}>
+                    ${ticketTiers.reduce((acc, t) => acc + (t.price * t.quantity), 0).toLocaleString()} USD
+                  </strong>
                 </div>
               </div>
+
               <div style={{ display: 'flex', gap: '10px', marginTop: '12px' }}>
-                <button type="submit" style={{ flex: 1, background: '#4f46e5', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 800, cursor: 'pointer' }}>Publish Event</button>
+                <button type="submit" style={{ flex: 1, background: 'linear-gradient(135deg, #6366f1, #a855f7)', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px', fontWeight: 900, cursor: 'pointer' }}>🚀 Publish Enterprise Event</button>
                 <button type="button" onClick={() => setIsCreateEventOpen(false)} style={{ background: '#334155', color: '#fff', border: 'none', borderRadius: '10px', padding: '12px 18px', fontWeight: 700, cursor: 'pointer' }}>Cancel</button>
               </div>
             </form>
