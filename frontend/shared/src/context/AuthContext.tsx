@@ -188,10 +188,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const registerMarketplace = async (data: any) => {
-    const res = await fetch(`${API_BASE}/auth/register/marketplace`, {
+    // Build a `name` field from whatever the frontend sends
+    const name = data.name
+      || (data.first_name || data.username || '').trim() + ' ' + (data.last_name || '')
+      || data.username
+      || data.email?.split('@')[0];
+
+    const payload = { ...data, name: name.trim() };
+
+    const res = await fetch(`${API_BASE}/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(payload)
     });
     const json = await res.json();
     if (json.success) {
