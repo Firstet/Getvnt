@@ -263,7 +263,7 @@ export function FloatingAiAssistant({ role = 'organizer', onPrefillEvent }: Prop
                     boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
                   }}
                 >
-                  {msg.text}
+                  {msg.text.replace(/\*\*/g, '').replace(/__/g, '')}
 
                   {/* Render Event Draft Card if generated */}
                   {msg.eventDraft && (
