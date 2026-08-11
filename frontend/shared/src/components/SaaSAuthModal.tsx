@@ -21,15 +21,38 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
   const { brand } = useBrand();
   const { login, registerMarketplace } = useAuth();
 
-  const loginWithGoogle = () => {
+  const loginWithGoogle = async () => {
     if (brand?.google_login_enabled === false) {
       setError('Google Sign-In is currently disabled by Super Admin.');
       return;
     }
-    const isWorkspace = window.location.host.includes('app') || window.location.pathname.includes('workspace');
-    const target = isWorkspace ? 'workspace' : 'marketplace';
-    const clientIdParam = brand?.google_client_id ? `&client_id=${encodeURIComponent(brand.google_client_id)}` : '';
-    window.location.href = `/api/v1/auth/google?redirect_to=${target}${clientIdParam}`;
+    setLoading(true);
+    setError(null);
+    try {
+      const isWorkspace = window.location.host.includes('app') || window.location.pathname.includes('workspace');
+      const target = isWorkspace ? 'workspace' : 'marketplace';
+
+      // Store where to redirect after successful OAuth
+      sessionStorage.setItem('oauth_redirect_target', target);
+
+      // Fetch the Google OAuth URL from backend
+      const apiBase = import.meta.env.VITE_API_URL || 'https://api.getvnt.com';
+      const res = await fetch(`${apiBase}/api/v1/auth/google?redirect_to=${target}`, {
+        headers: { 'Accept': 'application/json' },
+      });
+      const data = await res.json();
+
+      if (data.success && data.url) {
+        // Redirect browser to Google's consent screen
+        window.location.href = data.url;
+      } else {
+        setError(data.message || 'Google Sign-In is not configured. Please contact support.');
+        setLoading(false);
+      }
+    } catch {
+      setError('Unable to connect to Google Sign-In. Please try again.');
+      setLoading(false);
+    }
   };
 
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>( initialMode);

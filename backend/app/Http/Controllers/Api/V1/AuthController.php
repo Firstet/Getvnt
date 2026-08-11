@@ -317,66 +317,77 @@ class AuthController extends Controller
     public function googleCallback(Request $request)
     {
         $code = $request->get('code');
+        $redirectTo = $request->get('redirect_to', 'marketplace'); // marketplace | workspace
+
+        // Front-end URLs to redirect to after auth
+        $frontendUrls = [
+            'marketplace' => env('MARKETPLACE_URL', 'https://getvnt.com'),
+            'workspace'   => env('WORKSPACE_URL', 'https://app.getvnt.com'),
+        ];
+        $frontendBase = $frontendUrls[$redirectTo] ?? $frontendUrls['marketplace'];
+
         if (!$code) {
-            return response()->json(['success' => false, 'message' => 'Missing authorization code.'], 400);
+            return redirect($frontendBase . '/?oauth_error=missing_code');
         }
 
-        $clientId = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
+        $clientId     = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
         $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
-        $redirectUri = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+        $redirectUri  = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         try {
             $tokenResponse = \Illuminate\Support\Facades\Http::post('https://oauth2.googleapis.com/token', [
-                'code' => $code,
-                'client_id' => $clientId,
+                'code'          => $code,
+                'client_id'     => $clientId,
                 'client_secret' => $clientSecret,
-                'redirect_uri' => $redirectUri,
-                'grant_type' => 'authorization_code',
+                'redirect_uri'  => $redirectUri,
+                'grant_type'    => 'authorization_code',
             ]);
 
             if (!$tokenResponse->successful()) {
-                return response()->json(['success' => false, 'message' => 'Google token exchange failed.', 'error' => $tokenResponse->json()], 400);
+                return redirect($frontendBase . '/?oauth_error=token_exchange_failed');
             }
 
-            $accessToken = $tokenResponse->json('access_token');
+            $accessToken  = $tokenResponse->json('access_token');
             $userResponse = \Illuminate\Support\Facades\Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
             if (!$userResponse->successful()) {
-                return response()->json(['success' => false, 'message' => 'Failed to fetch Google user info.'], 400);
+                return redirect($frontendBase . '/?oauth_error=userinfo_failed');
             }
 
             $googleUser = $userResponse->json();
-            $email = strtolower($googleUser['email'] ?? '');
-            $name = $googleUser['name'] ?? 'Google User';
-            $avatar = $googleUser['picture'] ?? null;
+            $email      = strtolower($googleUser['email'] ?? '');
+            $name       = $googleUser['name'] ?? 'Google User';
+            $avatar     = $googleUser['picture'] ?? null;
 
             $user = User::firstOrCreate(
                 ['email' => $email],
                 [
-                    'id' => (string) Str::uuid(),
-                    'name' => $name,
-                    'password' => Hash::make(Str::random(24)),
-                    'role' => 'attendee',
-                    'avatar_url' => $avatar,
+                    'id'                => (string) Str::uuid(),
+                    'name'              => $name,
+                    'password'          => Hash::make(Str::random(24)),
+                    'role'              => 'attendee',
+                    'avatar_url'        => $avatar,
                     'email_verified_at' => now(),
-                    'is_active' => true,
+                    'is_active'         => true,
                 ]
             );
 
             $token = $user->createToken('google_oauth_token')->plainTextToken;
 
-            return response()->json([
-                'success' => true,
-                'token' => $token,
-                'data' => [
-                    'token' => $token,
-                    'user' => $user,
-                    'role' => $user->role,
-                ],
-                'message' => 'Google login successful.',
-            ]);
+            // Redirect browser to frontend with token in URL fragment (never sent to server)
+            $redirectUrl = $frontendBase . '/?oauth_token=' . urlencode($token)
+                . '&oauth_user=' . urlencode(json_encode([
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'role'  => $user->role,
+                    'avatar_url' => $user->avatar_url,
+                ]));
+
+            return redirect($redirectUrl);
+
         } catch (\Throwable $e) {
-            return response()->json(['success' => false, 'message' => 'Google Auth failed: ' . $e->getMessage()], 500);
+            return redirect($frontendBase . '/?oauth_error=' . urlencode($e->getMessage()));
         }
     }
 }
