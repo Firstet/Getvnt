@@ -190,6 +190,7 @@ class EnterpriseAiController extends Controller
                 $systemPrompt = "You are GETVNT AI Assistant, the official AI copilot for GETVNT Event OS.\n"
                     . "Answer the user's query directly, accurately, and concisely.\n"
                     . "Do not introduce yourself or repeat static greetings.\n"
+                    . "Do not use emojis or icons unless explicitly requested by the user.\n"
                     . "Do not use markdown bolding like **. Return clean plain text only with clean line breaks and bullet points.";
 
                 $response = \Illuminate\Support\Facades\Http::withoutVerifying()
@@ -217,11 +218,11 @@ class EnterpriseAiController extends Controller
             }
         }
 
-        // Smart Intent-Matched Intelligence Fallback (Clean Plain Text)
+        // Smart Intent-Matched Intelligence Fallback (Clean Plain Text - No Icons)
         $lower = strtolower($topic);
 
         if (preg_match('/(qr|scan|ticket|check[- ]?in|gate|pass)/i', $lower)) {
-            return "🎟️ How to Scan & Access Your QR Ticket:\n\n"
+            return "How to Scan & Access Your QR Ticket:\n\n"
                 . "1. Open your GETVNT mobile app or confirmation email.\n"
                 . "2. Tap View Ticket Pass to display your unique high-contrast QR code.\n"
                 . "3. Present the QR code to event gate staff at the entrance scanner.\n"
@@ -229,29 +230,29 @@ class EnterpriseAiController extends Controller
         }
 
         if (preg_match('/(recommend|near\s+me|nearby|location|around)/i', $lower)) {
-            return "📍 Trending Events Near You on GETVNT:\n\n"
-                . "1. 🌟 West Africa Tech & Cultural Summit 2026 (Aug 15 @ Eko Atlantic, Lagos)\n"
-                . "2. 🎵 Lagos Live Beach Acoustic Sessions (Sep 02 @ Landmark Beach)\n"
-                . "3. 🚀 Global Creators & Startup Gala (Oct 10 @ KICC, Nairobi)\n\n"
+            return "Trending Events Near You on GETVNT:\n\n"
+                . "1. West Africa Tech & Cultural Summit 2026 (Aug 15 @ Eko Atlantic, Lagos)\n"
+                . "2. Lagos Live Beach Acoustic Sessions (Sep 02 @ Landmark Beach)\n"
+                . "3. Global Creators & Startup Gala (Oct 10 @ KICC, Nairobi)\n\n"
                 . "Visit the GETVNT Marketplace to explore early bird tickets and VIP passes!";
         }
 
         if (preg_match('/(concert|music|weekend|festival|show|party|live)/i', $lower)) {
-            return "🎶 Music Concerts & Festivals This Weekend:\n\n"
+            return "Music Concerts & Festivals This Weekend:\n\n"
                 . "• Sunset Beach & Afro-Beats Fest — Saturday @ 6:00 PM (Landmark Beach)\n"
                 . "• VIP Live Jazz & Afro-Fusion Session — Sunday @ 7:30 PM (Victoria Island)\n\n"
                 . "Tap any event on GETVNT Marketplace to secure your instant digital pass!";
         }
 
         if (preg_match('/(price|pricing|tier|cost|ticket|fee)/i', $lower)) {
-            return "💳 GETVNT Event Ticket Pricing Tiers:\n\n"
+            return "GETVNT Event Ticket Pricing Tiers:\n\n"
                 . "• Early Bird Pass: 20% discount reserved for early registrants.\n"
                 . "• General Admission: Standard full-day entry pass.\n"
                 . "• VIP Executive Lounge: Fast-track check-in, exclusive lounge access & complimentary drinks.";
         }
 
         if (preg_match('/(create|draft|plan|make|generate|build)/i', $lower)) {
-            return "🚀 GETVNT Event Campaign Blueprint:\n\n"
+            return "GETVNT Event Campaign Blueprint:\n\n"
                 . "1. Setup & Capacity: Define event details, venue layout, and ticket inventory.\n"
                 . "2. Tiered Pricing: Configure Early Bird, General Admission, and VIP tiers.\n"
                 . "3. Marketing Launch: Trigger automated email blasts & social promo links.\n"
