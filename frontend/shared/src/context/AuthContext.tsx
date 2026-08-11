@@ -78,6 +78,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getInitialToken = (): { token: string | null; isImp: boolean; org: string | null } => {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
+
+      // ── Handle Google OAuth callback: ?oauth_token=... ──
+      const oauthToken = urlParams.get('oauth_token');
+      const oauthError = urlParams.get('oauth_error');
+      if (oauthError) {
+        // Store error to show after page load, clean URL
+        sessionStorage.setItem('oauth_error', decodeURIComponent(oauthError));
+        urlParams.delete('oauth_error');
+        urlParams.delete('oauth_user');
+        window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
+      }
+      if (oauthToken && oauthToken !== 'undefined' && oauthToken !== 'null') {
+        localStorage.setItem('getvnt_auth_token', oauthToken);
+        localStorage.setItem('auth_token', oauthToken);
+        // Store oauth_user if provided
+        const oauthUser = urlParams.get('oauth_user');
+        if (oauthUser) {
+          try { localStorage.setItem('getvnt_oauth_user', decodeURIComponent(oauthUser)); } catch {}
+        }
+        // Clean URL
+        urlParams.delete('oauth_token');
+        urlParams.delete('oauth_user');
+        const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams}` : '');
+        window.history.replaceState({}, '', newUrl);
+        return { token: oauthToken, isImp: false, org: null };
+      }
+
+      // ── Handle legacy ?token= (impersonation / direct link) ──
       const urlToken = urlParams.get('token');
       if (urlToken && urlToken !== 'undefined' && urlToken !== 'null') {
         localStorage.setItem('getvnt_auth_token', urlToken);
