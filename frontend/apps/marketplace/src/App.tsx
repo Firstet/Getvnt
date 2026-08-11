@@ -363,14 +363,14 @@ function MarketplaceContent() {
               style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '14.5px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease', flexShrink: 0 }}
               className="desktop-only-link"
             >
-              Organizer Login
+              Login
             </a>
 
             <a
               href={getAppUrl('workspace')}
               className="header-cta-primary"
             >
-              Become an Organizer
+              Get Started
             </a>
 
             {/* Mobile Touch Targets */}
@@ -437,7 +437,7 @@ function MarketplaceContent() {
               { label: 'Pulse Blog', tab: 'pulse' },
               { label: 'Pricing', tab: 'about' },
               { label: 'Help Center', tab: 'help' },
-              { label: 'Organizer Login', external: getAppUrl('workspace') },
+              { label: 'Login', external: getAppUrl('workspace') },
             ].map((item, idx) => (
               item.external ? (
                 <a
@@ -465,7 +465,7 @@ function MarketplaceContent() {
               className="header-cta-primary"
               style={{ width: '100%', justifyContent: 'center' }}
             >
-              Become an Organizer
+              Get Started
             </a>
           </div>
         </div>
