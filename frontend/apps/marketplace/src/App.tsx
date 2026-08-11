@@ -358,20 +358,27 @@ function MarketplaceContent() {
               />
             </div>
 
-            <a
-              href={getAppUrl('workspace')}
-              style={{ color: '#A5B4FC', fontWeight: 600, fontSize: '14.5px', textDecoration: 'none', whiteSpace: 'nowrap', transition: 'color 0.2s ease', flexShrink: 0 }}
+            <button
+              onClick={() => {
+                if (user) { window.location.href = getAppUrl('workspace'); return; }
+                setAuthMode('login'); setShowAuthModal(true);
+              }}
+              style={{ background: 'none', border: 'none', color: '#A5B4FC', fontWeight: 600, fontSize: '14.5px', whiteSpace: 'nowrap', transition: 'color 0.2s ease', flexShrink: 0, cursor: 'pointer' }}
               className="desktop-only-link"
             >
-              Login
-            </a>
+              {user ? 'Dashboard' : 'Login'}
+            </button>
 
-            <a
-              href={getAppUrl('workspace')}
+            <button
+              onClick={() => {
+                if (user) { window.location.href = getAppUrl('workspace'); return; }
+                setAuthMode('register'); setShowAuthModal(true);
+              }}
               className="header-cta-primary"
+              style={{ border: 'none', cursor: 'pointer' }}
             >
-              Get Started
-            </a>
+              {user ? 'Go to Dashboard' : 'Get Started'}
+            </button>
 
             {/* Mobile Touch Targets */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -426,7 +433,7 @@ function MarketplaceContent() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {[
+            {(([
               { label: 'Explore Events', tab: 'home' },
               { label: 'Categories', tab: 'home' },
               { label: 'Upcoming Events', tab: 'home' },
@@ -437,13 +444,13 @@ function MarketplaceContent() {
               { label: 'Pulse Blog', tab: 'pulse' },
               { label: 'Pricing', tab: 'about' },
               { label: 'Help Center', tab: 'help' },
-              { label: 'Login', external: getAppUrl('workspace') },
-            ].map((item, idx) => (
-              item.external ? (
+              { label: user ? 'Dashboard' : 'Login', action: () => { if (user) { window.location.href = getAppUrl('workspace'); } else { setAuthMode('login'); setShowAuthModal(true); } setMobileMenuOpen(false); } },
+            ]) as Array<{ label: string; tab?: string; action?: () => void }>).map((item, idx) => (
+              item.action ? (
                 <a
                   key={idx}
-                  href={item.external}
-                  style={{ fontSize: '16px', fontWeight: 600, color: '#A5B4FC', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  style={{ fontSize: '16px', fontWeight: 600, color: '#A5B4FC', textDecoration: 'none', padding: '12px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', cursor: 'pointer' }}
+                  onClick={item.action}
                 >
                   {item.label}
                 </a>
@@ -460,13 +467,13 @@ function MarketplaceContent() {
           </div>
 
           <div style={{ marginTop: 'auto', paddingTop: '24px' }}>
-            <a
-              href={getAppUrl('workspace')}
+            <button
+              onClick={() => { setAuthMode('register'); setShowAuthModal(true); setMobileMenuOpen(false); }}
               className="header-cta-primary"
-              style={{ width: '100%', justifyContent: 'center' }}
+              style={{ width: '100%', justifyContent: 'center', border: 'none', cursor: 'pointer' }}
             >
               Get Started
-            </a>
+            </button>
           </div>
         </div>
       )}
@@ -647,6 +654,10 @@ function MarketplaceContent() {
         isOpen={showAuthModal}
         initialMode={authMode}
         onClose={() => setShowAuthModal(false)}
+        onSuccess={() => {
+          setShowAuthModal(false);
+          window.location.href = getAppUrl('workspace');
+        }}
       />
 
       {/* EVENT TICKET CHECKOUT MODAL */}
