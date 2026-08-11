@@ -3,7 +3,7 @@ import { UserSidebar } from './components/UserSidebar';
 import { AttendeeDashboardView } from './components/AttendeeDashboardView';
 import { BecomeOrganizerWizardModal } from './components/BecomeOrganizerWizardModal';
 import { Calendar, ShoppingCart, Wallet, Ticket, Plus, CheckCircle2, QrCode, ArrowUpRight, Sparkles, Globe, Bot } from 'lucide-react';
-import { FloatingAiAssistant } from '@getvnt/shared';
+import { FloatingAiAssistant, GoogleProfileCompletionModal } from '@getvnt/shared';
 
 export function App() {
   const [user, setUser] = useState<any>(null);
@@ -20,6 +20,7 @@ export function App() {
   // Welcome state — fired on first visit after registration
   const [welcomeVisible, setWelcomeVisible] = useState(false);
   const [welcomeName, setWelcomeName] = useState('');
+  const [showGoogleProfileCompletion, setShowGoogleProfileCompletion] = useState(false);
 
   const [counters, setCounters] = useState<any>({});
   const [loading, setLoading] = useState(true);
@@ -93,8 +94,15 @@ export function App() {
   };
 
   useEffect(() => {
-    // Detect ?welcome=1 from marketplace registration redirect
+    // Detect ?is_new=1 from Google OAuth first-time registration
     const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('is_new') === '1') {
+      setShowGoogleProfileCompletion(true);
+      urlParams.delete('is_new');
+      window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
+    }
+
+    // Detect ?welcome=1 from marketplace registration redirect
     if (urlParams.get('welcome') === '1') {
       const name = decodeURIComponent(urlParams.get('name') || '');
       setWelcomeName(name);
@@ -778,6 +786,22 @@ export function App() {
           </div>
         </div>
       )}
+
+      {/* First-Time Google Profile Completion Modal */}
+      <GoogleProfileCompletionModal
+        isOpen={showGoogleProfileCompletion}
+        token={getAuthToken() || ''}
+        initialName={user?.name || ''}
+        initialEmail={user?.email || ''}
+        onSuccess={(updatedUser) => {
+          setUser((prev: any) => ({ ...prev, ...updatedUser }));
+          setShowGoogleProfileCompletion(false);
+          setWelcomeName(updatedUser?.name || user?.name || '');
+          setWelcomeVisible(true);
+          setTimeout(() => setWelcomeVisible(false), 8000);
+        }}
+        onClose={() => setShowGoogleProfileCompletion(false)}
+      />
 
       {/* Floating AI Assistant Chatbot */}
       <FloatingAiAssistant role={role === 'attendee' ? 'attendee' : 'organizer'} />
