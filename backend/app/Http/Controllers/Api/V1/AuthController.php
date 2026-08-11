@@ -367,9 +367,10 @@ class AuthController extends Controller
             $name       = $googleUser['name'] ?? 'Google User';
             $avatar     = $googleUser['picture'] ?? null;
 
-            $user = User::firstOrCreate(
-                ['email' => $email],
-                [
+            $wasRecentlyCreated = false;
+            $user = User::where('email', $email)->first();
+            if (!$user) {
+                $user = User::create([
                     'id'                => (string) Str::uuid(),
                     'name'              => $name,
                     'password'          => Hash::make(Str::random(24)),
@@ -377,19 +378,22 @@ class AuthController extends Controller
                     'avatar_url'        => $avatar,
                     'email_verified_at' => now(),
                     'is_active'         => true,
-                ]
-            );
+                ]);
+                $wasRecentlyCreated = true;
+            }
 
             $token = $user->createToken('google_oauth_token')->plainTextToken;
 
-            // Redirect browser to frontend with token in URL fragment (never sent to server)
+            // Redirect browser to frontend with token & is_new flag in URL
             $redirectUrl = $frontendBase . '/?oauth_token=' . urlencode($token)
+                . '&is_new=' . ($wasRecentlyCreated ? '1' : '0')
                 . '&oauth_user=' . urlencode(json_encode([
-                    'id'    => $user->id,
-                    'name'  => $user->name,
-                    'email' => $user->email,
-                    'role'  => $user->role,
+                    'id'         => $user->id,
+                    'name'       => $user->name,
+                    'email'      => $user->email,
+                    'role'       => $user->role,
                     'avatar_url' => $user->avatar_url,
+                    'is_new'     => $wasRecentlyCreated,
                 ]));
 
             return redirect($redirectUrl);
