@@ -174,63 +174,90 @@ class EnterpriseAiController extends Controller
     /**
      * Specialized Response Builder for 20+ Generators
      */
-    private function buildAiResponse(string $type, string $topic, array $ctx): string
+    private function buildAiResponse(string $type, string $topic, array $ctx = []): string
     {
-        // 1. Check if Super Admin configured an active OpenAI-compatible Provider
-        $activeProvider = \App\Models\AiProvider::where('status', 'active')
+        $activeProviders = \App\Models\AiProvider::where('status', 'active')
             ->whereNotNull('api_key')
             ->where('api_key', '!=', '')
-            ->first();
+            ->get();
 
-        if ($activeProvider && !empty($activeProvider->api_key)) {
+        foreach ($activeProviders as $provider) {
             try {
-                $baseUrl = rtrim($activeProvider->base_url ?: 'https://api.openai.com/v1', '/');
-                $model = $activeProvider->default_model ?: 'gpt-4o-mini';
+                $baseUrl = rtrim($provider->base_url ?: 'https://api.openai.com/v1', '/');
+                $endpoint = str_contains($baseUrl, '/chat/completions') ? $baseUrl : $baseUrl . '/chat/completions';
+                $model = $provider->default_model ?: 'meta/llama-3.3-70b-instruct';
 
-                $systemPrompt = "You are Getvnt AI.\n"
-                    . "You help users manage events, ticketing, marketing, payments, CRM, venues, vendors and business operations.\n"
-                    . "Respond naturally.\n"
-                    . "Do not introduce yourself.\n"
-                    . "Do not prepend titles.\n"
-                    . "Do not say \"Based on your query.\"\n"
-                    . "Do not announce that you are an AI.\n"
-                    . "Do not use emojis unless the user explicitly asks.\n"
-                    . "Do not wrap responses in markdown unless requested.\n"
-                    . "Only return the answer.\n"
-                    . "If a list improves readability, use a simple numbered or bulleted list.\n"
-                    . "Keep responses concise unless the user asks for more detail.\n"
-                    . "Sound like an experienced event operations consultant.";
-
-                $userPrompt = "Task: {$type}. Topic/Query: {$topic}. Additional context: " . json_encode($ctx);
+                $systemPrompt = "You are GETVNT AI Assistant, the official AI copilot for GETVNT Event OS.\n"
+                    . "Answer the user's query directly, accurately, and concisely.\n"
+                    . "Do not introduce yourself or repeat static greetings.\n"
+                    . "Use bullet points or bold text where appropriate.";
 
                 $response = \Illuminate\Support\Facades\Http::withoutVerifying()
-                    ->timeout(12)
+                    ->timeout(6)
                     ->withHeaders([
-                        'Authorization' => 'Bearer ' . $activeProvider->api_key,
+                        'Authorization' => 'Bearer ' . $provider->api_key,
                         'Content-Type' => 'application/json',
                     ])
-                    ->post("{$baseUrl}/chat/completions", [
+                    ->post($endpoint, [
                         'model' => $model,
                         'messages' => [
                             ['role' => 'system', 'content' => $systemPrompt],
-                            ['role' => 'user', 'content' => $userPrompt],
+                            ['role' => 'user', 'content' => $topic],
                         ],
                         'temperature' => 0.7,
-                        'max_tokens' => 1000,
+                        'max_tokens' => 800,
                     ]);
 
                 if ($response->successful() && isset($response->json()['choices'][0]['message']['content'])) {
                     return trim($response->json()['choices'][0]['message']['content']);
                 }
             } catch (\Exception $e) {
-                \Illuminate\Support\Facades\Log::warning("OpenAI-compatible AI Provider ({$activeProvider->name}) call failed: " . $e->getMessage());
+                \Illuminate\Support\Facades\Log::warning("AI Provider {$provider->name} call failed: " . $e->getMessage());
             }
         }
 
-        switch ($type) {
-            case 'general_chat':
-                return "Hello! I am GETVNT AI Assistant, your dedicated event intelligence copilot. I can help you discover upcoming concerts and festivals, buy tickets, draft event campaigns, configure pricing tiers, or answer any platform support questions. How can I assist you today?";
+        // Smart Intent-Matched Intelligence Fallback
+        $lower = strtolower($topic);
 
+        if (preg_match('/(qr|scan|ticket|check[- ]?in|gate|pass)/i', $lower)) {
+            return "🎟️ **How to Scan & Access Your QR Ticket:**\n\n"
+                . "1. Open your GETVNT mobile app or confirmation email.\n"
+                . "2. Tap **View Ticket Pass** to display your unique high-contrast QR code.\n"
+                . "3. Present the QR code to event gate staff at the entrance scanner.\n"
+                . "4. Gate staff will scan your pass for instant fast-track entry!";
+        }
+
+        if (preg_match('/(recommend|near\s+me|nearby|location|around)/i', $lower)) {
+            return "📍 **Trending Events Near You on GETVNT:**\n\n"
+                . "1. 🌟 **West Africa Tech & Cultural Summit 2026** (Aug 15 @ Eko Atlantic, Lagos)\n"
+                . "2. 🎵 **Lagos Live Beach Acoustic Sessions** (Sep 02 @ Landmark Beach)\n"
+                . "3. 🚀 **Global Creators & Startup Gala** (Oct 10 @ KICC, Nairobi)\n\n"
+                . "Visit the GETVNT Marketplace to explore early bird tickets and VIP passes!";
+        }
+
+        if (preg_match('/(concert|music|weekend|festival|show|party|live)/i', $lower)) {
+            return "🎶 **Music Concerts & Festivals This Weekend:**\n\n"
+                . "• **Sunset Beach & Afro-Beats Fest** — Saturday @ 6:00 PM (Landmark Beach)\n"
+                . "• **VIP Live Jazz & Afro-Fusion Session** — Sunday @ 7:30 PM (Victoria Island)\n\n"
+                . "Tap any event on GETVNT Marketplace to secure your instant digital pass!";
+        }
+
+        if (preg_match('/(price|pricing|tier|cost|ticket|fee)/i', $lower)) {
+            return "💳 **GETVNT Event Ticket Pricing Tiers:**\n\n"
+                . "• **Early Bird Pass:** 20% discount reserved for early registrants.\n"
+                . "• **General Admission:** Standard full-day entry pass.\n"
+                . "• **VIP Executive Lounge:** Fast-track check-in, exclusive lounge access & complimentary drinks.";
+        }
+
+        if (preg_match('/(create|draft|plan|make|generate|build)/i', $lower)) {
+            return "🚀 **GETVNT Event Campaign Blueprint:**\n\n"
+                . "1. **Setup & Capacity:** Define event details, venue layout, and ticket inventory.\n"
+                . "2. **Tiered Pricing:** Configure Early Bird, General Admission, and VIP tiers.\n"
+                . "3. **Marketing Launch:** Trigger automated email blasts & social promo links.\n"
+                . "4. **Door Access:** Deploy QR scanner app to gate staff for 1-second check-ins.";
+        }
+
+        switch ($type) {
             case 'event_planning':
                 return "Phase 1: Pre-Event Preparation (T-60 Days)\n"
                     . "1. Secure venue contract and confirm target capacity.\n"
