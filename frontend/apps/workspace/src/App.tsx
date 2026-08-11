@@ -72,6 +72,19 @@ export function App() {
   }, []);
 
   const getAuthToken = () => {
+    // Check URL for oauth_token first (set by Google OAuth callback)
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const oauthToken = urlParams.get('oauth_token');
+      if (oauthToken && oauthToken !== 'undefined' && oauthToken !== 'null') {
+        localStorage.setItem('getvnt_auth_token', oauthToken);
+        localStorage.setItem('auth_token', oauthToken);
+        urlParams.delete('oauth_token');
+        urlParams.delete('oauth_user');
+        window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
+        return oauthToken;
+      }
+    }
     return localStorage.getItem('getvnt_auth_token') ||
            localStorage.getItem('auth_token') ||
            sessionStorage.getItem('getvnt_auth_token') ||
@@ -86,14 +99,21 @@ export function App() {
       const name = decodeURIComponent(urlParams.get('name') || '');
       setWelcomeName(name);
       setWelcomeVisible(true);
-      // Auto-dismiss after 8 seconds
       setTimeout(() => setWelcomeVisible(false), 8000);
-      // Clean URL
       urlParams.delete('welcome');
       urlParams.delete('name');
       window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
     }
 
+    // Detect ?oauth_error from Google OAuth failure
+    const oauthError = urlParams.get('oauth_error');
+    if (oauthError) {
+      console.error('Google OAuth error:', decodeURIComponent(oauthError));
+      urlParams.delete('oauth_error');
+      window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
+    }
+
+    // getAuthToken() already handles ?oauth_token and persists it
     fetchUserMe();
     fetchCounters();
 

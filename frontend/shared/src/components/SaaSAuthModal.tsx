@@ -29,21 +29,14 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const isWorkspace = window.location.host.includes('app') || window.location.pathname.includes('workspace');
-      const target = isWorkspace ? 'workspace' : 'marketplace';
-
-      // Store where to redirect after successful OAuth
-      sessionStorage.setItem('oauth_redirect_target', target);
-
-      // Fetch the Google OAuth URL from backend
+      // Always redirect to workspace (dashboard) after Google login
       const apiBase = import.meta.env.VITE_API_URL || 'https://api.getvnt.com';
-      const res = await fetch(`${apiBase}/api/v1/auth/google?redirect_to=${target}`, {
+      const res = await fetch(`${apiBase}/api/v1/auth/google?redirect_to=workspace`, {
         headers: { 'Accept': 'application/json' },
       });
       const data = await res.json();
 
       if (data.success && data.url) {
-        // Redirect browser to Google's consent screen
         window.location.href = data.url;
       } else {
         setError(data.message || 'Google Sign-In is not configured. Please contact support.');

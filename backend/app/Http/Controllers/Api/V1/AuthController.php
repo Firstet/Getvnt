@@ -279,7 +279,7 @@ class AuthController extends Controller
         ]);
     }
 
-    public function googleRedirect()
+    public function googleRedirect(Request $request)
     {
         $clientId = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
         $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
@@ -292,39 +292,47 @@ class AuthController extends Controller
             ], 400);
         }
 
-        config([
-            'services.google.client_id' => $clientId,
-            'services.google.client_secret' => $clientSecret,
-            'services.google.redirect' => $redirectUri,
-        ]);
+        // Encode redirect_to in the state param — Google preserves state through the OAuth flow
+        $redirectTo = $request->get('redirect_to', 'workspace');
+        $state = base64_encode(json_encode(['redirect_to' => $redirectTo, 'nonce' => Str::random(16)]));
 
-        $targetUrl = "https://accounts.google.com/o/oauth2/v2/auth?" . http_build_query([
-            'client_id' => $clientId,
-            'redirect_uri' => $redirectUri,
+        $targetUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+            'client_id'     => $clientId,
+            'redirect_uri'  => $redirectUri,
             'response_type' => 'code',
-            'scope' => 'openid profile email',
-            'access_type' => 'offline',
-            'prompt' => 'consent',
+            'scope'         => 'openid profile email',
+            'access_type'   => 'offline',
+            'prompt'        => 'consent',
+            'state'         => $state,
         ]);
 
         return response()->json([
             'success' => true,
-            'url' => $targetUrl,
+            'url'     => $targetUrl,
             'message' => 'Google OAuth authorization URL generated.',
         ]);
     }
 
     public function googleCallback(Request $request)
     {
-        $code = $request->get('code');
-        $redirectTo = $request->get('redirect_to', 'marketplace'); // marketplace | workspace
+        $code  = $request->get('code');
+        $state = $request->get('state', '');
+
+        // Decode redirect_to from state param (encoded in googleRedirect)
+        $redirectTo = 'workspace';
+        if ($state) {
+            try {
+                $decoded = json_decode(base64_decode($state), true);
+                $redirectTo = $decoded['redirect_to'] ?? 'workspace';
+            } catch (\Throwable $e) {}
+        }
 
         // Front-end URLs to redirect to after auth
         $frontendUrls = [
             'marketplace' => env('MARKETPLACE_URL', 'https://getvnt.com'),
             'workspace'   => env('WORKSPACE_URL', 'https://app.getvnt.com'),
         ];
-        $frontendBase = $frontendUrls[$redirectTo] ?? $frontendUrls['marketplace'];
+        $frontendBase = $frontendUrls[$redirectTo] ?? $frontendUrls['workspace'];
 
         if (!$code) {
             return redirect($frontendBase . '/?oauth_error=missing_code');
