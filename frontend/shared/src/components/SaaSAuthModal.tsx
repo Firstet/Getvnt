@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ArrowRight, ArrowLeft, Mail, Lock, User, CheckCircle2, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Mail, Lock, User, Eye, EyeOff, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { useBrand } from '../context/BrandContext';
 import { useAuth } from '../context/AuthContext';
 
@@ -32,19 +32,35 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
     window.location.href = `/api/v1/auth/google?redirect_to=${target}${clientIdParam}`;
   };
 
-  const [mode, setMode] = useState<'login' | 'register'>(initialMode);
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>( initialMode);
   // Progressive Login Step: 1 = Email, 2 = Password
   const [loginStep, setLoginStep] = useState<1 | 2>(1);
 
   // Form Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [agreedTerms, setAgreedTerms] = useState(false);
+  const [forgotSent, setForgotSent] = useState(false);
 
   // UI States
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  // Password strength
+  const getPasswordStrength = (pw: string) => {
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    return score; // 0–4
+  };
+  const pwStrength = getPasswordStrength(password);
+  const pwStrengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'][pwStrength];
+  const pwStrengthColor = ['', '#EF4444', '#F59E0B', '#3B82F6', '#10B981'][pwStrength];
 
   if (!isOpen) return null;
 
@@ -57,6 +73,31 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
     }
     setError(null);
     setLoginStep(2);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !email.includes('@')) {
+      setError('Please enter your email address first.');
+      return;
+    }
+    setError(null);
+    setLoading(true);
+    try {
+      const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api/v1';
+      const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const json = await res.json();
+      setForgotSent(true);
+      setSuccessMsg(json.message || 'Reset instructions sent to your email.');
+    } catch {
+      setError('Could not send reset email. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -84,19 +125,21 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
       setError('You must agree to the Terms of Service & Privacy Policy.');
       return;
     }
+    if (!fullName.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters.');
+      return;
+    }
     setError(null);
     setLoading(true);
     try {
-      const nameParts = username.trim().split(' ');
-      const firstName = nameParts[0] || username;
-      const lastName = nameParts.slice(1).join(' ') || 'User';
-
       const res = await registerMarketplace({
+        name: fullName.trim(),
         email,
         password,
-        username,
-        first_name: firstName,
-        last_name: lastName,
       });
 
       if (res.success) {
@@ -104,10 +147,16 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
         onClose();
         if (onNavigateToOnboarding) onNavigateToOnboarding();
       } else {
-        setError(res.message || 'Account creation failed.');
+        // Parse validation errors from Laravel
+        if (res.errors) {
+          const firstError = Object.values(res.errors as Record<string, string[]>)[0];
+          setError(Array.isArray(firstError) ? firstError[0] : String(firstError));
+        } else {
+          setError(res.message || 'Account creation failed. Please try again.');
+        }
       }
     } catch {
-      setError('Error creating account.');
+      setError('Connection error. Please check your internet and try again.');
     } finally {
       setLoading(false);
     }
@@ -210,6 +259,22 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
             {error}
           </div>
         )}
+        {successMsg && (
+          <div
+            style={{
+              background: 'rgba(16, 185, 129, 0.12)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
+              color: '#34D399',
+              padding: '12px 14px',
+              borderRadius: '14px',
+              fontSize: '13px',
+              marginBottom: '20px',
+              lineHeight: 1.4,
+            }}
+          >
+            {successMsg}
+          </div>
+        )}
 
         {/* ── MODE 1: PROGRESSIVE SIGN IN ── */}
         {mode === 'login' && (
@@ -292,11 +357,15 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
                   Continue <ArrowRight size={16} />
                 </button>
 
-                <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                  <a href="#" style={{ fontSize: '12.5px', color: '#737373', textDecoration: 'none' }} onClick={(e) => { e.preventDefault(); setError('Password reset instructions sent to your email.'); }}>
-                    Forgot Password?
-                  </a>
-                </div>
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+                <button
+                  type="button"
+                  style={{ fontSize: '12.5px', color: '#737373', background: 'none', border: 'none', cursor: 'pointer' }}
+                  onClick={() => { setMode('forgot'); setError(null); setSuccessMsg(null); setForgotSent(false); }}
+                >
+                  Forgot Password?
+                </button>
+              </div>
               </form>
             ) : (
               /* Step 2: Password Screen */
@@ -361,18 +430,75 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
             )}
 
             {/* Switch to Register */}
-            <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #262626', fontSize: '13.5px', color: '#737373' }}>
-              Don't have an account?{' '}
-              <button
-                type="button"
-                onClick={() => { setMode('register'); setError(null); }}
-                style={{ background: 'none', border: 'none', color: '#60A5FA', fontWeight: 800, cursor: 'pointer' }}
-              >
-                Sign Up
-              </button>
-            </div>
+          <div style={{ textAlign: 'center', marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #262626', fontSize: '13.5px', color: '#737373' }}>
+            Don't have an account?{' '}
+            <button
+              type="button"
+              onClick={() => { setMode('register'); setError(null); setSuccessMsg(null); }}
+              style={{ background: 'none', border: 'none', color: '#60A5FA', fontWeight: 800, cursor: 'pointer' }}
+            >
+              Sign Up
+            </button>
           </div>
-        )}
+        </div>
+      )}
+
+      {/* ── MODE: FORGOT PASSWORD ── */}
+      {mode === 'forgot' && (
+        <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {forgotSent ? (
+            <div style={{ textAlign: 'center', padding: '24px 0' }}>
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>📬</div>
+              <h3 style={{ color: '#FFFFFF', fontWeight: 800, marginBottom: '8px' }}>Check Your Inbox</h3>
+              <p style={{ color: '#737373', fontSize: '13.5px', lineHeight: 1.5 }}>
+                If <strong style={{ color: '#E5E5E5' }}>{email}</strong> is registered, you'll receive a reset link shortly.
+              </p>
+            </div>
+          ) : (
+            <>
+              <p style={{ color: '#737373', fontSize: '13.5px', lineHeight: 1.5, marginBottom: '4px' }}>
+                Enter your registered email and we'll send you a password reset link.
+              </p>
+              <div>
+                <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
+                  Email Address
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="email"
+                    required
+                    className="search-field"
+                    style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', paddingLeft: '40px', color: '#FFF' }}
+                    placeholder="you@domain.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                  <Mail size={16} color="#737373" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-cta"
+                style={{
+                  width: '100%', padding: '14px', borderRadius: '16px',
+                  background: '#2563EB', color: '#FFFFFF', fontWeight: 800, fontSize: '14px',
+                  justifyContent: 'center', boxShadow: '0 4px 18px rgba(37, 99, 235, 0.4)',
+                }}
+              >
+                {loading ? 'Sending…' : 'Send Reset Link'} <ArrowRight size={16} />
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); setForgotSent(false); }}
+            style={{ background: 'none', border: 'none', color: '#737373', fontSize: '13px', cursor: 'pointer', textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+          >
+            <ArrowLeft size={14} /> Back to Sign In
+          </button>
+        </form>
+      )}
 
         {/* ── MODE 2: MODAL SIGN UP (STEP 1: NO ORGANIZER INFO ASKED) ── */}
         {mode === 'register' && (
@@ -414,7 +540,7 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
 
             <div>
               <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 800, color: '#A3A3A3', marginBottom: '6px', textTransform: 'uppercase' }}>
-                Username
+                Full Name
               </label>
               <div style={{ position: 'relative' }}>
                 <input
@@ -422,9 +548,9 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
                   required
                   className="search-field"
                   style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', paddingLeft: '40px', color: '#FFF' }}
-                  placeholder="johndoe"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="John Doe"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                 />
                 <User size={16} color="#737373" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
               </div>
@@ -454,16 +580,31 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
               </label>
               <div style={{ position: 'relative' }}>
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   className="search-field"
-                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', paddingLeft: '40px', color: '#FFF' }}
+                  style={{ background: '#0A0A0A', border: '1px solid #262626', borderRadius: '14px', paddingLeft: '40px', paddingRight: '44px', color: '#FFF' }}
                   placeholder="min. 8 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
                 <Lock size={16} color="#737373" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#737373', cursor: 'pointer', display: 'flex' }}
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
               </div>
+              {password.length > 0 && (
+                <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ flex: 1, height: '4px', borderRadius: '4px', background: '#262626', overflow: 'hidden' }}>
+                    <div style={{ width: `${(pwStrength / 4) * 100}%`, height: '100%', background: pwStrengthColor, borderRadius: '4px', transition: 'width 0.3s ease' }} />
+                  </div>
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: pwStrengthColor, minWidth: '36px' }}>{pwStrengthLabel}</span>
+                </div>
+              )}
             </div>
 
             <label style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', fontSize: '12.5px', color: '#A3A3A3', cursor: 'pointer', marginTop: '4px' }}>
@@ -480,30 +621,30 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
 
             <button
               type="submit"
-              disabled={loading || !agreedTerms || !email || !password}
+              disabled={loading || !agreedTerms || !email || !password || !fullName}
               className="btn-cta"
               style={{
                 width: '100%',
                 padding: '14px',
                 borderRadius: '16px',
-                background: (agreedTerms && email && password) ? '#2563EB' : '#262626',
-                color: (agreedTerms && email && password) ? '#FFFFFF' : '#737373',
+                background: (agreedTerms && email && password && fullName) ? '#2563EB' : '#262626',
+                color: (agreedTerms && email && password && fullName) ? '#FFFFFF' : '#737373',
                 fontWeight: 800,
                 fontSize: '14px',
                 justifyContent: 'center',
-                cursor: (agreedTerms && email && password) ? 'pointer' : 'not-allowed',
-                boxShadow: (agreedTerms && email && password) ? '0 4px 18px rgba(37, 99, 235, 0.4)' : 'none',
+                cursor: (agreedTerms && email && password && fullName) ? 'pointer' : 'not-allowed',
+                boxShadow: (agreedTerms && email && password && fullName) ? '0 4px 18px rgba(37, 99, 235, 0.4)' : 'none',
                 marginTop: '6px',
               }}
             >
-              {loading ? 'Creating Account…' : 'Continue'} <ArrowRight size={16} />
+              {loading ? 'Creating Account…' : 'Create Account'} <ArrowRight size={16} />
             </button>
 
             <div style={{ textAlign: 'center', marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #262626', fontSize: '13.5px', color: '#737373' }}>
               Already have an account?{' '}
               <button
                 type="button"
-                onClick={() => { setMode('login'); setError(null); }}
+                onClick={() => { setMode('login'); setError(null); setSuccessMsg(null); }}
                 style={{ background: 'none', border: 'none', color: '#60A5FA', fontWeight: 800, cursor: 'pointer' }}
               >
                 Sign In

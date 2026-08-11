@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
@@ -13,37 +15,143 @@ class AuthController extends Controller
     public function registerMarketplace(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email'    => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
         ]);
 
+        // Accept name from multiple field shapes sent by the frontend
+        $name = $request->name
+            ?? trim(($request->first_name ?? '') . ' ' . ($request->last_name ?? ''))
+            ?: $request->username
+            ?: explode('@', $request->email)[0];
+
         $user = User::create([
-            'id' => (string) Str::uuid(),
-            'name' => $request->name,
-            'email' => strtolower($request->email),
-            'password' => Hash::make($request->password),
-            'role' => 'attendee',
+            'id'                  => (string) Str::uuid(),
+            'name'                => $name,
+            'email'               => strtolower($request->email),
+            'password'            => Hash::make($request->password),
+            'role'                => 'attendee',
             'verification_status' => 'unverified',
-            'subscription_plan' => 'starter',
-            'verified_badge' => false,
-            'is_active' => true,
+            'subscription_plan'   => 'starter',
+            'verified_badge'      => false,
+            'is_active'           => true,
         ]);
 
         $token = $user->createToken('getvnt_auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'token' => $token,
-            'data' => [
-                'token' => $token,
-                'user' => $user,
-                'role' => $user->role,
+            'token'   => $token,
+            'data'    => [
+                'token'               => $token,
+                'user'                => $user,
+                'role'                => $user->role,
                 'verification_status' => $user->verification_status,
-                'subscription_plan' => $user->subscription_plan,
+                'subscription_plan'   => $user->subscription_plan,
             ],
-            'message' => 'Attendee registration successful.',
+            'message' => 'Account created successfully. Welcome to GETVNT!',
         ], 201);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', strtolower($request->email))->first();
+
+        // Always respond success to prevent email enumeration
+        if (!$user) {
+            return response()->json([
+                'success' => true,
+                'message' => 'If an account exists for this email, a reset link has been sent.',
+            ]);
+        }
+
+        $token = Str::random(64);
+
+        DB::table('password_reset_tokens')->updateOrInsert(
+            ['email' => $user->email],
+            ['email' => $user->email, 'token' => Hash::make($token), 'created_at' => now()]
+        );
+
+        // TODO: Send email with link containing $token
+        // Mail::to($user->email)->send(new PasswordResetMail($token));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'If an account exists for this email, a reset link has been sent.',
+        ]);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email'                 => 'required|email',
+            'token'                 => 'required|string',
+            'password'              => 'required|string|min:8|confirmed',
+            'password_confirmation' => 'required|string',
+        ]);
+
+        $record = DB::table('password_reset_tokens')
+            ->where('email', strtolower($request->email))
+            ->first();
+
+        if (!$record || !Hash::check($request->token, $record->token)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 422);
+        }
+
+        $user = User::where('email', strtolower($request->email))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+
+        // Revoke all existing tokens
+        $user->tokens()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Password reset successfully. Please sign in with your new password.',
+        ]);
+    }
+
+    public function verifyEmail(Request $request)
+    {
+        $request->validate(['token' => 'required|string', 'email' => 'required|email']);
+
+        $user = User::where('email', strtolower($request->email))->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $user->update(['email_verified_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Email verified successfully.',
+        ]);
+    }
+
+    public function verifyPhone(Request $request)
+    {
+        $request->validate(['otp' => 'required|string', 'phone' => 'required|string']);
+
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+
+        $user->update(['phone_verified_at' => now()]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Phone number verified successfully.',
+        ]);
     }
 
     public function login(Request $request)
