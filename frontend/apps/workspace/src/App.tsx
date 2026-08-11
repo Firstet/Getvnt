@@ -17,6 +17,10 @@ export function App() {
   const [isCreateEventOpen, setIsCreateEventOpen] = useState(false);
   const [isPayoutModalOpen, setIsPayoutModalOpen] = useState(false);
 
+  // Welcome state — fired on first visit after registration
+  const [welcomeVisible, setWelcomeVisible] = useState(false);
+  const [welcomeName, setWelcomeName] = useState('');
+
   const [counters, setCounters] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<any>(null);
@@ -76,6 +80,20 @@ export function App() {
   };
 
   useEffect(() => {
+    // Detect ?welcome=1 from marketplace registration redirect
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('welcome') === '1') {
+      const name = decodeURIComponent(urlParams.get('name') || '');
+      setWelcomeName(name);
+      setWelcomeVisible(true);
+      // Auto-dismiss after 8 seconds
+      setTimeout(() => setWelcomeVisible(false), 8000);
+      // Clean URL
+      urlParams.delete('welcome');
+      urlParams.delete('name');
+      window.history.replaceState({}, '', window.location.pathname + (urlParams.toString() ? `?${urlParams}` : ''));
+    }
+
     fetchUserMe();
     fetchCounters();
 
@@ -285,6 +303,60 @@ export function App() {
           <button onClick={handleExitImpersonation} style={{ background: '#fff', color: '#7c3aed', border: 'none', padding: '6px 14px', borderRadius: '8px', fontWeight: 900, cursor: 'pointer', fontSize: '12px' }}>
             Exit Impersonation →
           </button>
+        </div>
+      )}
+
+      {/* Welcome Banner — shown after new user registration */}
+      {welcomeVisible && (
+        <div style={{
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e40af 100%)',
+          borderBottom: '1px solid rgba(99,102,241,0.4)',
+          padding: '18px 28px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '16px',
+          animation: 'slideDown 0.4s ease-out',
+          zIndex: 999,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '22px', flexShrink: 0,
+              boxShadow: '0 0 20px rgba(99,102,241,0.5)',
+            }}>
+              🎉
+            </div>
+            <div>
+              <div style={{ fontWeight: 900, fontSize: '16px', color: '#fff', lineHeight: 1.3 }}>
+                Welcome to GETVNT{welcomeName ? `, ${welcomeName.split(' ')[0]}` : ''}!
+              </div>
+              <div style={{ fontSize: '13px', color: '#a5b4fc', marginTop: '3px' }}>
+                Your account is ready. Explore events, buy tickets, or become an organizer to start selling.
+              </div>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+            <button
+              onClick={() => setIsBecomeOrganizerOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                color: '#fff', border: 'none', padding: '8px 16px',
+                borderRadius: '10px', fontWeight: 800, fontSize: '12px',
+                cursor: 'pointer', whiteSpace: 'nowrap',
+              }}
+            >
+              Become an Organizer →
+            </button>
+            <button
+              onClick={() => setWelcomeVisible(false)}
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', width: '32px', height: '32px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', flexShrink: 0 }}
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
 

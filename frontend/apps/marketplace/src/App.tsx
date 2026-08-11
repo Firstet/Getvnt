@@ -654,9 +654,12 @@ function MarketplaceContent() {
         isOpen={showAuthModal}
         initialMode={authMode}
         onClose={() => setShowAuthModal(false)}
-        onSuccess={() => {
+        onSuccess={(userData) => {
           setShowAuthModal(false);
-          window.location.href = getAppUrl('workspace');
+          const isRegister = authMode === 'register';
+          const name = userData?.name || userData?.email?.split('@')[0] || '';
+          const welcomeParam = isRegister ? `?welcome=1&name=${encodeURIComponent(name)}` : '';
+          window.location.href = getAppUrl('workspace') + welcomeParam;
         }}
       />
 
