@@ -26,6 +26,7 @@ use App\Models\User;
 use App\Services\KycService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -124,17 +125,62 @@ class PlatformAdminController extends Controller
 
     public function impersonateUser(Request $request, string $id)
     {
+        $admin = $request->user();
         $targetUser = User::findOrFail($id);
-        $token = $targetUser->createToken('impersonation_token')->plainTextToken;
 
-        $this->logAdminAction($request->user(), 'impersonate_user', 'user', $targetUser->id);
+        if ($targetUser->isSuperAdmin()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Super Admin accounts cannot be impersonated.',
+            ], 403);
+        }
+
+        $code = Str::random(40);
+        Cache::put("impersonation_code:{$code}", [
+            'admin_id' => $admin->id,
+            'target_user_id' => $targetUser->id,
+        ], 60);
+
+        $tokenObj = $targetUser->createToken('impersonation_token', [
+            'impersonated_by:' . $admin->id,
+            'organizer:access',
+        ], now()->addMinutes(15));
+
+        $this->logAdminAction($admin, 'impersonate_user', 'user', $targetUser->id);
 
         return response()->json([
-            'success' => true,
-            'impersonate_token' => $token,
-            'target_user' => $targetUser,
-            'redirect_url' => "https://app.getvnt.com?impersonate_token={$token}&org=" . urlencode($targetUser->tenant ? $targetUser->tenant->name : 'Workspace'),
-            'message' => "Impersonation token generated for {$targetUser->name}.",
+            'success'           => true,
+            'exchange_code'     => $code,
+            'impersonate_token' => $tokenObj->plainTextToken,
+            'target_user'       => $targetUser,
+            'redirect_url'      => "https://app.getvnt.com/auth/impersonate?code={$code}",
+            'message'           => "Impersonation session initiated for {$targetUser->name}.",
+        ]);
+    }
+
+    public function impersonateExchange(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
+
+        $data = Cache::pull("impersonation_code:{$request->code}");
+        if (!$data || !isset($data['target_user_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired impersonation code.',
+            ], 422);
+        }
+
+        $targetUser = User::findOrFail($data['target_user_id']);
+        $tokenObj   = $targetUser->createToken('impersonation_token', [
+            'impersonated_by:' . $data['admin_id'],
+            'organizer:access',
+        ], now()->addMinutes(15));
+
+        return response()->json([
+            'success'           => true,
+            'impersonate_token' => $tokenObj->plainTextToken,
+            'target_user'       => $targetUser,
+            'message'           => "Impersonation token retrieved successfully for {$targetUser->name}.",
         ]);
     }
 

@@ -68,8 +68,12 @@ class LedgerService
     /**
      * Get organizer available wallet balance from double-entry ledger.
      */
-    public function getOrganizerBalance(string $tenantId): float
+    public function getOrganizerBalance(?string $tenantId): float
     {
+        if (!$tenantId) {
+            return 0.0;
+        }
+
         $credits = LedgerEntry::where('tenant_id', $tenantId)
             ->where('account_type', 'organizer_wallet')
             ->where('direction', 'credit')

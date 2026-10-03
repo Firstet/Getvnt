@@ -3,15 +3,39 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Mail\PasswordResetMail;
+use App\Models\EmailVerificationToken;
+use App\Models\PhoneOtp;
 use App\Models\User;
+use App\Services\Sms\SmsServiceInterface;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
+    protected SmsServiceInterface $smsService;
+
+    public function __construct(SmsServiceInterface $smsService)
+    {
+        $this->smsService = $smsService;
+    }
+
+    protected function getTokenAbilities(User $user): array
+    {
+        if ($user->isSuperAdmin()) {
+            return ['*'];
+        }
+        if (in_array($user->role, ['organizer_pro', 'trusted_organizer', 'enterprise'])) {
+            return ['organizer:access', 'events:manage'];
+        }
+        return ['attendee:access'];
+    }
+
     public function registerMarketplace(Request $request)
     {
         $request->validate([
@@ -19,7 +43,6 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        // Accept name from multiple field shapes sent by the frontend
         $name = $request->name
             ?? trim(($request->first_name ?? '') . ' ' . ($request->last_name ?? ''))
             ?: $request->username
@@ -37,7 +60,7 @@ class AuthController extends Controller
             'is_active'           => true,
         ]);
 
-        $token = $user->createToken('getvnt_auth_token')->plainTextToken;
+        $token = $user->createToken('getvnt_auth_token', $this->getTokenAbilities($user))->plainTextToken;
 
         return response()->json([
             'success' => true,
@@ -59,7 +82,6 @@ class AuthController extends Controller
 
         $user = User::where('email', strtolower($request->email))->first();
 
-        // Always respond success to prevent email enumeration
         if (!$user) {
             return response()->json([
                 'success' => true,
@@ -69,13 +91,15 @@ class AuthController extends Controller
 
         $token = Str::random(64);
 
-        DB::table('password_reset_tokens')->updateOrInsert(
-            ['email' => $user->email],
-            ['email' => $user->email, 'token' => Hash::make($token), 'created_at' => now()]
-        );
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+        DB::table('password_reset_tokens')->insert([
+            'email'      => $user->email,
+            'token'      => Hash::make($token),
+            'created_at' => now(),
+        ]);
 
-        // TODO: Send email with link containing $token
-        // Mail::to($user->email)->send(new PasswordResetMail($token));
+        $resetUrl = env('WORKSPACE_URL', 'https://app.getvnt.com') . "/reset-password?token={$token}&email=" . urlencode($user->email);
+        Mail::to($user->email)->queue(new PasswordResetMail($token, $resetUrl));
 
         return response()->json([
             'success' => true,
@@ -96,7 +120,22 @@ class AuthController extends Controller
             ->where('email', strtolower($request->email))
             ->first();
 
-        if (!$record || !Hash::check($request->token, $record->token)) {
+        if (!$record) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 422);
+        }
+
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', strtolower($request->email))->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired reset token.',
+            ], 422);
+        }
+
+        if (!Hash::check($request->token, $record->token)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid or expired reset token.',
@@ -109,14 +148,37 @@ class AuthController extends Controller
         }
 
         $user->update(['password' => Hash::make($request->password)]);
-        DB::table('password_reset_tokens')->where('email', $request->email)->delete();
+        DB::table('password_reset_tokens')->where('email', strtolower($request->email))->delete();
 
-        // Revoke all existing tokens
         $user->tokens()->delete();
 
         return response()->json([
             'success' => true,
             'message' => 'Password reset successfully. Please sign in with your new password.',
+        ]);
+    }
+
+    public function sendEmailVerification(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $user = User::where('email', strtolower($request->email))->first();
+
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
+        $plainToken = Str::random(32);
+        EmailVerificationToken::create([
+            'email'      => strtolower($user->email),
+            'token'      => Hash::make($plainToken),
+            'attempts'   => 0,
+            'expires_at' => now()->addHours(24),
+        ]);
+
+        return response()->json([
+            'success'          => true,
+            'verification_code' => $plainToken, // Returned for testing / client app email simulation
+            'message'          => 'Email verification link sent.',
         ]);
     }
 
@@ -129,7 +191,27 @@ class AuthController extends Controller
             return response()->json(['success' => false, 'message' => 'User not found.'], 404);
         }
 
-        $user->update(['email_verified_at' => now()]);
+        $record = EmailVerificationToken::where('email', strtolower($request->email))
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired verification token.'], 422);
+        }
+
+        $record->increment('attempts');
+        if ($record->attempts > 5) {
+            $record->delete();
+            return response()->json(['success' => false, 'message' => 'Maximum verification attempts exceeded.'], 422);
+        }
+
+        if (!Hash::check($request->token, $record->token)) {
+            return response()->json(['success' => false, 'message' => 'Invalid verification token.'], 422);
+        }
+
+        $user->forceFill(['email_verified_at' => now()])->save();
+        $record->delete();
 
         return response()->json([
             'success' => true,
@@ -137,16 +219,57 @@ class AuthController extends Controller
         ]);
     }
 
+    public function sendPhoneOtp(Request $request)
+    {
+        $request->validate(['phone' => 'required|string']);
+        $phone = $request->phone;
+
+        $plainOtp = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        PhoneOtp::create([
+            'phone'      => $phone,
+            'otp'        => Hash::make($plainOtp),
+            'attempts'   => 0,
+            'expires_at' => now()->addMinutes(10),
+        ]);
+
+        $this->smsService->sendSms($phone, "Your GETVNT verification OTP code is: {$plainOtp}");
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Phone OTP code sent successfully.',
+        ]);
+    }
+
     public function verifyPhone(Request $request)
     {
         $request->validate(['otp' => 'required|string', 'phone' => 'required|string']);
 
-        $user = $request->user();
-        if (!$user) {
-            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        $user = $request->user() ?: User::where('phone', $request->phone)->first();
+
+        $record = PhoneOtp::where('phone', $request->phone)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+
+        if (!$record) {
+            return response()->json(['success' => false, 'message' => 'Invalid or expired OTP code.'], 422);
         }
 
-        $user->update(['phone_verified_at' => now()]);
+        $record->increment('attempts');
+        if ($record->attempts > 5) {
+            $record->delete();
+            return response()->json(['success' => false, 'message' => 'Maximum OTP verification attempts exceeded.'], 422);
+        }
+
+        if (!Hash::check($request->otp, $record->otp)) {
+            return response()->json(['success' => false, 'message' => 'Invalid OTP code.'], 422);
+        }
+
+        if ($user) {
+            $user->forceFill(['phone_verified_at' => now()])->save();
+        }
+        $record->delete();
 
         return response()->json([
             'success' => true,
@@ -157,7 +280,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
@@ -170,19 +293,19 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $token = $user->createToken('getvnt_auth_token')->plainTextToken;
+        $token = $user->createToken('getvnt_auth_token', $this->getTokenAbilities($user))->plainTextToken;
 
         return response()->json([
             'success' => true,
-            'token' => $token,
-            'data' => [
-                'token' => $token,
-                'user' => $user->load('tenant'),
-                'role' => $user->role,
-                'verification_status' => $user->verification_status,
-                'subscription_plan' => $user->subscription_plan,
+            'token'   => $token,
+            'data'    => [
+                'token'                => $token,
+                'user'                 => $user->load('tenant'),
+                'role'                 => $user->role,
+                'verification_status'  => $user->verification_status,
+                'subscription_plan'    => $user->subscription_plan,
                 'is_trusted_organizer' => $user->isTrustedOrganizer(),
-                'is_super_admin' => $user->isSuperAdmin(),
+                'is_super_admin'        => $user->isSuperAdmin(),
             ],
             'message' => 'Login successful.',
         ]);
@@ -194,14 +317,14 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'user' => $user,
-                'role' => $user->role,
-                'verification_status' => $user->verification_status,
-                'subscription_plan' => $user->subscription_plan,
-                'verified_badge' => (bool) $user->verified_badge,
+            'data'    => [
+                'user'                 => $user,
+                'role'                 => $user->role,
+                'verification_status'  => $user->verification_status,
+                'subscription_plan'    => $user->subscription_plan,
+                'verified_badge'       => (bool) $user->verified_badge,
                 'is_trusted_organizer' => $user->isTrustedOrganizer(),
-                'is_super_admin' => $user->isSuperAdmin(),
+                'is_super_admin'        => $user->isSuperAdmin(),
             ],
         ]);
     }
@@ -221,22 +344,24 @@ class AuthController extends Controller
         $user = $request->user();
 
         $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'phone' => 'nullable|string',
-            'bio' => 'nullable|string',
-            'country' => 'nullable|string',
-            'language' => 'nullable|string',
-            'timezone' => 'nullable|string',
+            'name'       => 'sometimes|string|max:255',
+            'phone'      => 'nullable|string',
+            'bio'        => 'nullable|string',
+            'country'    => 'nullable|string',
+            'language'   => 'nullable|string',
+            'timezone'   => 'nullable|string',
             'avatar_url' => 'nullable|string',
         ]);
 
-        $user->update($request->only([
+        $allowedData = $request->only([
             'name', 'phone', 'bio', 'country', 'language', 'timezone', 'avatar_url'
-        ]));
+        ]);
+
+        $user->update($allowedData);
 
         return response()->json([
             'success' => true,
-            'data' => $user,
+            'data'    => $user,
             'message' => 'Profile updated successfully.',
         ]);
     }
@@ -245,7 +370,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'new_password' => 'required|string|min:8',
+            'new_password'     => 'required|string|min:8',
         ]);
 
         $user = $request->user();
@@ -261,6 +386,11 @@ class AuthController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
+        $currentTokenId = $user->currentAccessToken()?->id;
+        if ($currentTokenId) {
+            $user->tokens()->where('id', '!=', $currentTokenId)->delete();
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Password changed successfully.',
@@ -269,7 +399,19 @@ class AuthController extends Controller
 
     public function deleteAccount(Request $request)
     {
+        $request->validate([
+            'password' => 'required|string',
+        ]);
+
         $user = $request->user();
+
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Incorrect password.',
+            ], 422);
+        }
+
         $user->tokens()->delete();
         $user->delete();
 
@@ -281,9 +423,9 @@ class AuthController extends Controller
 
     public function googleRedirect(Request $request)
     {
-        $clientId = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
+        $clientId     = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
         $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
-        $redirectUri = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+        $redirectUri  = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         if (!$clientId || !$clientSecret) {
             return response()->json([
@@ -292,9 +434,15 @@ class AuthController extends Controller
             ], 400);
         }
 
-        // Encode redirect_to in the state param — Google preserves state through the OAuth flow
-        $redirectTo = $request->get('redirect_to', 'workspace');
-        $state = base64_encode(json_encode(['redirect_to' => $redirectTo, 'nonce' => Str::random(16)]));
+        $requestedRedirect = $request->get('redirect_to', 'workspace');
+        $allowList = ['marketplace', 'workspace', 'admin'];
+        $redirectTo = in_array($requestedRedirect, $allowList, true) ? $requestedRedirect : 'workspace';
+
+        $stateKey = Str::random(32);
+        Cache::put("google_oauth_state:{$stateKey}", [
+            'redirect_to' => $redirectTo,
+            'ip'          => $request->ip(),
+        ], 300);
 
         $targetUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
             'client_id'     => $clientId,
@@ -303,7 +451,7 @@ class AuthController extends Controller
             'scope'         => 'openid profile email',
             'access_type'   => 'offline',
             'prompt'        => 'consent',
-            'state'         => $state,
+            'state'         => $stateKey,
         ]);
 
         return response()->json([
@@ -318,19 +466,17 @@ class AuthController extends Controller
         $code  = $request->get('code');
         $state = $request->get('state', '');
 
-        // Decode redirect_to from state param (encoded in googleRedirect)
-        $redirectTo = 'workspace';
-        if ($state) {
-            try {
-                $decoded = json_decode(base64_decode($state), true);
-                $redirectTo = $decoded['redirect_to'] ?? 'workspace';
-            } catch (\Throwable $e) {}
+        $stateData = Cache::pull("google_oauth_state:{$state}");
+        if (!$stateData) {
+            $frontendBase = env('WORKSPACE_URL', 'https://app.getvnt.com');
+            return redirect($frontendBase . '/?oauth_error=invalid_state');
         }
 
-        // Front-end URLs to redirect to after auth
+        $redirectTo = $stateData['redirect_to'] ?? 'workspace';
         $frontendUrls = [
             'marketplace' => env('MARKETPLACE_URL', 'https://getvnt.com'),
             'workspace'   => env('WORKSPACE_URL', 'https://app.getvnt.com'),
+            'admin'       => env('ADMIN_URL', 'https://admin.getvnt.com'),
         ];
         $frontendBase = $frontendUrls[$redirectTo] ?? $frontendUrls['workspace'];
 
@@ -343,7 +489,7 @@ class AuthController extends Controller
         $redirectUri  = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         try {
-            $tokenResponse = \Illuminate\Support\Facades\Http::post('https://oauth2.googleapis.com/token', [
+            $tokenResponse = Http::post('https://oauth2.googleapis.com/token', [
                 'code'          => $code,
                 'client_id'     => $clientId,
                 'client_secret' => $clientSecret,
@@ -356,16 +502,21 @@ class AuthController extends Controller
             }
 
             $accessToken  = $tokenResponse->json('access_token');
-            $userResponse = \Illuminate\Support\Facades\Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+            $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
             if (!$userResponse->successful()) {
                 return redirect($frontendBase . '/?oauth_error=userinfo_failed');
             }
 
-            $googleUser = $userResponse->json();
-            $email      = strtolower($googleUser['email'] ?? '');
-            $name       = $googleUser['name'] ?? 'Google User';
-            $avatar     = $googleUser['picture'] ?? null;
+            $googleUser    = $userResponse->json();
+            $emailVerified = $googleUser['email_verified'] ?? false;
+            if (!$emailVerified) {
+                return redirect($frontendBase . '/?oauth_error=unverified_google_email');
+            }
+
+            $email  = strtolower($googleUser['email'] ?? '');
+            $name   = $googleUser['name'] ?? 'Google User';
+            $avatar = $googleUser['picture'] ?? null;
 
             $wasRecentlyCreated = false;
             $user = User::where('email', $email)->first();
@@ -373,6 +524,7 @@ class AuthController extends Controller
                 $user = User::create([
                     'id'                => (string) Str::uuid(),
                     'name'              => $name,
+                    'email'             => $email,
                     'password'          => Hash::make(Str::random(24)),
                     'role'              => 'attendee',
                     'avatar_url'        => $avatar,
@@ -382,24 +534,48 @@ class AuthController extends Controller
                 $wasRecentlyCreated = true;
             }
 
-            $token = $user->createToken('google_oauth_token')->plainTextToken;
+            $exchangeCode = Str::random(40);
+            Cache::put("google_exchange:{$exchangeCode}", [
+                'user_id'     => $user->id,
+                'was_created' => $wasRecentlyCreated,
+            ], 60);
 
-            // Redirect browser to frontend with token & is_new flag in URL
-            $redirectUrl = $frontendBase . '/?oauth_token=' . urlencode($token)
-                . '&is_new=' . ($wasRecentlyCreated ? '1' : '0')
-                . '&oauth_user=' . urlencode(json_encode([
-                    'id'         => $user->id,
-                    'name'       => $user->name,
-                    'email'      => $user->email,
-                    'role'       => $user->role,
-                    'avatar_url' => $user->avatar_url,
-                    'is_new'     => $wasRecentlyCreated,
-                ]));
-
-            return redirect($redirectUrl);
+            return redirect($frontendBase . '/auth/google/callback?code=' . urlencode($exchangeCode) . '&is_new=' . ($wasRecentlyCreated ? '1' : '0'));
 
         } catch (\Throwable $e) {
             return redirect($frontendBase . '/?oauth_error=' . urlencode($e->getMessage()));
         }
+    }
+
+    public function googleExchange(Request $request)
+    {
+        $request->validate(['code' => 'required|string']);
+
+        $data = Cache::pull("google_exchange:{$request->code}");
+        if (!$data || !isset($data['user_id'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired OAuth exchange code.',
+            ], 422);
+        }
+
+        $user  = User::findOrFail($data['user_id']);
+        $token = $user->createToken('google_oauth_token', $this->getTokenAbilities($user))->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'token'   => $token,
+            'data'    => [
+                'token'                => $token,
+                'user'                 => $user->load('tenant'),
+                'role'                 => $user->role,
+                'verification_status'  => $user->verification_status,
+                'subscription_plan'    => $user->subscription_plan,
+                'is_trusted_organizer' => $user->isTrustedOrganizer(),
+                'is_super_admin'        => $user->isSuperAdmin(),
+                'is_new'               => $data['was_created'] ?? false,
+            ],
+            'message' => 'Google OAuth login successful.',
+        ]);
     }
 }
