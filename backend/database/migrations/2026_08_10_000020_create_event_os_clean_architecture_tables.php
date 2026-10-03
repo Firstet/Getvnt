@@ -19,6 +19,9 @@ return new class extends Migration
             if (!Schema::hasColumn('users', 'verified_badge')) {
                 $table->boolean('verified_badge')->default(false);
             }
+            if (!Schema::hasColumn('users', 'phone_verified_at')) {
+                $table->timestamp('phone_verified_at')->nullable();
+            }
         });
 
         // 2. Organizer KYC Verifications Table

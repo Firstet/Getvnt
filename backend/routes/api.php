@@ -34,11 +34,14 @@ Route::prefix('v1')->group(function () {
         Route::post('/login', [AuthController::class, 'login'])->name('login')->middleware('throttle:auth-sensitive');
         Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:auth-sensitive');
         Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:auth-sensitive');
+        Route::post('/send-email-verification', [AuthController::class, 'sendEmailVerification'])->middleware('throttle:verify-token');
         Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('throttle:verify-token');
+        Route::post('/send-phone-otp', [AuthController::class, 'sendPhoneOtp'])->middleware('throttle:verify-token');
         Route::post('/verify-phone', [AuthController::class, 'verifyPhone'])->middleware('throttle:verify-token');
 
         Route::get('/google', [AuthController::class, 'googleRedirect']);
         Route::get('/google/callback', [AuthController::class, 'googleCallback']);
+        Route::post('/google/exchange', [AuthController::class, 'googleExchange'])->middleware('throttle:auth-sensitive');
 
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
@@ -126,6 +129,7 @@ Route::prefix('v1')->group(function () {
         // Section 2 & 3: User & Organizer Control Room
         Route::get('/users', [PlatformAdminController::class, 'users']);
         Route::post('/users/{id}/impersonate', [PlatformAdminController::class, 'impersonateUser']);
+        Route::post('/impersonate/exchange', [PlatformAdminController::class, 'impersonateExchange']);
         Route::delete('/users/{id}', [PlatformAdminController::class, 'deleteUser']);
         Route::post('/users/{id}/role', [PlatformAdminController::class, 'updateUserRole']);
         Route::post('/users/{id}/plan', [PlatformAdminController::class, 'updateUserPlan']);

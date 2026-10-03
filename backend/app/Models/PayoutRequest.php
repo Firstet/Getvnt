@@ -10,7 +10,19 @@ class PayoutRequest extends Model
 {
     use HasFactory, HasUuids;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'tenant_id',
+        'user_id',
+        'amount',
+        'currency',
+        'status',
+        'payout_method',
+        'bank_account_details',
+        'reference_id',
+        'notes',
+        'failure_reason',
+        'disbursed_at',
+    ];
 
     protected $casts = [
         'amount' => 'decimal:2',
