@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\MediaUploadController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\Organizer\WebsiteBuilderController;
 use App\Http\Controllers\Api\V1\OrganizerWorkspaceController;
+use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\PlatformAdminController;
 use App\Http\Controllers\Api\V1\WalletController;
 use App\Http\Middleware\RequireKycApproved;
@@ -240,4 +241,7 @@ Route::prefix('v1')->group(function () {
 
     Route::post('/orders/checkout', [OrderController::class, 'checkout'])->middleware('throttle:orders-checkout');
     Route::get('/orders/lookup', [OrderController::class, 'lookup'])->middleware('throttle:orders-lookup');
+
+    Route::post('/webhooks/payments/{gateway}', [PaymentWebhookController::class, 'handleWebhook']);
+    Route::post('/webhooks/{gateway}', [PaymentWebhookController::class, 'handleWebhook']);
 });
