@@ -17,6 +17,10 @@ echo "📦 Building and starting containerized services..."
 docker compose build --no-cache web api
 docker compose up -d --remove-orphans
 
+# 3. Run database migrations as one-off deploy step
+echo "🗄️ Running database migrations..."
+docker compose exec -T api php artisan migrate --force
+
 echo "------------------------------------------------------"
 echo "✅ Deployment Successful!"
 echo "------------------------------------------------------"
@@ -24,5 +28,5 @@ echo " ➔ Unified Web App (Port 80): http://localhost/"
 echo " ➔ Public Storefront:        http://localhost/"
 echo " ➔ Organizer Workspace:     http://localhost/workspace/"
 echo " ➔ Super Admin Center:       http://localhost/admin/"
-echo " ➔ API Health Check:         http://localhost/api/v1/health"
+echo " ➔ Platform Health Check:    http://localhost/up"
 echo "======================================================"
