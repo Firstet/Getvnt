@@ -11,6 +11,7 @@
     "dev:workspace": "npm --prefix apps/workspace run dev",
     "dev:admin": "npm --prefix apps/admin run dev",
     "gateway": "node gateway.js",
+    "build": "npm run build:marketplace && npm run build:workspace && npm run build:admin",
     "build:marketplace": "npm --prefix apps/marketplace run build",
     "build:workspace": "npm --prefix apps/workspace run build",
     "build:admin": "npm --prefix apps/admin run build"
