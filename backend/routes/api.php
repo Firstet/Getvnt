@@ -26,16 +26,16 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('v1')->group(function () {
-    Route::post('/ai/chat', [EnterpriseAiController::class, 'chat']);
+    Route::post('/ai/chat', [EnterpriseAiController::class, 'chat'])->middleware(['auth:sanctum', 'throttle:ai-chat']);
 
     // ─── 1. AUTHENTICATION & IDENTITY ENGINE ─────────────────────────────────
     Route::prefix('auth')->group(function () {
-        Route::post('/register', [AuthController::class, 'registerMarketplace']);
-        Route::post('/login', [AuthController::class, 'login'])->name('login');
-        Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
-        Route::post('/reset-password', [AuthController::class, 'resetPassword']);
-        Route::post('/verify-email', [AuthController::class, 'verifyEmail']);
-        Route::post('/verify-phone', [AuthController::class, 'verifyPhone']);
+        Route::post('/register', [AuthController::class, 'registerMarketplace'])->middleware('throttle:auth-sensitive');
+        Route::post('/login', [AuthController::class, 'login'])->name('login')->middleware('throttle:auth-sensitive');
+        Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:auth-sensitive');
+        Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:auth-sensitive');
+        Route::post('/verify-email', [AuthController::class, 'verifyEmail'])->middleware('throttle:verify-token');
+        Route::post('/verify-phone', [AuthController::class, 'verifyPhone'])->middleware('throttle:verify-token');
 
         Route::get('/google', [AuthController::class, 'googleRedirect']);
         Route::get('/google/callback', [AuthController::class, 'googleCallback']);
@@ -224,7 +224,7 @@ Route::prefix('v1')->group(function () {
 
     // ─── 6. MEDIA UPLOAD & STORAGE ───────────────────────────────────────────
     Route::middleware('auth:sanctum')->group(function () {
-        Route::post('/media/upload', [MediaUploadController::class, 'upload']);
+        Route::post('/media/upload', [MediaUploadController::class, 'upload'])->middleware('throttle:media-upload');
     });
 
     // ─── 7. PUBLIC MARKETPLACE & CHECKOUT ────────────────────────────────────
@@ -234,6 +234,6 @@ Route::prefix('v1')->group(function () {
         Route::get('/cities', [MarketplaceController::class, 'cities']);
     });
 
-    Route::post('/orders/checkout', [OrderController::class, 'checkout']);
-    Route::get('/orders/lookup', [OrderController::class, 'lookup']);
+    Route::post('/orders/checkout', [OrderController::class, 'checkout'])->middleware('throttle:orders-checkout');
+    Route::get('/orders/lookup', [OrderController::class, 'lookup'])->middleware('throttle:orders-lookup');
 });
