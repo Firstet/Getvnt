@@ -1,5 +1,12 @@
 <?php
 
+$isLocal = env('APP_ENV') === 'local';
+$defaultOrigins = 'https://getvnt.com,https://www.getvnt.com,https://app.getvnt.com,https://admin.getvnt.com,https://api.getvnt.com';
+if ($isLocal) {
+    $defaultOrigins .= ',http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002,http://127.0.0.1:3003';
+}
+$allowedOrigins = array_filter(array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', $defaultOrigins))));
+
 return [
 
     /*
@@ -19,18 +26,17 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', 'https://getvnt.com,https://www.getvnt.com,https://app.getvnt.com,https://admin.getvnt.com,https://api.getvnt.com,http://169.58.142.29,http://169.58.142.29:8080,http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003')),
+    'allowed_origins' => $allowedOrigins,
 
     'allowed_origins_patterns' => [
         '#^https?://.*\.getvnt\.com$#',
-        '#^https?://.*\.sslip\.io$#',
     ],
 
     'allowed_headers' => ['*'],
 
     'exposed_headers' => [],
 
-    'max_age' => 0,
+    'max_age' => 86400,
 
     'supports_credentials' => true,
 
