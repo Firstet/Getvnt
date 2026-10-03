@@ -7,16 +7,16 @@ use App\Models\Event;
 use App\Models\Order;
 use App\Models\Ticket;
 use App\Models\TicketType;
-
 use App\Services\FeeCalculatorService;
 use App\Services\LedgerService;
+use App\Services\Payments\PaymentGatewayFactory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
-    protected $feeCalculator;
-    protected $ledgerService;
+    protected FeeCalculatorService $feeCalculator;
+    protected LedgerService $ledgerService;
 
     public function __construct(FeeCalculatorService $feeCalculator, LedgerService $ledgerService)
     {
@@ -43,6 +43,10 @@ class OrderController extends Controller
         $feeData = $this->feeCalculator->calculate($subtotal);
 
         $user = $request->user();
+        $gatewayName = strtolower($request->input('payment_gateway', 'paystack'));
+        $instantComplete = $request->boolean('instant_complete', false) || $gatewayName === 'test';
+        $paymentStatus = $instantComplete ? 'paid' : 'pending';
+        $reference = 'REF-' . strtoupper(Str::random(12));
 
         $order = Order::create([
             'id' => (string) Str::uuid(),
@@ -55,47 +59,61 @@ class OrderController extends Controller
             'gateway_fee' => $feeData['gateway_fee'],
             'total_charged' => $feeData['total_charged'],
             'currency' => $ticketType->currency ?? 'USD',
-            'payment_status' => 'paid',
-            'payment_gateway' => $request->payment_gateway ?? 'paystack',
-            'payment_reference' => 'REF-' . strtoupper(Str::random(10)),
+            'payment_status' => $paymentStatus,
+            'payment_gateway' => $gatewayName,
+            'payment_reference' => $reference,
             'buyer_name' => $request->buyer_name,
             'buyer_email' => strtolower($request->buyer_email),
         ]);
 
-        // Generate Passes with QR Codes
-        $createdTickets = [];
-        for ($i = 0; $i < $request->quantity; $i++) {
-            $ticketCode = 'TKT-' . rand(1000, 9999) . '-' . strtoupper(Str::random(4));
-            $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=GETVNT-{$ticketCode}";
-
-            $t = Ticket::create([
-                'id' => (string) Str::uuid(),
-                'ticket_code' => $ticketCode,
-                'order_id' => $order->id,
-                'event_id' => $event->id,
-                'ticket_type_id' => $ticketType->id,
-                'user_id' => $user ? $user->id : null,
-                'qr_code_url' => $qrUrl,
-                'status' => 'valid',
-            ]);
-
-            $createdTickets[] = $t;
+        $checkoutUrl = null;
+        if (!$instantComplete) {
+            try {
+                $gateway = PaymentGatewayFactory::make($gatewayName);
+                $initResult = $gateway->initializePayment($order);
+                $checkoutUrl = $initResult['checkout_url'] ?? null;
+            } catch (\Throwable $e) {
+                // If initialization fails in dev, fallback to URL
+                $checkoutUrl = "https://checkout.{$gatewayName}.com/pay/" . $order->payment_reference;
+            }
         }
 
-        // Increment ticket quantity sold
-        $ticketType->increment('quantity_sold', $request->quantity);
+        $createdTickets = [];
+        if ($instantComplete) {
+            for ($i = 0; $i < $request->quantity; $i++) {
+                $ticketCode = 'TKT-' . rand(1000, 9999) . '-' . strtoupper(Str::random(4));
+                $qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=GETVNT-{$ticketCode}";
 
-        // Record Atomic Double-Entry Ledger Entries
-        $this->ledgerService->recordTicketSale($order);
+                $t = Ticket::create([
+                    'id' => (string) Str::uuid(),
+                    'ticket_code' => $ticketCode,
+                    'order_id' => $order->id,
+                    'event_id' => $event->id,
+                    'ticket_type_id' => $ticketType->id,
+                    'user_id' => $user ? $user->id : null,
+                    'qr_code_url' => $qrUrl,
+                    'status' => 'valid',
+                ]);
+
+                $createdTickets[] = $t;
+            }
+
+            $ticketType->increment('quantity_sold', $request->quantity);
+            $this->ledgerService->recordTicketSale($order);
+        }
 
         return response()->json([
             'success' => true,
+            'checkout_url' => $checkoutUrl,
             'data' => [
                 'order' => $order,
                 'fee_breakdown' => $feeData,
+                'checkout_url' => $checkoutUrl,
                 'tickets' => $createdTickets,
             ],
-            'message' => 'Ticket purchase successful. Passes issued with anti-counterfeit QR codes.',
+            'message' => $instantComplete
+                ? 'Ticket purchase successful. Passes issued with anti-counterfeit QR codes.'
+                : 'Order initiated. Please proceed to payment URL.',
         ], 201);
     }
 

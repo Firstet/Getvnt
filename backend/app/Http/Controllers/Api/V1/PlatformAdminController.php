@@ -521,12 +521,8 @@ class PlatformAdminController extends Controller
 
     public function replayWebhook(Request $request, string $id)
     {
-        $webhook = PaymentWebhook::findOrFail($id);
-        $webhook->update(['retry_count' => $webhook->retry_count + 1, 'status' => 'success']);
-
-        $this->logAdminAction($request->user(), 'replay_webhook', 'webhook', $webhook->id);
-
-        return response()->json(['success' => true, 'message' => 'Webhook event replayed successfully.']);
+        $this->logAdminAction($request->user(), 'replay_webhook', 'webhook', $id);
+        return app(\App\Http\Controllers\Api\V1\PaymentWebhookController::class)->replayWebhook($request, $id);
     }
 
     public function refunds()
