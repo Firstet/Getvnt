@@ -102,15 +102,32 @@ class AuthAndSubscriptionSeeder extends Seeder
         ]);
 
         // 3. Super Admin User
+        $isProduction = app()->environment('production');
+        $adminEmail = env('ADMIN_EMAIL');
+        $adminPassword = env('ADMIN_PASSWORD');
+
+        if ($isProduction) {
+            $forceSeed = env('FORCE_SEED_ADMIN') || in_array('--force-seed-admin', $_SERVER['argv'] ?? []);
+            if (!$forceSeed) {
+                throw new \RuntimeException("Refusing to seed admin user in production without --force-seed-admin flag.");
+            }
+            if (empty($adminEmail) || empty($adminPassword)) {
+                throw new \RuntimeException("ADMIN_EMAIL and ADMIN_PASSWORD environment variables are required in production.");
+            }
+        } else {
+            $adminEmail = $adminEmail ?: 'admin@getvnt.com';
+            $adminPassword = $adminPassword ?: 'Password123!';
+        }
+
         $superAdmin = User::updateOrCreate(
-            ['email' => 'admin@getvnt.com'],
+            ['email' => $adminEmail],
             [
                 'id' => (string) Str::uuid(),
                 'first_name' => 'Super',
                 'last_name' => 'Admin',
                 'name' => 'Super Admin',
-                'email' => 'admin@getvnt.com',
-                'password' => Hash::make('Password123!'),
+                'email' => $adminEmail,
+                'password' => Hash::make($adminPassword),
                 'role' => 'super_admin',
                 'is_active' => true,
                 'email_verified_at' => now(),
