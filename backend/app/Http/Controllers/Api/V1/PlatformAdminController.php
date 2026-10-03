@@ -632,10 +632,11 @@ class PlatformAdminController extends Controller
     {
         $providers = AiProvider::orderBy('id', 'asc')->get()->unique('slug')->values();
 
-        // Map provider attribute to slug for frontend compatibility
+        // Map provider attribute to slug for frontend compatibility & mask API key
         $mappedProviders = $providers->map(function ($prov) {
             $arr = $prov->toArray();
             $arr['provider'] = $prov->slug ?? $prov->provider ?? 'openai';
+            $arr['api_key'] = $this->maskApiKey($prov->api_key);
             return $arr;
         });
 
@@ -685,6 +686,11 @@ class PlatformAdminController extends Controller
         ]);
     }
 
+    public function aiProviders(Request $request)
+    {
+        return $this->aiFleet($request);
+    }
+
     public function updateAiProvider(Request $request, string $id)
     {
         $cleanId = str_replace('prov-', '', $id);
@@ -700,6 +706,12 @@ class PlatformAdminController extends Controller
             ->first();
 
         $data = $request->only(['name', 'slug', 'api_key', 'default_model', 'base_url', 'available_models', 'priority', 'fallback_provider', 'temperature', 'status']);
+        
+        // Preserve existing DB key if frontend sent back masked key (starting with ****)
+        if (isset($data['api_key']) && str_starts_with($data['api_key'], '****')) {
+            unset($data['api_key']);
+        }
+
         if (isset($data['slug'])) {
             $data['slug'] = $aliases[$data['slug']] ?? $data['slug'];
         }
@@ -722,7 +734,10 @@ class PlatformAdminController extends Controller
 
         $this->logAdminAction($request->user(), 'update_ai_provider', 'ai_provider', $provider->id);
 
-        return response()->json(['success' => true, 'data' => $provider, 'message' => "AI Provider {$provider->name} updated."]);
+        $responseProvider = $provider->fresh()->toArray();
+        $responseProvider['api_key'] = $this->maskApiKey($responseProvider['api_key'] ?? null);
+
+        return response()->json(['success' => true, 'data' => $responseProvider, 'message' => "AI Provider {$provider->name} updated."]);
     }
 
     public function createAiProvider(Request $request)
@@ -756,7 +771,10 @@ class PlatformAdminController extends Controller
 
         $this->logAdminAction($request->user(), 'create_ai_provider', 'ai_provider', $provider->id);
 
-        return response()->json(['success' => true, 'data' => $provider, 'message' => "AI Provider {$provider->name} created."]);
+        $responseProvider = $provider->fresh()->toArray();
+        $responseProvider['api_key'] = $this->maskApiKey($responseProvider['api_key'] ?? null);
+
+        return response()->json(['success' => true, 'data' => $responseProvider, 'message' => "AI Provider {$provider->name} created."]);
     }
 
     public function deleteAiProvider(Request $request, string $id)
@@ -1479,6 +1497,17 @@ class PlatformAdminController extends Controller
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
+    }
+
+    protected function maskApiKey(?string $key): ?string
+    {
+        if (!$key || trim($key) === '') {
+            return null;
+        }
+        if (str_starts_with($key, '****')) {
+            return $key;
+        }
+        return strlen($key) <= 4 ? '****' : '****' . substr($key, -4);
     }
 }
 
