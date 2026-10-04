@@ -62,31 +62,40 @@ class WalletController extends Controller
 
         $user = $request->user();
         $tenantId = $user->tenant_id;
-        $balance = $this->ledgerService->getOrganizerBalance($tenantId);
 
-        if ($request->amount > $balance) {
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request, $user, $tenantId) {
+            $totalBalance = $this->ledgerService->getOrganizerBalance($tenantId);
+            $pendingPayouts = (float) PayoutRequest::where('tenant_id', $tenantId)
+                ->where('status', 'pending')
+                ->lockForUpdate()
+                ->sum('amount');
+
+            $availableBalance = max(0.0, $totalBalance - $pendingPayouts);
+
+            if ((float) $request->amount > $availableBalance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Insufficient available wallet balance for payout. Available balance after pending payouts is \${$availableBalance}.",
+                ], 422);
+            }
+
+            $payout = PayoutRequest::create([
+                'id' => (string) Str::uuid(),
+                'tenant_id' => $tenantId,
+                'user_id' => $user->id,
+                'amount' => $request->amount,
+                'currency' => 'USD',
+                'bank_name' => $request->bank_name,
+                'account_number' => $request->account_number,
+                'account_name' => $request->account_name,
+                'status' => 'pending',
+            ]);
+
             return response()->json([
-                'success' => false,
-                'message' => "Insufficient wallet balance. Available balance is \${$balance}.",
-            ], 400);
-        }
-
-        $payout = PayoutRequest::create([
-            'id' => (string) Str::uuid(),
-            'tenant_id' => $tenantId,
-            'user_id' => $user->id,
-            'amount' => $request->amount,
-            'currency' => 'USD',
-            'bank_name' => $request->bank_name,
-            'account_number' => $request->account_number,
-            'account_name' => $request->account_name,
-            'status' => 'pending',
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'data' => $payout,
-            'message' => 'Payout request submitted for disbursal.',
-        ], 201);
+                'success' => true,
+                'data' => $payout,
+                'message' => 'Payout request submitted for disbursal.',
+            ], 201);
+        });
     }
 }

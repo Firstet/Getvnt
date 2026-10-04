@@ -595,16 +595,46 @@ class PlatformAdminController extends Controller
 
     public function disbursePayout(Request $request, string $id)
     {
-        $payout = PayoutRequest::findOrFail($id);
-        $payout->update([
-            'status' => 'completed',
-            'disbursed_at' => now(),
-            'disbursed_by' => $request->user()->id,
-        ]);
+        $admin = $request->user();
 
-        $this->logAdminAction($request->user(), 'disburse_payout', 'payout', $payout->id);
+        return DB::transaction(function () use ($admin, $id) {
+            $payout = PayoutRequest::where('id', $id)->lockForUpdate()->first();
 
-        return response()->json(['success' => true, 'message' => 'Payout disbursed successfully.']);
+            if (!$payout) {
+                return response()->json(['success' => false, 'message' => 'Payout request not found.'], 404);
+            }
+
+            if ($payout->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Payout request #{$id} is not in pending status (current status: {$payout->status}).",
+                ], 422);
+            }
+
+            $payout->update([
+                'status' => 'completed',
+                'disbursed_at' => now(),
+                'disbursed_by' => $admin->id,
+            ]);
+
+            // Create atomic debit entry in ledger_entries for organizer wallet
+            LedgerEntry::create([
+                'id' => (string) Str::uuid(),
+                'tenant_id' => $payout->tenant_id,
+                'order_id' => null,
+                'type' => 'payout_disbursed',
+                'direction' => 'debit',
+                'amount' => $payout->amount,
+                'currency' => $payout->currency ?? 'USD',
+                'account_type' => 'organizer_wallet',
+                'description' => "Payout disbursed for Request #{$payout->id}",
+                'reference' => 'PO-' . strtoupper(Str::random(10)),
+            ]);
+
+            $this->logAdminAction($admin, 'disburse_payout', 'payout', $payout->id);
+
+            return response()->json(['success' => true, 'message' => 'Payout disbursed successfully.']);
+        });
     }
 
     public function cmsSections()
