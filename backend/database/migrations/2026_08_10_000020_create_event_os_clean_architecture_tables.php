@@ -119,6 +119,7 @@ return new class extends Migration
         // 6. Tickets Table (Passes with QR Codes)
         Schema::create('tickets', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->uuid('tenant_id')->nullable();
             $table->string('ticket_code')->unique();
             $table->uuid('order_id');
             $table->uuid('event_id');

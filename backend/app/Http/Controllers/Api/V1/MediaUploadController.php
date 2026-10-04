@@ -3,47 +3,104 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 use App\Models\SystemIntegrationSetting;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class MediaUploadController extends Controller
 {
-    /**
-     * Upload Media File (Logo, Banner, Favicon, Event Poster, Avatar)
-     */
+    protected array $allowedMimeTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'application/pdf',
+    ];
+
+    protected array $blockedExtensions = [
+        'php', 'phtml', 'php3', 'php4', 'php5', 'phps', 'phar',
+        'exe', 'sh', 'bash', 'cmd', 'bat', 'cgi', 'pl', 'py', 'js',
+        'html', 'htm', 'shtml', 'asp', 'aspx', 'jsp', 'dll', 'so',
+    ];
+
     public function upload(Request $request)
     {
         $request->validate([
-            'file'   => 'required|file|max:20480', // Allow up to 20MB files
+            'file'   => 'required|file|max:10240', // Max 10MB overall
             'folder' => 'nullable|string',
         ]);
 
-        $file   = $request->file('file');
-        $folder = $request->input('folder', 'branding');
+        $file = $request->file('file');
 
-        // Build unique filename
-        $extension = strtolower($file->getClientOriginalExtension() ?: 'png');
-        $basename  = Str::slug(pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME));
-        if (empty($basename)) {
-            $basename = 'media_asset';
+        $mimeType = strtolower($file->getMimeType() ?: '');
+        $extension = strtolower($file->getClientOriginalExtension() ?: '');
+
+        // 1. Strict MIME type validation
+        if (!in_array($mimeType, $this->allowedMimeTypes, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid file type. Only JPEG, PNG, WEBP, GIF, and PDF files are allowed.',
+            ], 422);
         }
-        $filename  = $basename . '_' . time() . '_' . Str::random(6) . '.' . $extension;
 
-        // Store on the `public` disk → storage/app/public/media/{folder}/{filename}
-        $path = $file->storeAs("media/{$folder}", $filename, 'public');
+        // 2. Executable extension check
+        if (in_array($extension, $this->blockedExtensions, true)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'File extension blocked for security reasons.',
+            ], 422);
+        }
 
-        // Generate absolute URL with port 8000 guarantee
+        // 3. File size check per type (5MB for images, 10MB for PDF)
+        $isPdf = $mimeType === 'application/pdf';
+        $maxSizeBytes = $isPdf ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+        if ($file->getSize() > $maxSizeBytes) {
+            $limitMb = $isPdf ? '10MB' : '5MB';
+            return response()->json([
+                'success' => false,
+                'message' => "File size exceeds maximum allowed size of {$limitMb}.",
+            ], 422);
+        }
+
+        // 4. Sanitize extension mapping
+        $safeExtension = match ($mimeType) {
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+            'image/gif' => 'gif',
+            'application/pdf' => 'pdf',
+            default => 'bin',
+        };
+
+        // 5. Unique, sanitized filename
+        $rawBasename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $slugName = Str::slug($rawBasename) ?: 'media_asset';
+        $filename = $slugName . '_' . (string) Str::uuid() . '.' . $safeExtension;
+
+        // 6. Tenant-isolated storage path
+        $user = $request->user();
+        $tenantId = $user?->tenant_id ?: 'global';
+        $year = date('Y');
+        $month = date('m');
+
+        $folder = $request->input('folder', 'branding');
+        $storageDir = "tenants/{$tenantId}/uploads/{$year}/{$month}";
+
+        $path = $file->storeAs($storageDir, $filename, 'public');
+
         $baseUrl = config('app.url', 'http://localhost:8000');
         $url = $baseUrl . '/storage/' . $path;
 
-        Log::info('Media uploaded successfully', ['path' => $path, 'url' => $url]);
+        Log::info('Media asset uploaded securely', [
+            'tenant_id' => $tenantId,
+            'path' => $path,
+            'url' => $url,
+            'mime_type' => $mimeType,
+        ]);
 
-        // Auto update branding settings in system database if key field provided
         $fieldKey = $request->input('field_key');
-        if ($fieldKey && in_array($fieldKey, ['logo_color_url', 'logo_white_url', 'favicon_url', 'hero_banner_url'])) {
+        if ($fieldKey && in_array($fieldKey, ['logo_color_url', 'logo_white_url', 'favicon_url', 'hero_banner_url'], true)) {
             try {
                 $setting = SystemIntegrationSetting::where('key', 'system_settings')->first();
                 $data = $setting ? json_decode($setting->value, true) : [];
@@ -55,10 +112,10 @@ class MediaUploadController extends Controller
                     [
                         'name' => 'System & Environment Settings',
                         'value' => json_encode($data),
-                        'is_encrypted' => false
+                        'is_encrypted' => false,
                     ]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 Log::error('Failed updating branding setting for key', ['field_key' => $fieldKey, 'error' => $e->getMessage()]);
             }
         }
@@ -71,8 +128,8 @@ class MediaUploadController extends Controller
                 'path'      => $path,
                 'url'       => $url,
                 'size'      => $file->getSize(),
-                'mime_type' => $file->getClientMimeType(),
-            ]
+                'mime_type' => $mimeType,
+            ],
         ], 201);
     }
 }

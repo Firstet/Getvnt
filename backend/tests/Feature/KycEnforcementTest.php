@@ -28,7 +28,15 @@ class KycEnforcementTest extends TestCase
 
     public function test_approved_user_allowed_workspace_dashboard()
     {
+        $tenant = \App\Models\Tenant::create([
+            'id' => (string) \Illuminate\Support\Str::uuid(),
+            'name' => 'Kyc Approved Tenant',
+            'slug' => 'kyc-approved-tenant',
+            'status' => 'active',
+        ]);
+
         $user = User::factory()->create([
+            'tenant_id' => $tenant->id,
             'role' => 'trusted_organizer',
             'verification_status' => 'approved',
             'verified_badge' => true,

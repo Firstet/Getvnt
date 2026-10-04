@@ -99,7 +99,7 @@ Route::prefix('v1')->group(function () {
     });
 
     // ─── 4. ORGANIZER WORKSPACE (Role: Trusted Organizer) ────────────────────
-    Route::prefix('workspace')->middleware(['auth:sanctum', RequireKycApproved::class])->group(function () {
+    Route::prefix('workspace')->middleware(['auth:sanctum', RequireKycApproved::class, \App\Http\Middleware\EnsureTenantContext::class])->group(function () {
         Route::get('/dashboard', [OrganizerWorkspaceController::class, 'dashboard']);
         Route::get('/events', [OrganizerWorkspaceController::class, 'listEvents']);
         Route::post('/events', [OrganizerWorkspaceController::class, 'createEvent']);
