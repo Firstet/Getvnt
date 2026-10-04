@@ -20,12 +20,22 @@ export const AndroidAppPromotion: React.FC = () => {
 
   const featureBullets = [
     'Manage events anywhere on mobile',
-    'Scan tickets instantly (<500ms validation)',
+    'Scan tickets instantly on mobile',
     'Real-time attendee check-in analytics',
     'GETVNT AI Assistant companion',
     'Instant push notifications & alerts',
-    'Full offline QR verification mode',
+    'Offline QR ticket check-in support',
   ];
+
+  const [waitlistEmail, setWaitlistEmail] = useState('');
+  const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
+
+  const handleWaitlistSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (waitlistEmail.trim()) {
+      setWaitlistSubmitted(true);
+    }
+  };
 
   return (
     <section
@@ -46,7 +56,7 @@ export const AndroidAppPromotion: React.FC = () => {
         style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: 'url(/concert_crowd_bg.png)',
+          backgroundImage: 'url(/afrobeat_festival_banner.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           opacity: 0.15,
@@ -90,7 +100,7 @@ export const AndroidAppPromotion: React.FC = () => {
               marginBottom: '16px',
             }}
           >
-            <Smartphone size={14} /> Official {brand?.platform_name || 'GETVNT'} Android OS v1.0
+            <Smartphone size={14} /> Official {brand?.platform_name || 'GETVNT'} Mobile App
           </div>
 
           <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2, marginBottom: '14px', fontFamily: 'var(--font-heading)' }}>
@@ -98,7 +108,7 @@ export const AndroidAppPromotion: React.FC = () => {
           </h2>
 
           <p style={{ color: '#9CA3AF', fontSize: '15px', lineHeight: 1.6, marginBottom: '24px', maxWidth: '520px' }}>
-            Empower your event staff and managers with our native high-speed Android application. Execute instant ticket check-ins, view live revenue, and access AI event insights on the move.
+            Empower your event staff and managers with our native high-speed mobile application. Execute ticket check-ins, view revenue, and access AI event insights on the move.
           </p>
 
           {/* Feature Bullets Grid */}
@@ -111,104 +121,60 @@ export const AndroidAppPromotion: React.FC = () => {
             ))}
           </div>
 
-          {/* Action CTAs */}
-          <div className="android-btn-group" style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', marginBottom: '28px' }}>
-            {deviceType === 'ios' ? (
-              <div
+          {/* Coming Soon Waitlist Form */}
+          {waitlistSubmitted ? (
+            <div style={{ padding: '14px 20px', borderRadius: '16px', background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.4)', color: '#34D399', fontSize: '14px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+              <CheckCircle2 size={18} /> You're on the early access waitlist! We will notify you on launch.
+            </div>
+          ) : (
+            <form onSubmit={handleWaitlistSubmit} style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '24px', maxWidth: '480px' }}>
+              <input
+                type="email"
+                required
+                placeholder="Enter your email for early access"
+                value={waitlistEmail}
+                onChange={(e) => setWaitlistEmail(e.target.value)}
                 style={{
-                  padding: '14px 24px',
-                  borderRadius: '16px',
+                  flex: '1 1 220px',
+                  padding: '12px 16px',
+                  borderRadius: '14px',
                   background: 'rgba(255,255,255,0.06)',
                   border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#94A3B8',
+                  color: '#FFF',
                   fontSize: '14px',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
+                  outline: 'none',
                 }}
-              >
-                <span>🍎</span> Coming Soon for iOS (App Store)
-              </div>
-            ) : (
-              <a
-                href="/downloads/getvnt-organizer-v1.0.apk"
-                download="getvnt-organizer-v1.0.apk"
+              />
+              <button
+                type="submit"
                 className="btn-cta"
                 style={{
                   background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)',
                   color: '#FFFFFF',
-                  padding: '14px 28px',
-                  borderRadius: '16px',
+                  padding: '12px 22px',
+                  borderRadius: '14px',
                   fontWeight: 800,
                   fontSize: '14px',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  boxShadow: '0 8px 24px rgba(37,99,235,0.4)',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                <Download size={18} /> Download Android APK (v1.0)
-              </a>
-            )}
-
-            {deviceType === 'desktop' && (
-              <button
-                className="btn-cta"
-                onClick={() => setShowQrModal(true)}
-                style={{
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: '#FFFFFF',
-                  padding: '14px 22px',
-                  borderRadius: '16px',
-                  fontWeight: 700,
-                  fontSize: '14px',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
+                  border: 'none',
                   cursor: 'pointer',
-                  transition: 'all 0.2s ease',
+                  whiteSpace: 'nowrap',
                 }}
               >
-                <QrCode size={18} color="#60A5FA" /> Scan QR Code
+                Notify Me on Launch
               </button>
-            )}
+            </form>
+          )}
 
-            <div
-              style={{
-                padding: '14px 20px',
-                borderRadius: '16px',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                color: '#64748B',
-                fontSize: '13px',
-                fontWeight: 700,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              <Star size={14} color="#F59E0B" /> Google Play Verification Pending
-            </div>
-          </div>
-
-          {/* App Metadata Micro Pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap', fontSize: '11.5px', color: '#64748B', fontWeight: 600 }}>
-            <span>Version: <strong style={{ color: '#94A3B8' }}>v1.0 Build 104</strong></span>
+          {/* App Metadata Status */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', fontSize: '12px', color: '#64748B', fontWeight: 600 }}>
+            <span>Status: <strong style={{ color: '#60A5FA' }}>Mobile App In Active Development</strong></span>
             <span>•</span>
-            <span>Size: <strong style={{ color: '#94A3B8' }}>28.4 MB</strong></span>
-            <span>•</span>
-            <span>Min OS: <strong style={{ color: '#94A3B8' }}>Android 8.0+</strong></span>
-            <span>•</span>
-            <span>Updated: <strong style={{ color: '#94A3B8' }}>August 2026</strong></span>
+            <span>Target OS: <strong style={{ color: '#94A3B8' }}>Android &amp; iOS</strong></span>
           </div>
         </div>
 
         {/* RIGHT COLUMN: FLOATING MOCKUP SHOWCASE */}
-        <div style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
           <div
             className="floating-phone-wrapper"
             style={{
@@ -257,14 +223,14 @@ export const AndroidAppPromotion: React.FC = () => {
                   <div style={{ width: '24px', height: '24px', borderRadius: '6px', background: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#FFF', fontWeight: 900, fontSize: '11px' }}>G</div>
                   <span style={{ fontSize: '12px', fontWeight: 900, color: '#FFF' }}>{brand?.platform_name || 'GETVNT'} Mobile</span>
                 </div>
-                <span style={{ fontSize: '9px', background: 'rgba(34,197,94,0.15)', color: '#4ADE80', padding: '2px 6px', borderRadius: '99px', fontWeight: 800 }}>LIVE</span>
+                <span style={{ fontSize: '9px', background: 'rgba(234,179,8,0.15)', color: '#FACC15', padding: '2px 6px', borderRadius: '99px', fontWeight: 800 }}>SAMPLE DATA</span>
               </div>
 
               {/* Stat Cards inside screen */}
               <div style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.25)', borderRadius: '14px', padding: '12px' }}>
-                <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Today's Revenue</div>
+                <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>Sample Organizer Stats</div>
                 <div style={{ fontSize: '18px', fontWeight: 900, color: '#FFF', margin: '2px 0' }}>₦14,850,000</div>
-                <div style={{ fontSize: '9.5px', color: '#34D399', fontWeight: 700 }}>↑ +24% vs yesterday</div>
+                <div style={{ fontSize: '9.5px', color: '#34D399', fontWeight: 700 }}>Illustrative Demo Revenue</div>
               </div>
 
               {/* QR Scanner Screen Preview Box */}
@@ -273,7 +239,7 @@ export const AndroidAppPromotion: React.FC = () => {
                   <QrCode size={40} color="#60A5FA" />
                 </div>
                 <span style={{ fontSize: '10px', fontWeight: 800, color: '#38BDF8' }}>Ready to Scan Ticket</span>
-                <span style={{ fontSize: '8.5px', color: '#64748B', marginTop: '2px' }}>Offline Queue Active</span>
+                <span style={{ fontSize: '8.5px', color: '#64748B', marginTop: '2px' }}>Offline Check-in Mode</span>
               </div>
 
               {/* Quick Action Button inside phone screen */}
@@ -285,6 +251,10 @@ export const AndroidAppPromotion: React.FC = () => {
             {/* Bottom Indicator Bar */}
             <div style={{ width: '80px', height: '4px', background: '#334155', borderRadius: '99px', margin: '8px auto 0 auto' }} />
           </div>
+
+          <p style={{ fontSize: '11.5px', color: '#64748B', textAlign: 'center', marginTop: '10px', fontWeight: 600 }}>
+            Illustrative example — Mobile UI Preview
+          </p>
         </div>
       </div>
 
