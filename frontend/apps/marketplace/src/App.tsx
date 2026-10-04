@@ -16,7 +16,35 @@ import { AndroidAppPromotion } from './components/AndroidAppPromotion';
 import { TicketCheckoutModal } from './components/TicketCheckoutModal';
 import { TicketManagementPortal } from './components/TicketManagementPortal';
 import { SaaSStoryLandingPage } from './components/SaaSStoryLandingPage';
+import { HeroCarousel, HeroItem } from './components/HeroCarousel';
 import './styles.css';
+
+const heroItems: HeroItem[] = [
+  {
+    tag: 'SPONSORED CONTENT',
+    title: 'Afrobeat Festival Lagos 2026',
+    description: "Africa's biggest music & culture celebration. 3 explosive days of live Afrobeats stars, food, culture, and interactive installations.",
+    cta: 'Claim Offer & Buy Tickets',
+    image: '/afrobeat_festival_banner.png',
+    gradient: 'linear-gradient(135deg, rgba(21, 26, 51, 0.85) 0%, rgba(8, 13, 31, 0.95) 100%)',
+  },
+  {
+    tag: 'TECH & AI SUMMIT',
+    title: 'Nairobi AI & DeepTech Expo 2026',
+    description: "East Africa's largest gathering of AI engineers, startup founders, and global venture investors at KICC Nairobi.",
+    cta: 'Reserve Delegate Pass',
+    image: '/nairobi_tech_summit_banner.png',
+    gradient: 'linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(11, 19, 43, 0.95) 100%)',
+  },
+  {
+    tag: 'CULINARY & LIFESTYLE',
+    title: 'Cape Town International Wine & Food Festival',
+    description: 'Savor world-class wines, Michelin-starred popups, and live sunset jazz against Table Mountain in Cape Town.',
+    cta: 'Book VIP Tasting Pass',
+    image: '/capetown_wine_food_banner.png',
+    gradient: 'linear-gradient(135deg, rgba(43, 21, 31, 0.85) 0%, rgba(13, 10, 26, 0.95) 100%)',
+  }
+];
 
 interface EventItem {
   id: string;
@@ -50,8 +78,6 @@ function MarketplaceContent() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
-  const [isHeroPaused, setIsHeroPaused] = useState(false);
   const [loading, setLoading] = useState(true);
 
   // Active Tab state — supports Home, Pulse, Tickets, Wishlist, Manage Ticket, plus full standalone Footer Pages
@@ -167,49 +193,7 @@ function MarketplaceContent() {
   // Responsive Hook
   const { isMobile, isTablet, isDrawerOpen, toggleMobileDrawer, closeMobileDrawer } = useResponsiveSidebar();
 
-  const heroItems = [
-    {
-      tag: 'SPONSORED CONTENT',
-      title: 'Afrobeat Festival Lagos 2026',
-      description: 'Africa\'s biggest music & culture celebration. 3 explosive days of live Afrobeats stars, food, culture, and interactive installations.',
-      cta: 'Claim Offer & Buy Tickets',
-      image: '/afrobeat_festival_banner.png',
-      gradient: 'linear-gradient(135deg, rgba(21, 26, 51, 0.85) 0%, rgba(8, 13, 31, 0.95) 100%)',
-    },
-    {
-      tag: 'TECH & AI SUMMIT',
-      title: 'Nairobi AI & DeepTech Expo 2026',
-      description: 'East Africa\'s largest gathering of AI engineers, startup founders, and global venture investors at KICC Nairobi.',
-      cta: 'Reserve Delegate Pass',
-      image: '/nairobi_tech_summit_banner.png',
-      gradient: 'linear-gradient(135deg, rgba(30, 27, 75, 0.85) 0%, rgba(11, 19, 43, 0.95) 100%)',
-    },
-    {
-      tag: 'CULINARY & LIFESTYLE',
-      title: 'Cape Town International Wine & Food Festival',
-      description: 'Savor world-class wines, Michelin-starred popups, and live sunset jazz against Table Mountain in Cape Town.',
-      cta: 'Book VIP Tasting Pass',
-      image: '/capetown_wine_food_banner.png',
-      gradient: 'linear-gradient(135deg, rgba(43, 21, 31, 0.85) 0%, rgba(13, 10, 26, 0.95) 100%)',
-    }
-  ];
 
-  // Auto change carousel slide every 5 seconds
-  useEffect(() => {
-    if (isHeroPaused) return;
-    const interval = setInterval(() => {
-      setActiveHeroIndex((prev) => (prev + 1) % heroItems.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isHeroPaused, heroItems.length]);
-
-  const handleNextHero = () => {
-    setActiveHeroIndex((prev) => (prev + 1) % heroItems.length);
-  };
-
-  const handlePrevHero = () => {
-    setActiveHeroIndex((prev) => (prev - 1 + heroItems.length) % heroItems.length);
-  };
 
   const citiesList = [
     { name: 'All Africa', flag: '🌍' },
@@ -271,7 +255,6 @@ function MarketplaceContent() {
     }
   };
 
-  const currentHero = heroItems[activeHeroIndex];
 
   return (
     <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#07090F', color: '#FFF' }}>
@@ -483,17 +466,20 @@ function MarketplaceContent() {
         
         {/* VIEW 1: HOME STORYTELLING LANDING PAGE */}
         {activeTab === 'home' && (
-          <SaaSStoryLandingPage
-            events={events}
-            onSelectEvent={(ev) => setSelectedEvent(ev)}
-            onNavigateToWorkspace={() => { window.location.href = getAppUrl('workspace'); }}
-            onNavigateToBlog={(slug) => {
-              setActiveTab('pulse');
-              setActiveArticleSlug(slug || null);
-              window.history.pushState(null, '', slug ? `/blog/${slug}` : '/blog');
-            }}
-            onNavigateToTab={(tab) => navigateTo(tab as any)}
-          />
+          <>
+            <HeroCarousel items={heroItems} onCta={() => navigateTo('events' as any)} />
+            <SaaSStoryLandingPage
+              events={events}
+              onSelectEvent={(ev) => setSelectedEvent(ev)}
+              onNavigateToWorkspace={() => { window.location.href = getAppUrl('workspace'); }}
+              onNavigateToBlog={(slug) => {
+                setActiveTab('pulse');
+                setActiveArticleSlug(slug || null);
+                window.history.pushState(null, '', slug ? `/blog/${slug}` : '/blog');
+              }}
+              onNavigateToTab={(tab) => navigateTo(tab as any)}
+            />
+          </>
         )}
 
         {/* VIEW 2: DEDICATED GETVNT PULSE BLOG / NEWS HUB PAGE */}
