@@ -33,7 +33,12 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
     fetch('/api/v1/cms/landing')
       .then(res => res.json())
       .then(json => { if (json.success && Array.isArray(json.data)) setCmsSections(json.data); })
-      .catch(() => {});
+      .catch((err) => {
+        // TODO: add GET /api/v1/cms/landing route in backend
+        if (import.meta.env.DEV) {
+          console.warn('CMS landing endpoint not available:', err);
+        }
+      });
   }, []);
 
   // Helper to extract dynamic CMS section content
@@ -70,16 +75,16 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   // 11 Category Cards
   const categoryCards = [
     { id: 'Music', label: 'Music & Concerts', icon: <Music size={22} color="#60A5FA" />, count: '142 Events', bgImage: '/afrobeat_festival_banner.png' },
-    { id: 'Business', label: 'Business & Summits', icon: <Briefcase size={22} color="#34D399" />, count: '89 Events', bgImage: '/luxury_vip_lounge.png' },
-    { id: 'Technology', label: 'Tech & AI Conferences', icon: <Laptop size={22} color="#A78BFA" />, count: '116 Events', bgImage: '/tech_summit_banner.png' },
-    { id: 'Comedy', label: 'Comedy Shows', icon: <Mic size={22} color="#FBBF24" />, count: '45 Events', bgImage: '/concert_crowd_bg.png' },
-    { id: 'Sports', label: 'Sports & Esports', icon: <Trophy size={22} color="#60A5FA" />, count: '38 Events', bgImage: '/concert_crowd_bg.png' },
-    { id: 'Education', label: 'Education & Workshops', icon: <GraduationCap size={22} color="#F472B6" />, count: '62 Events', bgImage: '/tech_summit_banner.png' },
+    { id: 'Business', label: 'Business & Summits', icon: <Briefcase size={22} color="#34D399" />, count: '89 Events', bgImage: '/capetown_wine_food_banner.png' },
+    { id: 'Technology', label: 'Tech & AI Conferences', icon: <Laptop size={22} color="#A78BFA" />, count: '116 Events', bgImage: '/nairobi_tech_summit_banner.png' },
+    { id: 'Comedy', label: 'Comedy Shows', icon: <Mic size={22} color="#FBBF24" />, count: '45 Events', bgImage: '/afrobeat_festival_banner.png' },
+    { id: 'Sports', label: 'Sports & Esports', icon: <Trophy size={22} color="#60A5FA" />, count: '38 Events', bgImage: '/afrobeat_festival_banner.png' },
+    { id: 'Education', label: 'Education & Workshops', icon: <GraduationCap size={22} color="#F472B6" />, count: '62 Events', bgImage: '/nairobi_tech_summit_banner.png' },
     { id: 'Lifestyle', label: 'Lifestyle & Culture', icon: <Sparkles size={22} color="#F59E0B" />, count: '54 Events', bgImage: '/afrobeat_festival_banner.png' },
-    { id: 'Food', label: 'Food & Wine Festivals', icon: <Utensils size={22} color="#34D399" />, count: '51 Events', bgImage: '/luxury_vip_lounge.png' },
+    { id: 'Food', label: 'Food & Wine Festivals', icon: <Utensils size={22} color="#34D399" />, count: '51 Events', bgImage: '/capetown_wine_food_banner.png' },
     { id: 'Fashion', label: 'Fashion & Runway', icon: <Shirt size={22} color="#FBBF24" />, count: '29 Events', bgImage: '/afrobeat_festival_banner.png' },
-    { id: 'Religious', label: 'Religious & Ministry', icon: <Heart size={22} color="#EC4899" />, count: '47 Events', bgImage: '/luxury_vip_lounge.png' },
-    { id: 'Networking', label: 'Networking Mixers', icon: <Users size={22} color="#38BDF8" />, count: '73 Events', bgImage: '/tech_summit_banner.png' },
+    { id: 'Religious', label: 'Religious & Ministry', icon: <Heart size={22} color="#EC4899" />, count: '47 Events', bgImage: '/capetown_wine_food_banner.png' },
+    { id: 'Networking', label: 'Networking Mixers', icon: <Users size={22} color="#38BDF8" />, count: '73 Events', bgImage: '/nairobi_tech_summit_banner.png' },
   ];
 
   const filteredEvents = events.filter((ev) => {
@@ -111,11 +116,12 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
     { question: 'Is payment information secure on GETVNT?', answer: 'Yes. All checkout transactions are PCI-DSS Level 1 compliant and encrypted with 256-bit SSL.' },
   ];
 
+  // TODO: supply /luxury_vip_lounge.png image asset
   const topOrganizers = [
-    { name: 'AfroNation Global Events', followers: '142k Followers • ₦480M GMV', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', rating: '4.9 ★', isFeatured: false },
-    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '/tech_summit_banner.png', rating: '4.8 ★', isFeatured: false },
-    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '/luxury_vip_lounge.png', rating: '5.0 ★', isFeatured: true },
-    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '/afrobeat_festival_banner.png', rating: '4.7 ★', isFeatured: false },
+    { name: 'AfroNation Global Events', followers: '142k Followers • ₦480M GMV', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', initials: 'AE', rating: '4.9 ★', isFeatured: false },
+    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '/nairobi_tech_summit_banner.png', initials: 'BP', rating: '4.8 ★', isFeatured: false },
+    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '', initials: 'SS', rating: '5.0 ★', isFeatured: true },
+    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '/afrobeat_festival_banner.png', initials: 'DB', rating: '4.7 ★', isFeatured: false },
   ];
 
   return (
@@ -126,7 +132,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
         className="tixup-hero-section"
         style={{
           position: 'relative',
-          backgroundImage: 'linear-gradient(180deg, rgba(6,9,19,0.85) 0%, rgba(6,9,19,0.96) 85%, #060913 100%), url(/concert_crowd_bg.png)',
+          backgroundImage: 'linear-gradient(180deg, rgba(6,9,19,0.85) 0%, rgba(6,9,19,0.96) 85%, #060913 100%), url(/afrobeat_festival_banner.png)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
@@ -143,10 +149,10 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
             <span>GETVNT OS • Africa's AI-Powered Event Operating System & Marketplace</span>
           </div>
 
-          <h1 style={{ fontSize: 'clamp(42px, 6.5vw, 76px)', fontWeight: 900, lineHeight: 1.02, letterSpacing: '-0.035em', color: '#FFFFFF', marginBottom: '24px', fontFamily: 'var(--font-heading)', textShadow: '0 10px 40px rgba(0,0,0,0.9)' }}>
-            Sell Tickets for Free. <br />
+          <h2 style={{ fontSize: 'clamp(42px, 6.5vw, 76px)', fontWeight: 900, lineHeight: 1.02, letterSpacing: '-0.035em', color: '#FFFFFF', marginBottom: '24px', fontFamily: 'var(--font-heading)', textShadow: '0 10px 40px rgba(0,0,0,0.9)' }}>
+            Sell tickets with no monthly fees. <br />
             <span style={{ background: 'linear-gradient(135deg, #60A5FA 0%, #3B82F6 40%, #A78BFA 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Build Your Event Operating System.</span>
-          </h1>
+          </h2>
 
           <p style={{ fontSize: 'clamp(17px, 2vw, 22px)', color: '#E5E7EB', lineHeight: 1.55, maxWidth: '820px', margin: '0 auto 40px auto', fontWeight: 500, textShadow: '0 4px 16px rgba(0,0,0,0.9)' }}>
             Discover extraordinary concerts, tech summits, and festivals across Africa—or launch your own event with 0% subscription fees, custom websites, and instant QR check-ins.
@@ -388,8 +394,19 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                   <span style={{ color: '#FBBF24', fontSize: '13.5px', fontWeight: 900 }}>{org.rating}</span>
                   <span style={{ color: '#34D399', fontSize: '12.5px', fontWeight: 800 }}>{org.growth}</span>
                 </div>
-                <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: '0 0 6px 0', fontFamily: 'var(--font-heading)' }}>{org.name}</h4>
-                <p style={{ color: '#9CA3AF', fontSize: '13px', margin: 0 }}>{org.followers}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
+                  {org.avatar ? (
+                    <img src={org.avatar} alt={org.name} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '14px' }}>
+                      {org.initials}
+                    </div>
+                  )}
+                  <div>
+                    <h4 style={{ fontSize: '17px', fontWeight: 800, color: '#FFF', margin: '0 0 2px 0', fontFamily: 'var(--font-heading)' }}>{org.name}</h4>
+                    <p style={{ color: '#9CA3AF', fontSize: '13px', margin: 0 }}>{org.followers}</p>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
