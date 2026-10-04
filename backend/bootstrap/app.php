@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'kyc.approved' => \App\Http\Middleware\RequireKycApproved::class,
+            'tenant.context' => \App\Http\Middleware\EnsureTenantContext::class,
         ]);
         $middleware->redirectTo(
             guests: fn (Request $request) => ($request->expectsJson() || $request->is('api/*')) ? null : '/login',
