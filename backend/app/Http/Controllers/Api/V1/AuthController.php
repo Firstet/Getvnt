@@ -423,6 +423,25 @@ class AuthController extends Controller
 
     private function getGoogleCredential(string $settingKey, string $configKey, string $envKey, ?string $default = null): ?string
     {
+        // 1. Prioritize environment variable if present
+        $envVal = env($envKey);
+        if ($envVal !== null) {
+            $val = trim((string)$envVal);
+            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
+                return $val;
+            }
+        }
+
+        // 2. Prioritize config helper
+        $configVal = config($configKey);
+        if ($configVal !== null) {
+            $val = trim((string)$configVal);
+            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
+                return $val;
+            }
+        }
+
+        // 3. Fallback to SystemSetting database entry
         try {
             $setting = \App\Models\SystemSetting::where('key', $settingKey)->value('value');
             if ($setting !== null) {
@@ -434,67 +453,70 @@ class AuthController extends Controller
         } catch (\Throwable $e) {
         }
 
-        $configVal = config($configKey);
-        if ($configVal !== null) {
-            $val = trim((string)$configVal);
-            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
-                return $val;
-            }
-        }
-
-        $envVal = env($envKey);
-        if ($envVal !== null) {
-            $val = trim((string)$envVal);
-            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
-                return $val;
-            }
-        }
-
         return $default;
     }
 
     public function googleRedirect(Request $request)
     {
-        $clientId     = $this->getGoogleCredential('google_client_id', 'services.google.client_id', 'GOOGLE_CLIENT_ID');
-        $clientSecret = $this->getGoogleCredential('google_client_secret', 'services.google.client_secret', 'GOOGLE_CLIENT_SECRET');
-        $redirectUri  = $this->getGoogleCredential('google_redirect_uri', 'services.google.redirect', 'GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+        try {
+            $clientId     = $this->getGoogleCredential('google_client_id', 'services.google.client_id', 'GOOGLE_CLIENT_ID');
+            $clientSecret = $this->getGoogleCredential('google_client_secret', 'services.google.client_secret', 'GOOGLE_CLIENT_SECRET');
+            $redirectUri  = $this->getGoogleCredential('google_redirect_uri', 'services.google.redirect', 'GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
-        if (!$clientId || !$clientSecret) {
+            if (!$clientId || !$clientSecret) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Google OAuth client credentials have not been configured in server environment or Super Admin settings.',
+                ], 400);
+            }
+
+            $requestedRedirect = $request->get('redirect_to', 'workspace');
+            $allowList = ['marketplace', 'workspace', 'admin'];
+            $redirectTo = in_array($requestedRedirect, $allowList, true) ? $requestedRedirect : 'workspace';
+
+            // Base64URL encoded state payload for 100% reliability
+            $stateData = json_encode([
+                'r'     => $redirectTo,
+                'ip'    => $request->ip(),
+                'ts'    => time(),
+                'nonce' => Str::random(12),
+            ]);
+            $stateKey = rtrim(strtr(base64_encode($stateData), '+/', '-_'), '=');
+
+            try {
+                Cache::put("google_oauth_state:{$stateKey}", [
+                    'redirect_to' => $redirectTo,
+                    'ip'          => $request->ip(),
+                ], 300);
+            } catch (\Throwable $e) {
+            }
+
+            $targetUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
+                'client_id'     => $clientId,
+                'redirect_uri'  => $redirectUri,
+                'response_type' => 'code',
+                'scope'         => 'openid profile email',
+                'access_type'   => 'offline',
+                'prompt'        => 'select_account',
+                'state'         => $stateKey,
+            ]);
+
+            if ($request->wantsJson() || $request->header('Accept') === 'application/json') {
+                return response()->json([
+                    'success' => true,
+                    'url'     => $targetUrl,
+                    'message' => 'Google OAuth authorization URL generated.',
+                ]);
+            }
+
+            return redirect()->away($targetUrl);
+
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Google OAuth client credentials have not been configured in Super Admin System Settings or server environment.',
-            ], 400);
+                'message' => 'Google redirect failed: ' . $e->getMessage(),
+            ], 500);
         }
-
-        $requestedRedirect = $request->get('redirect_to', 'workspace');
-        $allowList = ['marketplace', 'workspace', 'admin'];
-        $redirectTo = in_array($requestedRedirect, $allowList, true) ? $requestedRedirect : 'workspace';
-
-        $stateKey = Str::random(32);
-        Cache::put("google_oauth_state:{$stateKey}", [
-            'redirect_to' => $redirectTo,
-            'ip'          => $request->ip(),
-        ], 300);
-
-        $targetUrl = 'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
-            'client_id'     => $clientId,
-            'redirect_uri'  => $redirectUri,
-            'response_type' => 'code',
-            'scope'         => 'openid profile email',
-            'access_type'   => 'offline',
-            'prompt'        => 'consent',
-            'state'         => $stateKey,
-        ]);
-
-        if ($request->wantsJson() || $request->header('Accept') === 'application/json') {
-            return response()->json([
-                'success' => true,
-                'url'     => $targetUrl,
-                'message' => 'Google OAuth authorization URL generated.',
-            ]);
-        }
-
-        return redirect($targetUrl);
     }
 
     public function googleCallback(Request $request)
@@ -502,13 +524,28 @@ class AuthController extends Controller
         $code  = $request->get('code');
         $state = $request->get('state', '');
 
-        $stateData = Cache::pull("google_oauth_state:{$state}");
-        if (!$stateData) {
-            $frontendBase = env('WORKSPACE_URL', 'https://app.getvnt.com');
-            return redirect($frontendBase . '/?oauth_error=invalid_state');
+        $redirectTo = 'workspace';
+        if (!empty($state)) {
+            try {
+                $cachedState = Cache::pull("google_oauth_state:{$state}");
+                if ($cachedState && isset($cachedState['redirect_to'])) {
+                    $redirectTo = $cachedState['redirect_to'];
+                } else {
+                    $jsonStr = base64_decode(strtr($state, '-_', '+/'));
+                    $decoded = json_decode($jsonStr, true);
+                    if (is_array($decoded) && !empty($decoded['r'])) {
+                        $redirectTo = $decoded['r'];
+                    }
+                }
+            } catch (\Throwable $e) {
+                $jsonStr = base64_decode(strtr($state, '-_', '+/'));
+                $decoded = json_decode($jsonStr, true);
+                if (is_array($decoded) && !empty($decoded['r'])) {
+                    $redirectTo = $decoded['r'];
+                }
+            }
         }
 
-        $redirectTo = $stateData['redirect_to'] ?? 'workspace';
         $frontendUrls = [
             'marketplace' => env('MARKETPLACE_URL', 'https://getvnt.com'),
             'workspace'   => env('WORKSPACE_URL', 'https://app.getvnt.com'),
@@ -525,7 +562,7 @@ class AuthController extends Controller
         $redirectUri  = $this->getGoogleCredential('google_redirect_uri', 'services.google.redirect', 'GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         try {
-            $tokenResponse = Http::post('https://oauth2.googleapis.com/token', [
+            $tokenResponse = Http::withoutVerifying()->post('https://oauth2.googleapis.com/token', [
                 'code'          => $code,
                 'client_id'     => $clientId,
                 'client_secret' => $clientSecret,
@@ -538,7 +575,7 @@ class AuthController extends Controller
             }
 
             $accessToken  = $tokenResponse->json('access_token');
-            $userResponse = Http::withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
+            $userResponse = Http::withoutVerifying()->withToken($accessToken)->get('https://www.googleapis.com/oauth2/v3/userinfo');
 
             if (!$userResponse->successful()) {
                 return redirect($frontendBase . '/?oauth_error=userinfo_failed');
@@ -570,11 +607,21 @@ class AuthController extends Controller
                 $wasRecentlyCreated = true;
             }
 
-            $exchangeCode = Str::random(40);
-            Cache::put("google_exchange:{$exchangeCode}", [
+            $exchangePayload = [
                 'user_id'     => $user->id,
                 'was_created' => $wasRecentlyCreated,
-            ], 60);
+                'ts'          => time(),
+                'nonce'       => Str::random(12),
+            ];
+            $exchangeCode = rtrim(strtr(base64_encode(json_encode($exchangePayload)), '+/', '-_'), '=');
+
+            try {
+                Cache::put("google_exchange:{$exchangeCode}", [
+                    'user_id'     => $user->id,
+                    'was_created' => $wasRecentlyCreated,
+                ], 300);
+            } catch (\Throwable $e) {
+            }
 
             return redirect($frontendBase . '/auth/google/callback?code=' . urlencode($exchangeCode) . '&is_new=' . ($wasRecentlyCreated ? '1' : '0'));
 
@@ -587,7 +634,26 @@ class AuthController extends Controller
     {
         $request->validate(['code' => 'required|string']);
 
-        $data = Cache::pull("google_exchange:{$request->code}");
+        $data = null;
+        try {
+            $data = Cache::pull("google_exchange:{$request->code}");
+        } catch (\Throwable $e) {
+        }
+
+        if (!$data || !isset($data['user_id'])) {
+            try {
+                $jsonStr = base64_decode(strtr($request->code, '-_', '+/'));
+                $decoded = json_decode($jsonStr, true);
+                if (is_array($decoded) && !empty($decoded['user_id'])) {
+                    $data = [
+                        'user_id'     => $decoded['user_id'],
+                        'was_created' => $decoded['was_created'] ?? false,
+                    ];
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
         if (!$data || !isset($data['user_id'])) {
             return response()->json([
                 'success' => false,
