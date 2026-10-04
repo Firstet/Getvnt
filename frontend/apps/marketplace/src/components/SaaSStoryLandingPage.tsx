@@ -15,6 +15,7 @@ interface SaaSStoryLandingPageProps {
   onNavigateToWorkspace: () => void;
   onNavigateToBlog: (slug?: string) => void;
   onNavigateToTab: (tab: string) => void;
+  heroCarousel?: React.ReactNode;
 }
 
 export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
@@ -23,6 +24,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
   onNavigateToWorkspace,
   onNavigateToBlog,
   onNavigateToTab,
+  heroCarousel,
 }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [selectedCity, setSelectedCity] = useState('All');
@@ -245,33 +247,30 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
 
       <div className="glass-section-divider" />
 
-      {/* ── 2. FEATURED EVENT SHOWCASE ── */}
-      <section className="landing-section-wrap">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <div>
-            <span style={{ color: '#60A5FA', fontSize: '11.5px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '1.2px' }}>HEADLINE EVENT</span>
-            <h2 style={{ fontSize: 'clamp(24px, 3.5vw, 36px)', fontWeight: 900, color: '#FFF', marginTop: '4px', fontFamily: 'var(--font-heading)' }}>Featured Festival Showcase</h2>
+      {/* ── 2. HERO FEATURED CAROUSEL (SECOND SECTION) ── */}
+      <section className="landing-section-wrap" style={{ marginBottom: '32px' }}>
+        {heroCarousel ? (
+          heroCarousel
+        ) : (
+          <div className="tixup-featured-card" onClick={() => onSelectEvent(featuredEvent)} style={{ cursor: 'pointer', borderRadius: '28px', overflow: 'hidden' }}>
+            <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} className="tixup-featured-img-wrap" />
+            <div className="tixup-featured-overlay" />
+            <div className="tixup-featured-content">
+              <span className="tixup-category-badge" style={{ background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)', color: '#FFF', padding: '6px 14px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, letterSpacing: '1px' }}>
+                🔥 SELLING FAST • HEADLINER
+              </span>
+              <h3 style={{ fontSize: 'clamp(26px, 4.5vw, 44px)', fontWeight: 900, color: '#FFF', margin: '14px 0 10px 0', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>{featuredEvent.title}</h3>
+              <p style={{ color: '#E5E7EB', fontSize: '16px', marginBottom: '24px', maxWidth: '680px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+                <span>📍 {featuredEvent.venue_name}</span>
+                <span>📅 {new Date(featuredEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                <span style={{ color: '#34D399', fontWeight: 800 }}>❤️ 1.4k Interested</span>
+              </p>
+              <button className="tixup-btn-primary" style={{ padding: '14px 32px', fontSize: '15px', fontWeight: 900 }} onClick={(e) => { e.stopPropagation(); onSelectEvent(featuredEvent); }}>
+                Get Tickets Now <ArrowRight size={16} />
+              </button>
+            </div>
           </div>
-        </div>
-
-        <div className="tixup-featured-card" onClick={() => onSelectEvent(featuredEvent)} style={{ cursor: 'pointer', borderRadius: '28px', overflow: 'hidden' }}>
-          <LazyImage src={featuredEvent.banner_url} alt={featuredEvent.title} className="tixup-featured-img-wrap" />
-          <div className="tixup-featured-overlay" />
-          <div className="tixup-featured-content">
-            <span className="tixup-category-badge" style={{ background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)', color: '#FFF', padding: '6px 14px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, letterSpacing: '1px' }}>
-              🔥 SELLING FAST • HEADLINER
-            </span>
-            <h3 style={{ fontSize: 'clamp(26px, 4.5vw, 44px)', fontWeight: 900, color: '#FFF', margin: '14px 0 10px 0', fontFamily: 'var(--font-heading)', lineHeight: 1.1 }}>{featuredEvent.title}</h3>
-            <p style={{ color: '#E5E7EB', fontSize: '16px', marginBottom: '24px', maxWidth: '680px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-              <span>📍 {featuredEvent.venue_name}</span>
-              <span>📅 {new Date(featuredEvent.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-              <span style={{ color: '#34D399', fontWeight: 800 }}>❤️ 1.4k Interested</span>
-            </p>
-            <button className="tixup-btn-primary" style={{ padding: '14px 32px', fontSize: '15px', fontWeight: 900 }} onClick={(e) => { e.stopPropagation(); onSelectEvent(featuredEvent); }}>
-              Get Tickets Now <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
+        )}
       </section>
 
       <div className="glass-section-divider" />
