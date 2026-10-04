@@ -421,16 +421,48 @@ class AuthController extends Controller
         ]);
     }
 
+    private function getGoogleCredential(string $settingKey, string $configKey, string $envKey, ?string $default = null): ?string
+    {
+        try {
+            $setting = \App\Models\SystemSetting::where('key', $settingKey)->value('value');
+            if ($setting !== null) {
+                $val = trim((string)$setting);
+                if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
+                    return $val;
+                }
+            }
+        } catch (\Throwable $e) {
+        }
+
+        $configVal = config($configKey);
+        if ($configVal !== null) {
+            $val = trim((string)$configVal);
+            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
+                return $val;
+            }
+        }
+
+        $envVal = env($envKey);
+        if ($envVal !== null) {
+            $val = trim((string)$envVal);
+            if ($val !== '' && !in_array(strtolower($val), ['null', 'not_configured', 'none', 'false', '0'], true)) {
+                return $val;
+            }
+        }
+
+        return $default;
+    }
+
     public function googleRedirect(Request $request)
     {
-        $clientId     = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
-        $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
-        $redirectUri  = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+        $clientId     = $this->getGoogleCredential('google_client_id', 'services.google.client_id', 'GOOGLE_CLIENT_ID');
+        $clientSecret = $this->getGoogleCredential('google_client_secret', 'services.google.client_secret', 'GOOGLE_CLIENT_SECRET');
+        $redirectUri  = $this->getGoogleCredential('google_redirect_uri', 'services.google.redirect', 'GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         if (!$clientId || !$clientSecret) {
             return response()->json([
                 'success' => false,
-                'message' => 'Google OAuth client credentials have not been configured in Super Admin System Settings.',
+                'message' => 'Google OAuth client credentials have not been configured in Super Admin System Settings or server environment.',
             ], 400);
         }
 
@@ -484,9 +516,9 @@ class AuthController extends Controller
             return redirect($frontendBase . '/?oauth_error=missing_code');
         }
 
-        $clientId     = \App\Models\SystemSetting::where('key', 'google_client_id')->value('value') ?: env('GOOGLE_CLIENT_ID');
-        $clientSecret = \App\Models\SystemSetting::where('key', 'google_client_secret')->value('value') ?: env('GOOGLE_CLIENT_SECRET');
-        $redirectUri  = \App\Models\SystemSetting::where('key', 'google_redirect_uri')->value('value') ?: env('GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
+        $clientId     = $this->getGoogleCredential('google_client_id', 'services.google.client_id', 'GOOGLE_CLIENT_ID');
+        $clientSecret = $this->getGoogleCredential('google_client_secret', 'services.google.client_secret', 'GOOGLE_CLIENT_SECRET');
+        $redirectUri  = $this->getGoogleCredential('google_redirect_uri', 'services.google.redirect', 'GOOGLE_REDIRECT_URI', 'https://api.getvnt.com/api/v1/auth/google/callback');
 
         try {
             $tokenResponse = Http::post('https://oauth2.googleapis.com/token', [

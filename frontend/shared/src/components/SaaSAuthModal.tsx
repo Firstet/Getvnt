@@ -34,16 +34,16 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
       const res = await fetch(`${apiBase}/api/v1/auth/google?redirect_to=workspace`, {
         headers: { 'Accept': 'application/json' },
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ success: false, message: 'Invalid response from auth server.' }));
 
-      if (data.success && data.url) {
+      if (res.ok && data.success && data.url) {
         window.location.href = data.url;
       } else {
         setError(data.message || 'Google Sign-In is not configured. Please contact support.');
         setLoading(false);
       }
-    } catch {
-      setError('Unable to connect to Google Sign-In. Please try again.');
+    } catch (err: any) {
+      setError(err?.message || 'Unable to connect to Google Sign-In. Please try again.');
       setLoading(false);
     }
   };
