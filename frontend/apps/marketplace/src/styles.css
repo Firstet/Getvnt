@@ -52,6 +52,17 @@ body {
   overflow-x: hidden;
 }
 
+input, button, select, textarea {
+  font-family: inherit;
+}
+
+.floating-ai-assistant {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+}
+
 .app-container {
   display: flex;
   min-height: 100vh;

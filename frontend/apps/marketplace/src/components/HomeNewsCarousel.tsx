@@ -133,9 +133,6 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
               alt={featuredArticle.headline}
               objectFit="cover"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                e.currentTarget.src = '/afrobeat_festival_banner.png';
-              }}
             />
             <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'rgba(7, 9, 15, 0.85)', backdropFilter: 'blur(10px)', color: '#EC4899', fontSize: '11.5px', fontWeight: 900, padding: '5px 12px', borderRadius: '8px', border: '1px solid rgba(236,72,153,0.3)' }}>
               FEATURED STORY • {featuredArticle.category || 'Intelligence'}
@@ -189,9 +186,6 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
                   alt={item.headline}
                   objectFit="cover"
                   style={{ width: '84px', height: '84px', objectFit: 'cover' }}
-                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-                    e.currentTarget.src = '/afrobeat_festival_banner.png';
-                  }}
                 />
               </div>
 
