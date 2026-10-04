@@ -128,7 +128,15 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
           className="tixup-event-card"
         >
           <div style={{ width: '100%', height: '240px', position: 'relative', overflow: 'hidden' }}>
-            <LazyImage src={featuredArticle.featured_image || featuredArticle.image_url} alt={featuredArticle.headline} objectFit="cover" style={{ width: '100%', height: '100%' }} />
+            <LazyImage
+              src={featuredArticle.featured_image || featuredArticle.image_url || '/afrobeat_festival_banner.png'}
+              alt={featuredArticle.headline}
+              objectFit="cover"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                e.currentTarget.src = '/afrobeat_festival_banner.png';
+              }}
+            />
             <span style={{ position: 'absolute', top: '16px', left: '16px', background: 'rgba(7, 9, 15, 0.85)', backdropFilter: 'blur(10px)', color: '#EC4899', fontSize: '11.5px', fontWeight: 900, padding: '5px 12px', borderRadius: '8px', border: '1px solid rgba(236,72,153,0.3)' }}>
               FEATURED STORY • {featuredArticle.category || 'Intelligence'}
             </span>
@@ -175,8 +183,16 @@ export const HomeNewsCarousel: React.FC<HomeNewsCarouselProps> = ({
               }}
               className="tixup-event-card"
             >
-              <div style={{ width: '84px', height: '84px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0 }}>
-                <LazyImage src={item.featured_image || item.image_url || '/concert_crowd_bg.png'} alt={item.headline} objectFit="cover" style={{ width: '100%', height: '100%' }} />
+              <div style={{ width: '84px', height: '84px', borderRadius: '14px', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
+                <LazyImage
+                  src={item.featured_image || item.image_url || '/afrobeat_festival_banner.png'}
+                  alt={item.headline}
+                  objectFit="cover"
+                  style={{ width: '84px', height: '84px', objectFit: 'cover' }}
+                  onError={(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+                    e.currentTarget.src = '/afrobeat_festival_banner.png';
+                  }}
+                />
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>

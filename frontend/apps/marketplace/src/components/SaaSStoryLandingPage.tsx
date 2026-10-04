@@ -5,6 +5,7 @@ import {
   Crown, Clock, HelpCircle, Rss, Search, Heart, Share2, Music, Briefcase, Mic, GraduationCap, Laptop, Trophy, Utensils, Shirt, Award, Globe, Cpu, Lock, Check, Layers, BarChart3, SlidersHorizontal
 } from 'lucide-react';
 import { LazyImage } from '../../../../shared/src';
+import { formatCurrency } from '../utils/formatCurrency';
 import { AndroidAppPromotion } from './AndroidAppPromotion';
 import { HomeNewsCarousel } from './HomeNewsCarousel';
 
@@ -116,12 +117,11 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
     { question: 'Is payment information secure on GETVNT?', answer: 'Yes. All checkout transactions are PCI-DSS Level 1 compliant and encrypted with 256-bit SSL.' },
   ];
 
-  // TODO: supply /luxury_vip_lounge.png image asset
   const topOrganizers = [
-    { name: 'AfroNation Global Events', followers: '142k Followers • ₦480M GMV', growth: '↑ 148.50%', avatar: '/afrobeat_festival_banner.png', initials: 'AE', rating: '4.9 ★', isFeatured: false },
-    { name: 'Bankole & Partners Live', followers: '98k Followers • ₦320M GMV', growth: '↑ 84.20%', avatar: '/nairobi_tech_summit_banner.png', initials: 'BP', rating: '4.8 ★', isFeatured: false },
-    { name: 'Samora & Co. Studios', followers: '215k Followers • ₦890M GMV', growth: '↑ 633.46%', avatar: '', initials: 'SS', rating: '5.0 ★', isFeatured: true },
-    { name: 'De Brilliance Luxury Events', followers: '64k Followers • ₦190M GMV', growth: '↑ 52.10%', avatar: '/afrobeat_festival_banner.png', initials: 'DB', rating: '4.7 ★', isFeatured: false },
+    { name: 'AfroNation Global Events', followers: 'Verified Promoter', growth: 'Active', avatar: '/afrobeat_festival_banner.png', initials: 'AE', rating: '4.9 ★', isFeatured: false },
+    { name: 'Bankole & Partners Live', followers: 'Verified Promoter', growth: 'Active', avatar: '/nairobi_tech_summit_banner.png', initials: 'BP', rating: '4.8 ★', isFeatured: false },
+    { name: 'Samora & Co. Studios', followers: 'Verified Promoter', growth: 'Active', avatar: '', initials: 'SS', rating: '5.0 ★', isFeatured: true },
+    { name: 'De Brilliance Luxury Events', followers: 'Verified Promoter', growth: 'Active', avatar: '/afrobeat_festival_banner.png', initials: 'DB', rating: '4.7 ★', isFeatured: false },
   ];
 
   return (
@@ -223,20 +223,20 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
           {/* Social Telemetry Counters */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', background: 'rgba(13,17,32,0.75)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '24px', padding: '24px 32px', backdropFilter: 'blur(16px)', boxShadow: '0 12px 40px rgba(0,0,0,0.5)' }}>
             <div>
-              <div style={{ fontSize: '26px', fontWeight: 900, color: '#FFF' }}>1,248,500+</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Tickets Verified</div>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#FFF' }}>Direct Payouts</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Bank & Wallet Settlement</div>
             </div>
             <div>
-              <div style={{ fontSize: '26px', fontWeight: 900, color: '#34D399' }}>4.95 / 5.0</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Organizer Rating</div>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#34D399' }}>Verified KYC</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Identity-Checked Organizers</div>
             </div>
             <div>
-              <div style={{ fontSize: '26px', fontWeight: 900, color: '#60A5FA' }}>&lt; 500ms</div>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#60A5FA' }}>&lt; 500ms</div>
               <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>QR Gate Scan Latency</div>
             </div>
             <div>
-              <div style={{ fontSize: '26px', fontWeight: 900, color: '#F59E0B' }}>₦0 / mo</div>
-              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>Core Subscription Fee</div>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: '#F59E0B' }}>0% Subscription</div>
+              <div style={{ fontSize: '12px', color: '#9CA3AF', fontWeight: 600 }}>No Monthly Platform Fees</div>
             </div>
           </div>
 
@@ -338,7 +338,7 @@ export const SaaSStoryLandingPage: React.FC<SaaSStoryLandingPageProps> = ({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                   <div>
                     <span style={{ fontSize: '11px', color: '#9CA3AF', display: 'block' }}>Starting from</span>
-                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#34D399' }}>₦{(ev.ticket_types?.[0]?.price || 15000).toLocaleString()}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 900, color: '#34D399' }}>{formatCurrency(ev.ticket_types?.[0]?.price || 15000, ev.currency || 'NGN')}</span>
                   </div>
                   <span style={{ fontSize: '13px', color: '#60A5FA', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>Get Passes <ArrowRight size={14} /></span>
                 </div>
