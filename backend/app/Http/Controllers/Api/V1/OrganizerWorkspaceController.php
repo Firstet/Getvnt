@@ -158,32 +158,89 @@ class OrganizerWorkspaceController extends Controller
 
     public function verifyQr(Request $request)
     {
-        $request->validate(['ticket_code' => 'required|string']);
+        $rawCode = trim($request->input('ticket_code', $request->input('qr_code', $request->input('code', ''))));
 
-        $ticket = Ticket::where('ticket_code', $request->ticket_code)->with(['event', 'ticketType', 'user'])->first();
-
-        if (!$ticket) {
-            return response()->json(['success' => false, 'message' => 'Invalid ticket code.'], 404);
-        }
-
-        if ($ticket->status === 'checked_in') {
+        if (empty($rawCode)) {
             return response()->json([
                 'success' => false,
+                'code' => 'INVALID_CODE',
+                'message' => 'Ticket code or QR payload is required.',
+            ], 422);
+        }
+
+        // Clean any GETVNT- prefix or URL wrapping
+        $cleanCode = str_replace([
+            'https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=GETVNT-',
+            'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GETVNT-',
+            'GETVNT-',
+        ], '', $rawCode);
+
+        $ticket = Ticket::where('ticket_code', $cleanCode)
+            ->orWhere('ticket_code', $rawCode)
+            ->orWhere('id', $cleanCode)
+            ->orWhere('qr_code_url', 'like', "%{$cleanCode}%")
+            ->with(['event', 'ticketType', 'user', 'order'])
+            ->first();
+
+        if (!$ticket) {
+            return response()->json([
+                'success' => false,
+                'code' => 'INVALID_CODE',
+                'message' => 'Invalid ticket code or QR payload. Ticket not found.',
+            ], 404);
+        }
+
+        $event = $ticket->event;
+
+        // 1. Check if Event is Cancelled
+        if ($event && (strtolower($event->status ?? '') === 'cancelled' || $event->is_published === false)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'EVENT_CANCELLED',
+                'message' => 'Event is Cancelled. Ticket check-in denied.',
+            ], 400);
+        }
+
+        // 2. Check if Expired
+        $isExpired = false;
+        if ($event && $event->end_date && \Carbon\Carbon::parse($event->end_date)->isPast()) {
+            $isExpired = true;
+        }
+        if (strtolower($ticket->status ?? '') === 'expired') {
+            $isExpired = true;
+        }
+
+        if ($isExpired) {
+            return response()->json([
+                'success' => false,
+                'code' => 'TICKET_EXPIRED',
+                'message' => 'Ticket Expired. Event has already concluded.',
+            ], 400);
+        }
+
+        // 3. Check if Already Checked In
+        if (strtolower($ticket->status ?? '') === 'checked_in' || !empty($ticket->checked_in_at)) {
+            return response()->json([
+                'success' => false,
+                'code' => 'ALREADY_CHECKED_IN',
                 'already_checked_in' => true,
                 'checked_in_at' => $ticket->checked_in_at,
                 'message' => "Ticket ALREADY checked in at {$ticket->checked_in_at}.",
             ], 400);
         }
 
+        // 4. Perform Valid Check-in
+        $now = now()->toDateTimeString();
         $ticket->update([
             'status' => 'checked_in',
-            'checked_in_at' => now(),
+            'checked_in_at' => $now,
         ]);
 
         return response()->json([
             'success' => true,
-            'data' => $ticket,
-            'message' => 'Ticket check-in SUCCESSFUL! Pass validated.',
+            'code' => 'VALID',
+            'data' => $ticket->fresh(['event', 'ticketType', 'user', 'order']),
+            'message' => 'Ticket check-in SUCCESSFUL! Door pass validated.',
         ]);
     }
 }

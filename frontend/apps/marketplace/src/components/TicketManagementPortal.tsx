@@ -29,6 +29,8 @@ export const TicketManagementPortal: React.FC<Props> = ({
     if (onToast) onToast(msg);
   };
 
+  const [searchError, setSearchError] = useState<{ code: string; message: string } | null>(null);
+
   const handleLookupTicket = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!searchQuery.trim()) return;
@@ -36,64 +38,30 @@ export const TicketManagementPortal: React.FC<Props> = ({
     setIsSearching(true);
     setSearched(true);
     setTicketResult(null);
+    setSearchError(null);
 
     try {
       const json = await apiClient.get(`/orders/lookup?query=${encodeURIComponent(searchQuery.trim())}`);
 
-      setTimeout(() => {
-        if (json.success && json.data) {
-          setTicketResult(json.data);
-        } else {
-          // Generate realistic guest ticket match if backend seed ID is requested
-          const q = searchQuery.trim().toUpperCase();
-          setTicketResult({
-            order_number: q.startsWith('GETVNT') ? q : 'GETVNT-ORD-' + Math.floor(100000 + Math.random() * 900000),
-            ticket_id: 'TCK-' + Math.random().toString(36).substring(2, 10).toUpperCase(),
-            event_title: 'Afrobeats & Tech Summit Lagos 2026',
-            venue_name: 'Eko Hotel Convention Centre',
-            city: 'Lagos',
-            country: 'Nigeria',
-            event_date: 'Saturday, Dec 12, 2026',
-            event_time: '18:00 WAT (Doors Open 17:00)',
-            ticket_type: 'VIP Lounge Pass + Fast-Track Entry',
-            quantity: 1,
-            amount_paid: 45000,
-            currency: 'NGN',
-            buyer_name: 'Emeka Okafor',
-            buyer_email: searchQuery.includes('@') ? searchQuery : 'emeka.okafor@gmail.com',
-            buyer_phone: '+234 803 123 4567',
-            qr_code_hash: 'QR-AFRO-2026-X892K9L',
-            status: 'Valid',
-            payment_status: 'Paid',
-            check_in_status: 'Not Checked In',
-            created_at: new Date().toISOString(),
-          });
-        }
-        setIsSearching(false);
-      }, 500);
-    } catch {
-      // Fallback ticket display
-      setTicketResult({
-        order_number: 'GETVNT-ORD-882910',
-        ticket_id: 'TCK-882910-VIP',
-        event_title: 'Afrobeats & Tech Summit Lagos 2026',
-        venue_name: 'Eko Hotel Convention Centre',
-        city: 'Lagos',
-        country: 'Nigeria',
-        event_date: 'Saturday, Dec 12, 2026',
-        event_time: '18:00 WAT',
-        ticket_type: 'VIP Pass',
-        quantity: 1,
-        amount_paid: 45000,
-        currency: 'NGN',
-        buyer_name: 'Guest Attendee',
-        buyer_email: searchQuery,
-        qr_code_hash: 'QR-AFRO-2026-X892K9L',
-        status: 'Valid',
-        payment_status: 'Paid',
-        check_in_status: 'Not Checked In',
-        created_at: new Date().toISOString(),
+      if (json.success && json.data) {
+        setTicketResult({
+          ...json.data,
+          status_code: json.code || json.data.status_code || 'VALID',
+          message: json.message,
+        });
+      } else {
+        setSearchError({
+          code: json.code || 'INVALID_CODE',
+          message: json.message || `Invalid Ticket Code. No active ticket matching "${searchQuery}" was found on GETVNT.`,
+        });
+      }
+    } catch (err: any) {
+      const errRes = err?.response?.data;
+      setSearchError({
+        code: errRes?.code || 'INVALID_CODE',
+        message: errRes?.message || `Invalid Ticket Code. No active ticket matching "${searchQuery}" was found on GETVNT.`,
       });
+    } finally {
       setIsSearching(false);
     }
   };
@@ -102,7 +70,7 @@ export const TicketManagementPortal: React.FC<Props> = ({
     if (ticketResult?.qr_code_hash) {
       navigator.clipboard.writeText(ticketResult.qr_code_hash);
       setCopiedHash(true);
-      setTimeout(() => setCopiedHash(null as any), 2000);
+      setTimeout(() => setCopiedHash(false), 2000);
       triggerToast('Copied QR security token to clipboard!');
     }
   };
@@ -181,8 +149,8 @@ export const TicketManagementPortal: React.FC<Props> = ({
               required
               className="search-field"
               placeholder={
-                searchMethod === 'ref' ? 'e.g. GETVNT-ORD-882910 or QR-AFRO-2026-X892K9L' :
-                searchMethod === 'email' ? 'Enter email used during checkout (e.g. buyer@company.com)...' :
+                searchMethod === 'ref' ? 'e.g. GETVNT-ORD-882910 or TKT-1001-A89B' :
+                searchMethod === 'email' ? 'Enter email used during checkout...' :
                 'Enter phone number (e.g. +234 803 000 0000)...'
               }
               value={searchQuery}
@@ -203,25 +171,86 @@ export const TicketManagementPortal: React.FC<Props> = ({
         </form>
       </div>
 
-      {/* Ticket Result Display */}
-      {searched && !ticketResult && !isSearching && (
-        <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '20px', padding: '32px', textAlign: 'center' }}>
-          <AlertCircle size={32} color="#F87171" style={{ marginBottom: '12px' }} />
-          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#FFF', marginBottom: '6px' }}>No Ticket Order Found</h3>
-          <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
-            We could not locate an active ticket matching "{searchQuery}". Please check your order confirmation email or phone number.
+      {/* Ticket Lookup Error / Not Found Display */}
+      {searched && searchError && !isSearching && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.12)',
+          border: '1px solid rgba(239, 68, 68, 0.4)',
+          borderRadius: '20px',
+          padding: '32px',
+          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(239, 68, 68, 0.15)'
+        }}>
+          <AlertCircle size={36} color="#F87171" style={{ marginBottom: '12px' }} />
+          <h3 style={{ fontSize: '20px', fontWeight: 900, color: '#FCA5A5', marginBottom: '8px' }}>
+            Invalid Ticket Code
+          </h3>
+          <p style={{ color: '#E5E7EB', fontSize: '14.5px', maxWidth: '560px', margin: '0 auto', lineHeight: 1.5 }}>
+            {searchError.message}
           </p>
         </div>
       )}
 
+      {/* Ticket Result Display */}
       {ticketResult && (
-        <div style={{ background: 'linear-gradient(135deg, #0D1222 0%, #060913 100%)', border: '1px solid rgba(37,99,235,0.4)', borderRadius: '28px', padding: '36px', boxShadow: '0 25px 60px rgba(0,0,0,0.8)' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #0D1222 0%, #060913 100%)',
+          border: ticketResult.status_code === 'EVENT_CANCELLED' ? '1px solid rgba(239,68,68,0.6)' :
+                  ticketResult.status_code === 'TICKET_EXPIRED' ? '1px solid rgba(245,158,11,0.6)' :
+                  ticketResult.status_code === 'ALREADY_CHECKED_IN' ? '1px solid rgba(234,179,8,0.6)' :
+                  '1px solid rgba(37,99,235,0.4)',
+          borderRadius: '28px',
+          padding: '36px',
+          boxShadow: '0 25px 60px rgba(0,0,0,0.8)'
+        }}>
+
+          {/* Status Alert Banner if Cancelled, Expired, or Already Checked In */}
+          {ticketResult.status_code === 'EVENT_CANCELLED' && (
+            <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid #EF4444', borderRadius: '16px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <AlertCircle size={24} color="#F87171" />
+              <div>
+                <div style={{ fontWeight: 900, color: '#FCA5A5', fontSize: '15px' }}>EVENT CANCELLED</div>
+                <div style={{ fontSize: '13px', color: '#F3F4F6' }}>This event has been cancelled by the organizer. Attendees can request a full refund.</div>
+              </div>
+            </div>
+          )}
+
+          {ticketResult.status_code === 'TICKET_EXPIRED' && (
+            <div style={{ background: 'rgba(245, 158, 11, 0.2)', border: '1px solid #F59E0B', borderRadius: '16px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Clock size={24} color="#FBBF24" />
+              <div>
+                <div style={{ fontWeight: 900, color: '#FDE68A', fontSize: '15px' }}>TICKET EXPIRED</div>
+                <div style={{ fontSize: '13px', color: '#F3F4F6' }}>This ticket pass has expired as the event date has passed.</div>
+              </div>
+            </div>
+          )}
+
+          {ticketResult.status_code === 'ALREADY_CHECKED_IN' && (
+            <div style={{ background: 'rgba(234, 179, 8, 0.2)', border: '1px solid #EAB308', borderRadius: '16px', padding: '16px 20px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ShieldCheck size={24} color="#FACC15" />
+              <div>
+                <div style={{ fontWeight: 900, color: '#FEF08A', fontSize: '15px' }}>ALREADY CHECKED IN</div>
+                <div style={{ fontSize: '13px', color: '#F3F4F6' }}>
+                  This ticket was already checked in at gate scanner ({ticketResult.checked_in_at || 'Recorded'}).
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Ticket Header Banner */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '20px', marginBottom: '24px' }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                <span style={{ background: 'rgba(16,185,129,0.18)', color: '#34D399', border: '1px solid rgba(16,185,129,0.4)', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{
+                  background: ticketResult.status_code === 'VALID' ? 'rgba(16,185,129,0.18)' :
+                              ticketResult.status_code === 'EVENT_CANCELLED' ? 'rgba(239,68,68,0.2)' :
+                              ticketResult.status_code === 'TICKET_EXPIRED' ? 'rgba(245,158,11,0.2)' : 'rgba(234,179,8,0.2)',
+                  color: ticketResult.status_code === 'VALID' ? '#34D399' :
+                         ticketResult.status_code === 'EVENT_CANCELLED' ? '#F87171' :
+                         ticketResult.status_code === 'TICKET_EXPIRED' ? '#FBBF24' : '#FACC15',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900, display: 'inline-flex', alignItems: 'center', gap: '4px'
+                }}>
                   <CheckCircle2 size={12} /> {ticketResult.status} Ticket
                 </span>
                 <span style={{ background: 'rgba(37,99,235,0.18)', color: '#60A5FA', border: '1px solid rgba(37,99,235,0.4)', padding: '3px 10px', borderRadius: '99px', fontSize: '11px', fontWeight: 900 }}>
@@ -316,3 +345,4 @@ export const TicketManagementPortal: React.FC<Props> = ({
     </div>
   );
 };
+
