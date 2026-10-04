@@ -272,6 +272,14 @@ function MarketplaceContent() {
 
           {/* Column 2: Center Header Navigation Menu (16px, 600 weight, 36px gap) */}
           <nav className="header-nav-links">
+            <a
+              className={`header-nav-item ${activeTab === 'home' ? 'active' : ''}`}
+              onClick={(e) => { e.preventDefault(); navigateTo('home'); }}
+              style={{ cursor: 'pointer' }}
+            >
+              Home
+            </a>
+
             <div
               className="header-nav-item-wrap"
               onMouseEnter={() => setShowExploreDropdown(true)}
@@ -417,6 +425,7 @@ function MarketplaceContent() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             {(([
+              { label: 'Home', tab: 'home' },
               { label: 'Explore Events', tab: 'home' },
               { label: 'Categories', tab: 'home' },
               { label: 'Upcoming Events', tab: 'home' },
@@ -466,20 +475,18 @@ function MarketplaceContent() {
         
         {/* VIEW 1: HOME STORYTELLING LANDING PAGE */}
         {activeTab === 'home' && (
-          <>
-            <HeroCarousel items={heroItems} onCta={() => navigateTo('events' as any)} />
-            <SaaSStoryLandingPage
-              events={events}
-              onSelectEvent={(ev) => setSelectedEvent(ev)}
-              onNavigateToWorkspace={() => { window.location.href = getAppUrl('workspace'); }}
-              onNavigateToBlog={(slug) => {
-                setActiveTab('pulse');
-                setActiveArticleSlug(slug || null);
-                window.history.pushState(null, '', slug ? `/blog/${slug}` : '/blog');
-              }}
-              onNavigateToTab={(tab) => navigateTo(tab as any)}
-            />
-          </>
+          <SaaSStoryLandingPage
+            events={events}
+            heroCarousel={<HeroCarousel items={heroItems} onCta={() => navigateTo('home')} />}
+            onSelectEvent={(ev) => setSelectedEvent(ev)}
+            onNavigateToWorkspace={() => { window.location.href = getAppUrl('workspace'); }}
+            onNavigateToBlog={(slug) => {
+              setActiveTab('pulse');
+              setActiveArticleSlug(slug || null);
+              window.history.pushState(null, '', slug ? `/blog/${slug}` : '/blog');
+            }}
+            onNavigateToTab={(tab) => navigateTo(tab as any)}
+          />
         )}
 
         {/* VIEW 2: DEDICATED GETVNT PULSE BLOG / NEWS HUB PAGE */}
