@@ -1,10 +1,7 @@
 <?php
 
 $isLocal = env('APP_ENV') === 'local';
-$defaultOrigins = 'https://getvnt.com,https://www.getvnt.com,https://app.getvnt.com,https://admin.getvnt.com,https://api.getvnt.com';
-if ($isLocal) {
-    $defaultOrigins .= ',http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002,http://127.0.0.1:3003';
-}
+$defaultOrigins = 'https://getvnt.com,https://www.getvnt.com,https://app.getvnt.com,https://admin.getvnt.com,https://api.getvnt.com,http://localhost:3000,http://localhost:3001,http://localhost:3002,http://localhost:3003,http://127.0.0.1:3000,http://127.0.0.1:3001,http://127.0.0.1:3002,http://127.0.0.1:3003';
 $allowedOrigins = array_filter(array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', $defaultOrigins))));
 
 return [
@@ -30,6 +27,8 @@ return [
 
     'allowed_origins_patterns' => [
         '#^https?://.*\.getvnt\.com$#',
+        '#^https?://localhost(:\d+)?$#',
+        '#^https?://127\.0\.0\.1(:\d+)?$#',
     ],
 
     'allowed_headers' => ['*'],

@@ -486,11 +486,15 @@ class AuthController extends Controller
             'state'         => $stateKey,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'url'     => $targetUrl,
-            'message' => 'Google OAuth authorization URL generated.',
-        ]);
+        if ($request->wantsJson() || $request->header('Accept') === 'application/json') {
+            return response()->json([
+                'success' => true,
+                'url'     => $targetUrl,
+                'message' => 'Google OAuth authorization URL generated.',
+            ]);
+        }
+
+        return redirect($targetUrl);
     }
 
     public function googleCallback(Request $request)

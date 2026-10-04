@@ -21,31 +21,15 @@ export const SaaSAuthModal: React.FC<SaaSAuthModalProps> = ({
   const { brand } = useBrand();
   const { login, registerMarketplace } = useAuth();
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = () => {
     if (brand?.google_login_enabled === false) {
       setError('Google Sign-In is currently disabled by Super Admin.');
       return;
     }
     setLoading(true);
     setError(null);
-    try {
-      // Always redirect to workspace (dashboard) after Google login
-      const apiBase = import.meta.env.VITE_API_URL || 'https://api.getvnt.com';
-      const res = await fetch(`${apiBase}/api/v1/auth/google?redirect_to=workspace`, {
-        headers: { 'Accept': 'application/json' },
-      });
-      const data = await res.json().catch(() => ({ success: false, message: 'Invalid response from auth server.' }));
-
-      if (res.ok && data.success && data.url) {
-        window.location.href = data.url;
-      } else {
-        setError(data.message || 'Google Sign-In is not configured. Please contact support.');
-        setLoading(false);
-      }
-    } catch (err: any) {
-      setError(err?.message || 'Unable to connect to Google Sign-In. Please try again.');
-      setLoading(false);
-    }
+    const apiBase = import.meta.env.VITE_API_URL || 'https://api.getvnt.com';
+    window.location.href = `${apiBase}/api/v1/auth/google?redirect_to=workspace`;
   };
 
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>( initialMode);
