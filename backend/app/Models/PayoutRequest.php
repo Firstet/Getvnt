@@ -17,12 +17,16 @@ class PayoutRequest extends Model
         'amount',
         'currency',
         'status',
+        'bank_name',
+        'account_number',
+        'account_name',
         'payout_method',
         'bank_account_details',
         'reference_id',
         'notes',
         'failure_reason',
         'disbursed_at',
+        'disbursed_by',
     ];
 
     protected $casts = [

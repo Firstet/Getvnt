@@ -19,8 +19,15 @@ class RequireKycApproved
             ], 401);
         }
 
+        if ($user->role === 'attendee') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Attendee accounts cannot access the Organizer Workspace.',
+            ], 403);
+        }
+
         // Allow super admins and users with approved KYC / verified status
-        if ($user->isSuperAdmin() || $user->verification_status === 'approved' || $user->verified_badge || $user->role === 'trusted_organizer') {
+        if ($user->isSuperAdmin() || $user->verification_status === 'approved' || $user->verified_badge || in_array($user->role, ['trusted_organizer', 'organizer_pro', 'enterprise'], true)) {
             return $next($request);
         }
 
